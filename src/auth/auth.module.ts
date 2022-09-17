@@ -7,10 +7,7 @@ import { AuthService } from './auth.service';
 @Module({
   controllers: [AuthController],
   providers: [AuthService],
-  imports: [
-    forwardRef(() => UsersModule),
-    JwtModule.register({}),
-  ],
+  imports: [forwardRef(() => UsersModule), JwtModule.register({})],
   exports: [AuthService, JwtModule],
 })
 export class AuthModule {}

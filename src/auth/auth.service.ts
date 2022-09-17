@@ -21,9 +21,9 @@ export class AuthService {
   async login(userDto: CreateUserDto) {
     const user = await this.validateUser(userDto);
     const tokens = await this.generateTokens(user);
-    await this.updateRefreshTokenHash(user, tokens.refresh_token)
-   
-    return tokens
+    await this.updateRefreshTokenHash(user, tokens.refresh_token);
+
+    return tokens;
   }
 
   async signUp(userDto: CreateUserDto) {
@@ -57,16 +57,22 @@ export class AuthService {
 
   private async updateRefreshTokenHash(user: User, rt: string): Promise<void> {
     const hashToken = await bcrypt.hash(rt, 5);
-    await User.update({ refreshToken: hashToken}, { where: { email: user.email } })
+    await User.update(
+      { refreshToken: hashToken },
+      { where: { email: user.email } },
+    );
   }
- 
+
   private async removeTokenHash(user: User, rt: string): Promise<void> {
-    await User.update({ refreshToken: null}, { where: { email: user.email } })
+    await User.update({ refreshToken: null }, { where: { email: user.email } });
   }
-  
-  private async findRefreshTokenHashDB(payload: JwtPayload, refreshToken: string): Promise<User> {
-    const candidate = await User.findOne({ where: { email: payload?.email } })
-  
+
+  private async findRefreshTokenHashDB(
+    payload: JwtPayload,
+    refreshToken: string,
+  ): Promise<User> {
+    const candidate = await User.findOne({ where: { email: payload?.email } });
+
     if (candidate) {
       const hashEquals = await bcrypt.compare(
         refreshToken,
@@ -78,12 +84,12 @@ export class AuthService {
       return null;
     }
   }
-  
+
   private async generateTokens(user: User): Promise<Tokens> {
     const jwtPayload: JwtPayload = {
       email: user.email,
       id: user.id,
-      roles: user.roles
+      roles: user.roles,
     };
 
     const [at, rt] = await Promise.all([
@@ -105,8 +111,10 @@ export class AuthService {
 
   private async validateRefreshToken(refreshToken: string) {
     try {
-      const userData = await this.jwtService.verifyAsync(refreshToken, { secret: process.env.RT_SECRET || 'SECRET_RT'});
-     
+      const userData = await this.jwtService.verifyAsync(refreshToken, {
+        secret: process.env.RT_SECRET || 'SECRET_RT',
+      });
+
       return userData;
     } catch {
       return null;
@@ -115,41 +123,41 @@ export class AuthService {
 
   public async refresh(refreshToken: string) {
     try {
-      if(!refreshToken){
+      if (!refreshToken) {
         throw new UnauthorizedException({ message: 'Unauthorized user!' });
       }
       const userData = await this.validateRefreshToken(refreshToken);
-      const user = await this.findRefreshTokenHashDB(userData, refreshToken)
-  
+      const user = await this.findRefreshTokenHashDB(userData, refreshToken);
+
       if (!userData || !user) {
         throw new UnauthorizedException({ message: 'Unauthorized user!' });
       }
-      
+
       const tokens = await this.generateTokens(user);
       await this.updateRefreshTokenHash(user, tokens.refresh_token);
-  
+
       return tokens;
     } catch {
       throw new UnauthorizedException({ message: 'Unauthorized user!' });
     }
   }
-  
+
   public async logout(refreshToken: string) {
     try {
-      if(!refreshToken){
+      if (!refreshToken) {
         throw new UnauthorizedException({ message: 'Unauthorized user!' });
       }
 
       const userData = await this.validateRefreshToken(refreshToken);
-      const user = await this.findRefreshTokenHashDB(userData, refreshToken)
-  
+      const user = await this.findRefreshTokenHashDB(userData, refreshToken);
+
       if (!user) {
         throw new UnauthorizedException({ message: 'Unauthorized user!' });
       }
-      
+
       const tokens = await this.generateTokens(user);
       await this.removeTokenHash(user, tokens.refresh_token);
-  
+
       //@TODO: refactor responce
       return true;
     } catch {

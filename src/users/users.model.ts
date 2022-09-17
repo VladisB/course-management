@@ -28,7 +28,7 @@ export class User extends Model<User, UserCreationAttrs> {
 
   @Column({ type: DataType.STRING, allowNull: false })
   password: string;
-  
+
   @Column({ type: DataType.STRING, allowNull: true })
   refreshToken: string;
 

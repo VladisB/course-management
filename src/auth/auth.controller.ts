@@ -9,33 +9,41 @@ export class AuthController {
 
   @Post('/login')
   @HttpCode(200)
-  async login(@Res({ passthrough: true }) res: Response, @Body() userDto: CreateUserDto) {
-
+  async login(
+    @Res({ passthrough: true }) res: Response,
+    @Body() userDto: CreateUserDto,
+  ) {
     const tokens = await this.authService.login(userDto);
-    res.cookie('refreshToken', tokens.refresh_token, { httpOnly: true })
+    res.cookie('refreshToken', tokens.refresh_token, { httpOnly: true });
 
     return tokens;
   }
 
   @Post('/signup')
   @HttpCode(201)
-  async registration(@Res({ passthrough: true }) res: Response, @Body() userDto: CreateUserDto) {
-    
+  async registration(
+    @Res({ passthrough: true }) res: Response,
+    @Body() userDto: CreateUserDto,
+  ) {
     const tokens = await this.authService.signUp(userDto);
-    res.cookie('refreshToken', tokens.refresh_token, { httpOnly: true })
+    res.cookie('refreshToken', tokens.refresh_token, { httpOnly: true });
 
     return tokens;
   }
- 
+
   @Post('/refresh')
   @HttpCode(201)
-  async updateRefresh(@Res({ passthrough: true }) res: Response, @Req() req: Request, @Body() userDto: CreateUserDto) {
+  async updateRefresh(
+    @Res({ passthrough: true }) res: Response,
+    @Req() req: Request,
+    @Body() userDto: CreateUserDto,
+  ) {
     const { refreshToken } = req?.cookies;
     const tokens = await this.authService.refresh(refreshToken);
 
     return tokens;
   }
-  
+
   @Post('/logout')
   @HttpCode(200)
   async logout(@Req() req: Request) {

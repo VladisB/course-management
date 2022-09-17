@@ -1,7 +1,7 @@
-import { Role } from "src/roles/roles.model";
+import { Role } from 'src/roles/roles.model';
 
 export type JwtPayload = {
-    email: string,
-    id: number,
-    roles: Role[]
-}
+  email: string;
+  id: number;
+  roles: Role[];
+};
