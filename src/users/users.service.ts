@@ -12,6 +12,9 @@ export class UsersService {
   ) {}
 
   async createUser(dto: CreateUserDto) {
+    // TODO: Add transaction
+    // TODO: Add validation for email field
+    
     const user = await this.userRepository.create(dto);
     const role = await this.roleService.getRoleByValue('STUDENT');
     await user.$set('roles', [role.id]);

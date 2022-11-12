@@ -45,6 +45,11 @@ export class AuthService {
 
   private async validateUser(userDto: CreateUserDto) {
     const user = await this.userService.getUserByEmail(userDto.email);
+   
+    if(!user) {
+      throw new UnauthorizedException({ message: 'Wrong data to login!' });
+    }
+
     const passwordEquals = await bcrypt.compare(
       userDto.password,
       user.password,
