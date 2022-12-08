@@ -5,6 +5,7 @@ import { CreateUserDto } from './dto/create-user.dto';
 import { RolesService } from 'src/roles/roles.service';
 import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
+import { Role } from 'src/roles/roles.enum';
 
 @Injectable()
 export class UsersService {
@@ -18,20 +19,21 @@ export class UsersService {
   async createUser(dto: CreateUserDto): Promise<User> {
     // TODO: Add transaction
     // TODO: Add validation for email field
-    
+    // TODO: Handle duplicates
+    const role = await this.roleService.getRoleByName(Role.Student);
+
     const user = await this.userRepository.create({
-      ...dto
+      ...dto,
+      role
     });
-    // const role = await this.roleService.getRoleByValue('STUDENT');
-    // await user.$set('roles', [role.id]);
-    // user.roles = [role];
-    return user;
+
+    return user.save();
   }
 
-  // async getAllUsers() {
-  //   const users = await this.userRepository.findAll({ include: { all: true } });
-  //   return users;
-  // }
+  async getAllUsers() {
+    const users = await this.userRepository.find();
+    return users;
+  }
 
   // async getUserByEmail(email: string) {
   //   const user = await this.userRepository.findOne({

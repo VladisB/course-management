@@ -15,8 +15,8 @@ export class UsersController {
 
   // @Roles('ADMIN')
   // @UseGuards(RolesGuard)
-  // @Get()
-  // getAll() {
-  //   return this.usersService.getAllUsers();
-  // }
+  @Get()
+  getAll() {
+    return this.usersService.getAllUsers();
+  }
 }

@@ -1,5 +1,4 @@
 import { forwardRef, Module } from '@nestjs/common';
-import { SequelizeModule } from '@nestjs/sequelize';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AuthModule } from 'src/auth/auth.module';
 import { Role } from 'src/roles/role.entity';
@@ -13,7 +12,6 @@ import { UsersService } from './users.service';
   providers: [UsersService],
   imports: [
     TypeOrmModule.forFeature([User, Role]),
-    // SequelizeModule.forFeature([User, Role]),
     forwardRef(() => RolesModule),
     forwardRef(() => AuthModule),
   ],

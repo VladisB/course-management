@@ -45,16 +45,19 @@ export class User extends BaseEntity {
     id: number;
 
     @Column({ unique: true })
-    username: string;
+    email: string;
     
     @Column()
     password: string;
 
-    @Column()
+    @Column({ nullable: true })
     salt: string;
 
     @ManyToOne( () => Role, role => role.users, { eager: true })
     role: Role;
+
+    @Column({ nullable: false})
+    roleId: number;
 
     // async validatePassword(password: string): Promise<boolean> {
     //     const hash = await bcrypt.hash(password, this.salt);
