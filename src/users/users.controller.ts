@@ -13,10 +13,10 @@ export class UsersController {
     return this.usersService.createUser(userDto);
   }
 
-  @Roles('ADMIN')
-  @UseGuards(RolesGuard)
-  @Get()
-  getAll() {
-    return this.usersService.getAllUsers();
-  }
+  // @Roles('ADMIN')
+  // @UseGuards(RolesGuard)
+  // @Get()
+  // getAll() {
+  //   return this.usersService.getAllUsers();
+  // }
 }

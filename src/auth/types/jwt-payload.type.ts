@@ -1,4 +1,4 @@
-import { Role } from 'src/roles/roles.model';
+import { Role } from 'src/roles/role.entity';
 
 export type JwtPayload = {
   email: string;

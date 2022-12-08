@@ -1,4 +1,4 @@
-import { Body, Controller, Post, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Post, UseGuards } from '@nestjs/common';
 import { RolesService } from './roles.service';
 import { CreateRoleDto } from './dto/create-role.dto';
 import { AssignRoleDto } from './dto/assign-role.dto';
@@ -9,15 +9,20 @@ import { RolesGuard } from './roles.guard';
 export class RolesController {
   constructor(private roleService: RolesService) {}
 
-  @Roles('ADMIN')
-  @UseGuards(RolesGuard)
-  @Post('/assign')
-  assign(@Body() dto: AssignRoleDto) {
-    return this.roleService.assignRole(dto);
-  }
+  // @Roles('ADMIN')
+  // @UseGuards(RolesGuard)
+  // @Post('/assign')
+  // assign(@Body() dto: AssignRoleDto) {
+  //   return this.roleService.assignRole(dto);
+  // }
 
   @Post()
   create(@Body() dto: CreateRoleDto) {
     return this.roleService.createRole(dto);
+  }
+
+  @Get()
+  getRoles() {
+    return this.roleService.getRoles();
   }
 }
