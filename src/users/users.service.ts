@@ -1,6 +1,5 @@
 import { Injectable } from '@nestjs/common';
 import { User } from './user.entity';
-import { InjectModel } from '@nestjs/sequelize';
 import { CreateUserDto } from './dto/create-user.dto';
 import { RolesService } from 'src/roles/roles.service';
 import { Repository } from 'typeorm';
@@ -10,18 +9,17 @@ import { Role } from 'src/roles/roles.enum';
 @Injectable()
 export class UsersService {
   constructor(
-    // @InjectModel(User) private userRepository: typeof User,
     @InjectRepository(User)
     private readonly userRepository: Repository<User>,
     private roleService: RolesService,
   ) {}
 
   async createUser(dto: CreateUserDto): Promise<User> {
-    // TODO: Add transaction
     // TODO: Add validation for email field
     // TODO: Handle duplicates
+    // TODO: Handle if role not exist
     const role = await this.roleService.getRoleByName(Role.Student);
-
+ 
     const user = await this.userRepository.create({
       ...dto,
       role
