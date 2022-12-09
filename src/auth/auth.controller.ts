@@ -19,17 +19,17 @@ export class AuthController {
   //   return tokens;
   // }
 
-  // @Post('/signup')
-  // @HttpCode(201)
-  // async registration(
-  //   @Res({ passthrough: true }) res: Response,
-  //   @Body() userDto: CreateUserDto,
-  // ) {
-  //   const tokens = await this.authService.signUp(userDto);
-  //   res.cookie('refreshToken', tokens.refresh_token, { httpOnly: true });
+  @Post('/signup')
+  @HttpCode(201)
+  async registration(
+    @Res({ passthrough: true }) res: Response,
+    @Body() userDto: CreateUserDto,
+  ) {
+    const tokens = await this.authService.signUp(userDto);
+    res.cookie('refreshToken', tokens.refresh_token, { httpOnly: true });
 
-  //   return tokens;
-  // }
+    return tokens;
+  }
 
   // @Post('/refresh')
   // @HttpCode(201)

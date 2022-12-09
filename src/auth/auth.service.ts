@@ -5,7 +5,7 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import { CreateUserDto } from '../users/dto/create-user.dto';
-// import { UsersService } from '../users/users.service';
+import { UsersService } from '../users/users.service';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcryptjs';
 import { User } from '../users/user.entity';
@@ -14,7 +14,7 @@ import { JwtPayload, Tokens } from './types';
 @Injectable()
 export class AuthService {
   constructor(
-    // private userService: UsersService,
+    private userService: UsersService,
     private jwtService: JwtService,
   ) {}
 
@@ -26,22 +26,22 @@ export class AuthService {
   //   return tokens;
   // }
 
-  // async signUp(userDto: CreateUserDto) {
-  //   const candidate = await this.userService.getUserByEmail(userDto.email);
-  //   if (candidate) {
-  //     throw new HttpException(
-  //       'User with this email already exists',
-  //       HttpStatus.BAD_REQUEST,
-  //     );
-  //   }
-  //   const hashPassword = await bcrypt.hash(userDto.password, 5);
-  //   const user = await this.userService.createUser({
-  //     ...userDto,
-  //     password: hashPassword,
-  //   });
+  async signUp(userDto: CreateUserDto) {
+    const candidate = await this.userService.getUserByEmail(userDto.email);
+    if (candidate) {
+      throw new HttpException(
+        'User with this email already exists',
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+    const hashPassword = await bcrypt.hash(userDto.password, 5);
+    const user = await this.userService.createUser({
+      ...userDto,
+      password: hashPassword,
+    });
 
-  //   return this.generateTokens(user);
-  // }
+    return this.generateTokens(user);
+  }
 
   // private async validateUser(userDto: CreateUserDto) {
   //   const user = await this.userService.getUserByEmail(userDto.email);
@@ -90,29 +90,29 @@ export class AuthService {
   //   }
   // }
 
-  // private async generateTokens(user: User): Promise<Tokens> {
-  //   const jwtPayload: JwtPayload = {
-  //     email: user.email,
-  //     id: user.id,
-  //     roles: user.roles,
-  //   };
+  private async generateTokens(user: User): Promise<Tokens> {
+    const jwtPayload: JwtPayload = {
+      email: user.email,
+      id: user.id,
+      role: user.role,
+    };
 
-  //   const [at, rt] = await Promise.all([
-  //     this.jwtService.signAsync(jwtPayload, {
-  //       secret: process.env.AT_SECRET || 'SECRET',
-  //       expiresIn: '60m',
-  //     }),
-  //     this.jwtService.signAsync(jwtPayload, {
-  //       secret: process.env.RT_SECRET || 'SECRET_RT',
-  //       expiresIn: '7d',
-  //     }),
-  //   ]);
+    const [at, rt] = await Promise.all([
+      this.jwtService.signAsync(jwtPayload, {
+        secret: process.env.AT_SECRET || 'SECRET',
+        expiresIn: '60m',
+      }),
+      this.jwtService.signAsync(jwtPayload, {
+        secret: process.env.RT_SECRET || 'SECRET_RT',
+        expiresIn: '7d',
+      }),
+    ]);
 
-  //   return {
-  //     access_token: at,
-  //     refresh_token: rt,
-  //   };
-  // }
+    return {
+      access_token: at,
+      refresh_token: rt,
+    };
+  }
 
   // private async validateRefreshToken(refreshToken: string) {
   //   try {
