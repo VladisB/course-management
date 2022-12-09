@@ -51,6 +51,9 @@ export class User extends BaseEntity {
     password: string;
 
     @Column({ nullable: true })
+    refreshToken: string;
+
+    @Column({ nullable: true })
     salt: string;
 
     @ManyToOne( () => Role, role => role.users, { eager: true })

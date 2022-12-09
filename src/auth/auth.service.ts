@@ -18,13 +18,13 @@ export class AuthService {
     private jwtService: JwtService,
   ) {}
 
-  // async login(userDto: CreateUserDto) {
-  //   const user = await this.validateUser(userDto);
-  //   const tokens = await this.generateTokens(user);
-  //   await this.updateRefreshTokenHash(user, tokens.refresh_token);
+  async login(userDto: CreateUserDto) {
+    const user = await this.validateUser(userDto);
+    const tokens = await this.generateTokens(user);
+    await this.updateRefreshTokenHash(user.email, tokens.refresh_token);
 
-  //   return tokens;
-  // }
+    return tokens;
+  }
 
   async signUp(userDto: CreateUserDto) {
     const candidate = await this.userService.getUserByEmail(userDto.email);
@@ -43,52 +43,56 @@ export class AuthService {
     return this.generateTokens(user);
   }
 
-  // private async validateUser(userDto: CreateUserDto) {
-  //   const user = await this.userService.getUserByEmail(userDto.email);
+  private async validateUser(userDto: CreateUserDto) {
+    const user = await this.userService.getUserByEmail(userDto.email);
    
-  //   if(!user) {
-  //     throw new UnauthorizedException({ message: 'Wrong data to login!' });
-  //   }
+    if(!user) {
+      throw new UnauthorizedException({ message: 'Wrong credentials!' });
+    }
 
-  //   const passwordEquals = await bcrypt.compare(
-  //     userDto.password,
-  //     user.password,
-  //   );
-  //   if (user && passwordEquals) {
-  //     return user;
-  //   }
-  //   throw new UnauthorizedException({ message: 'Wrong data to login!' });
-  // }
+    const passwordEquals = await bcrypt.compare(
+      userDto.password,
+      user.password,
+    );
+    if (user && passwordEquals) {
+      return user;
+    }
+    throw new UnauthorizedException({ message: 'Wrong credentials!' });
+  }
 
-  // private async updateRefreshTokenHash(user: User, rt: string): Promise<void> {
-  //   const hashToken = await bcrypt.hash(rt, 5);
-  //   await User.update(
-  //     { refreshToken: hashToken },
-  //     { where: { email: user.email } },
-  //   );
-  // }
+  private async updateRefreshTokenHash(userEmail: string, refreshToken: string): Promise<void> {
+    const hashToken = await bcrypt.hash(refreshToken, 5);
 
-  // private async removeTokenHash(user: User, rt: string): Promise<void> {
-  //   await User.update({ refreshToken: null }, { where: { email: user.email } });
-  // }
+    const user = await this.userService.getUserByEmail(userEmail);
+    user.refreshToken = hashToken;
 
-  // private async findRefreshTokenHashDB(
-  //   payload: JwtPayload,
-  //   refreshToken: string,
-  // ): Promise<User> {
-  //   const candidate = await User.findOne({ where: { email: payload?.email } });
+    await user.save();
+  }
 
-  //   if (candidate) {
-  //     const hashEquals = await bcrypt.compare(
-  //       refreshToken,
-  //       candidate.refreshToken,
-  //     );
+  private async removeTokenHash(userEmail: string, refreshToken: string): Promise<void> {
+    const user = await this.userService.getUserByEmail(userEmail);
+    user.refreshToken = null;
 
-  //     return hashEquals ? candidate : null;
-  //   } else {
-  //     return null;
-  //   }
-  // }
+    await user.save();
+  }
+
+  private async findRefreshTokenHashDB(
+    payload: JwtPayload,
+    refreshToken: string,
+  ): Promise<User> {
+    const candidate = await User.findOne({ where: { email: payload?.email } });
+
+    if (candidate) {
+      const hashEquals = await bcrypt.compare(
+        refreshToken,
+        candidate.refreshToken,
+      );
+
+      return hashEquals ? candidate : null;
+    } else {
+      return null;
+    }
+  }
 
   private async generateTokens(user: User): Promise<Tokens> {
     const jwtPayload: JwtPayload = {
@@ -114,59 +118,59 @@ export class AuthService {
     };
   }
 
-  // private async validateRefreshToken(refreshToken: string) {
-  //   try {
-  //     const userData = await this.jwtService.verifyAsync(refreshToken, {
-  //       secret: process.env.RT_SECRET || 'SECRET_RT',
-  //     });
+  private async validateRefreshToken(refreshToken: string) {
+    try {
+      const userData = await this.jwtService.verifyAsync(refreshToken, {
+        secret: process.env.RT_SECRET || 'SECRET_RT',
+      });
 
-  //     return userData;
-  //   } catch {
-  //     return null;
-  //   }
-  // }
+      return userData;
+    } catch {
+      return null;
+    }
+  }
 
-  // public async refresh(refreshToken: string) {
-  //   try {
-  //     if (!refreshToken) {
-  //       throw new UnauthorizedException({ message: 'Unauthorized user!' });
-  //     }
-  //     const userData = await this.validateRefreshToken(refreshToken);
-  //     const user = await this.findRefreshTokenHashDB(userData, refreshToken);
+  public async refresh(refreshToken: string) {
+    try {
+      if (!refreshToken) {
+        throw new UnauthorizedException({ message: 'Unauthorized user!' });
+      }
+      const userData = await this.validateRefreshToken(refreshToken);
+      const user = await this.findRefreshTokenHashDB(userData, refreshToken);
 
-  //     if (!userData || !user) {
-  //       throw new UnauthorizedException({ message: 'Unauthorized user!' });
-  //     }
+      if (!userData || !user) {
+        throw new UnauthorizedException({ message: 'Unauthorized user!' });
+      }
 
-  //     const tokens = await this.generateTokens(user);
-  //     await this.updateRefreshTokenHash(user, tokens.refresh_token);
+      const tokens = await this.generateTokens(user);
+      await this.updateRefreshTokenHash(user.email, tokens.refresh_token);
 
-  //     return tokens;
-  //   } catch {
-  //     throw new UnauthorizedException({ message: 'Unauthorized user!' });
-  //   }
-  // }
+      return tokens;
+    } catch {
+      throw new UnauthorizedException({ message: 'Unauthorized user!' });
+    }
+  }
 
-  // public async logout(refreshToken: string) {
-  //   try {
-  //     if (!refreshToken) {
-  //       throw new UnauthorizedException({ message: 'Unauthorized user!' });
-  //     }
+  public async logout(refreshToken: string) {
+    try {
+      if (!refreshToken) {
+        throw new UnauthorizedException({ message: 'Unauthorized user!' });
+      }
 
-  //     const userData = await this.validateRefreshToken(refreshToken);
-  //     const user = await this.findRefreshTokenHashDB(userData, refreshToken);
+      const userData = await this.validateRefreshToken(refreshToken);
+      const user = await this.findRefreshTokenHashDB(userData, refreshToken);
 
-  //     if (!user) {
-  //       throw new UnauthorizedException({ message: 'Unauthorized user!' });
-  //     }
+      if (!user) {
+        throw new UnauthorizedException({ message: 'Unauthorized user!' });
+      }
 
-  //     const tokens = await this.generateTokens(user);
-  //     await this.removeTokenHash(user, tokens.refresh_token);
+      const tokens = await this.generateTokens(user);
+      await this.removeTokenHash(user.email, tokens.refresh_token);
 
-  //     //@TODO: refactor responce
-  //     return true;
-  //   } catch {
-  //     throw new UnauthorizedException({ message: 'Unauthorized user!' });
-  //   }
-  // }
+      //@TODO: refactor responce
+      return true;
+    } catch {
+      throw new UnauthorizedException({ message: 'Unauthorized user!' });
+    }
+  }
 }
