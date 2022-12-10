@@ -18,9 +18,8 @@ export class RolesService {
   constructor(
     // @InjectModel(Role) private roleRepository: typeof Role,
     @InjectRepository(Role)
-    private readonly roleRepository: Repository<Role>, // @Inject(forwardRef(() => UsersService))
-  ) // private readonly userService: UsersService,
-  {}
+    private readonly roleRepository: Repository<Role>, // @Inject(forwardRef(() => UsersService)) // private readonly userService: UsersService,
+  ) {}
 
   async createRole(dto: CreateRoleDto): Promise<Role> {
     const role = await this.roleRepository.create(dto);
