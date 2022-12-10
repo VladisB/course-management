@@ -1,4 +1,13 @@
-import { Body, Controller, HttpCode, Post, Req, Res } from "@nestjs/common";
+import {
+  Body,
+  Controller,
+  HttpCode,
+  Post,
+  Req,
+  Res,
+  UsePipes,
+  ValidationPipe,
+} from "@nestjs/common";
 import { Response, Request } from "express";
 import { CreateUserDto } from "../users/dto/create-user.dto";
 import { AuthService } from "./auth.service";
@@ -20,6 +29,7 @@ export class AuthController {
   }
 
   @Post("/signup")
+  @UsePipes(ValidationPipe)
   @HttpCode(201)
   async registration(
     @Res({ passthrough: true }) res: Response,
