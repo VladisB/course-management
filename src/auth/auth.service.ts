@@ -3,13 +3,13 @@ import {
   HttpStatus,
   Injectable,
   UnauthorizedException,
-} from '@nestjs/common';
-import { CreateUserDto } from '../users/dto/create-user.dto';
-import { UsersService } from '../users/users.service';
-import { JwtService } from '@nestjs/jwt';
-import * as bcrypt from 'bcryptjs';
-import { User } from '../users/user.entity';
-import { JwtPayload, Tokens } from './types';
+} from "@nestjs/common";
+import { CreateUserDto } from "../users/dto/create-user.dto";
+import { UsersService } from "../users/users.service";
+import { JwtService } from "@nestjs/jwt";
+import * as bcrypt from "bcryptjs";
+import { User } from "../users/user.entity";
+import { JwtPayload, Tokens } from "./types";
 
 @Injectable()
 export class AuthService {
@@ -30,7 +30,7 @@ export class AuthService {
     const candidate = await this.userService.getUserByEmail(userDto.email);
     if (candidate) {
       throw new HttpException(
-        'User with this email already exists',
+        "User with this email already exists",
         HttpStatus.BAD_REQUEST,
       );
     }
@@ -45,9 +45,9 @@ export class AuthService {
 
   private async validateUser(userDto: CreateUserDto) {
     const user = await this.userService.getUserByEmail(userDto.email);
-   
-    if(!user) {
-      throw new UnauthorizedException({ message: 'Wrong credentials!' });
+
+    if (!user) {
+      throw new UnauthorizedException({ message: "Wrong credentials!" });
     }
 
     const passwordEquals = await bcrypt.compare(
@@ -57,10 +57,13 @@ export class AuthService {
     if (user && passwordEquals) {
       return user;
     }
-    throw new UnauthorizedException({ message: 'Wrong credentials!' });
+    throw new UnauthorizedException({ message: "Wrong credentials!" });
   }
 
-  private async updateRefreshTokenHash(userEmail: string, refreshToken: string): Promise<void> {
+  private async updateRefreshTokenHash(
+    userEmail: string,
+    refreshToken: string,
+  ): Promise<void> {
     const hashToken = await bcrypt.hash(refreshToken, 5);
 
     const user = await this.userService.getUserByEmail(userEmail);
@@ -69,7 +72,10 @@ export class AuthService {
     await user.save();
   }
 
-  private async removeTokenHash(userEmail: string, refreshToken: string): Promise<void> {
+  private async removeTokenHash(
+    userEmail: string,
+    refreshToken: string,
+  ): Promise<void> {
     const user = await this.userService.getUserByEmail(userEmail);
     user.refreshToken = null;
 
@@ -103,12 +109,12 @@ export class AuthService {
 
     const [at, rt] = await Promise.all([
       this.jwtService.signAsync(jwtPayload, {
-        secret: process.env.AT_SECRET || 'SECRET',
-        expiresIn: '60m',
+        secret: process.env.AT_SECRET || "SECRET",
+        expiresIn: "60m",
       }),
       this.jwtService.signAsync(jwtPayload, {
-        secret: process.env.RT_SECRET || 'SECRET_RT',
-        expiresIn: '7d',
+        secret: process.env.RT_SECRET || "SECRET_RT",
+        expiresIn: "7d",
       }),
     ]);
 
@@ -121,7 +127,7 @@ export class AuthService {
   private async validateRefreshToken(refreshToken: string) {
     try {
       const userData = await this.jwtService.verifyAsync(refreshToken, {
-        secret: process.env.RT_SECRET || 'SECRET_RT',
+        secret: process.env.RT_SECRET || "SECRET_RT",
       });
 
       return userData;
@@ -133,13 +139,13 @@ export class AuthService {
   public async refresh(refreshToken: string) {
     try {
       if (!refreshToken) {
-        throw new UnauthorizedException({ message: 'Unauthorized user!' });
+        throw new UnauthorizedException({ message: "Unauthorized user!" });
       }
       const userData = await this.validateRefreshToken(refreshToken);
       const user = await this.findRefreshTokenHashDB(userData, refreshToken);
 
       if (!userData || !user) {
-        throw new UnauthorizedException({ message: 'Unauthorized user!' });
+        throw new UnauthorizedException({ message: "Unauthorized user!" });
       }
 
       const tokens = await this.generateTokens(user);
@@ -147,21 +153,21 @@ export class AuthService {
 
       return tokens;
     } catch {
-      throw new UnauthorizedException({ message: 'Unauthorized user!' });
+      throw new UnauthorizedException({ message: "Unauthorized user!" });
     }
   }
 
   public async logout(refreshToken: string) {
     try {
       if (!refreshToken) {
-        throw new UnauthorizedException({ message: 'Unauthorized user!' });
+        throw new UnauthorizedException({ message: "Unauthorized user!" });
       }
 
       const userData = await this.validateRefreshToken(refreshToken);
       const user = await this.findRefreshTokenHashDB(userData, refreshToken);
 
       if (!user) {
-        throw new UnauthorizedException({ message: 'Unauthorized user!' });
+        throw new UnauthorizedException({ message: "Unauthorized user!" });
       }
 
       const tokens = await this.generateTokens(user);
@@ -170,7 +176,7 @@ export class AuthService {
       //@TODO: refactor responce
       return true;
     } catch {
-      throw new UnauthorizedException({ message: 'Unauthorized user!' });
+      throw new UnauthorizedException({ message: "Unauthorized user!" });
     }
   }
 }

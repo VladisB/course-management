@@ -1,10 +1,10 @@
-import { Injectable } from '@nestjs/common';
-import { User } from './user.entity';
-import { CreateUserDto } from './dto/create-user.dto';
-import { RolesService } from 'src/roles/roles.service';
-import { Repository } from 'typeorm';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Role } from 'src/roles/roles.enum';
+import { Injectable } from "@nestjs/common";
+import { User } from "./user.entity";
+import { CreateUserDto } from "./dto/create-user.dto";
+import { RolesService } from "src/roles/roles.service";
+import { Repository } from "typeorm";
+import { InjectRepository } from "@nestjs/typeorm";
+import { Role } from "src/roles/roles.enum";
 
 @Injectable()
 export class UsersService {
@@ -19,10 +19,10 @@ export class UsersService {
     // TODO: Handle duplicates
     // TODO: Handle if role not exist
     const role = await this.roleService.getRoleByName(Role.Student);
- 
+
     const user = await this.userRepository.create({
       ...dto,
-      role
+      role,
     });
 
     return user.save();

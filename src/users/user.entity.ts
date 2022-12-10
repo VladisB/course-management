@@ -5,7 +5,7 @@
 //   Model,
 //   Table,
 // } from 'sequelize-typescript';
-import { Role } from 'src/roles/role.entity';
+import { Role } from "src/roles/role.entity";
 // import { UserRoles } from 'src/roles/user-roles.model';
 
 // interface UserCreationAttrs {
@@ -36,34 +36,44 @@ import { Role } from 'src/roles/role.entity';
 //   roles: Role[];
 // }
 
-import { BaseEntity, Column, Entity, JoinTable, ManyToOne, OneToMany, OneToOne, PrimaryGeneratedColumn, Unique } from "typeorm";
+import {
+  BaseEntity,
+  Column,
+  Entity,
+  JoinTable,
+  ManyToOne,
+  OneToMany,
+  OneToOne,
+  PrimaryGeneratedColumn,
+  Unique,
+} from "typeorm";
 // import * as bcrypt from "bcrypt";
 
 @Entity()
 export class User extends BaseEntity {
-    @PrimaryGeneratedColumn()
-    id: number;
+  @PrimaryGeneratedColumn()
+  id: number;
 
-    @Column({ unique: true })
-    email: string;
-    
-    @Column()
-    password: string;
+  @Column({ unique: true })
+  email: string;
 
-    @Column({ nullable: true })
-    refreshToken: string;
+  @Column()
+  password: string;
 
-    @Column({ nullable: true })
-    salt: string;
+  @Column({ nullable: true })
+  refreshToken: string;
 
-    @ManyToOne( () => Role, role => role.users, { eager: true })
-    role: Role;
+  @Column({ nullable: true })
+  salt: string;
 
-    @Column({ nullable: false})
-    roleId: number;
+  @ManyToOne(() => Role, (role) => role.users, { eager: true })
+  role: Role;
 
-    // async validatePassword(password: string): Promise<boolean> {
-    //     const hash = await bcrypt.hash(password, this.salt);
-    //     return hash === this.password;
-    // }
+  @Column({ nullable: false })
+  roleId: number;
+
+  // async validatePassword(password: string): Promise<boolean> {
+  //     const hash = await bcrypt.hash(password, this.salt);
+  //     return hash === this.password;
+  // }
 }

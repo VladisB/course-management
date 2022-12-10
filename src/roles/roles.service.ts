@@ -4,24 +4,23 @@ import {
   HttpStatus,
   Inject,
   Injectable,
-} from '@nestjs/common';
-import { InjectModel } from '@nestjs/sequelize';
-import { InjectRepository } from '@nestjs/typeorm';
+} from "@nestjs/common";
+import { InjectModel } from "@nestjs/sequelize";
+import { InjectRepository } from "@nestjs/typeorm";
 // import { UsersService } from 'src/users/users.service';
-import { Repository } from 'typeorm';
-import { AssignRoleDto } from './dto/assign-role.dto';
-import { CreateRoleDto } from './dto/create-role.dto';
-import { Role } from './role.entity';
+import { Repository } from "typeorm";
+import { AssignRoleDto } from "./dto/assign-role.dto";
+import { CreateRoleDto } from "./dto/create-role.dto";
+import { Role } from "./role.entity";
 
 @Injectable()
 export class RolesService {
   constructor(
     // @InjectModel(Role) private roleRepository: typeof Role,
     @InjectRepository(Role)
-    private readonly roleRepository: Repository<Role>,
-    // @Inject(forwardRef(() => UsersService))
-    // private readonly userService: UsersService,
-  ) {}
+    private readonly roleRepository: Repository<Role>, // @Inject(forwardRef(() => UsersService))
+  ) // private readonly userService: UsersService,
+  {}
 
   async createRole(dto: CreateRoleDto): Promise<Role> {
     const role = await this.roleRepository.create(dto);

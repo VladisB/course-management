@@ -1,10 +1,10 @@
-import { Body, Controller, Get, Post, UseGuards } from '@nestjs/common';
-import { UsersService } from './users.service';
-import { CreateUserDto } from './dto/create-user.dto';
-import { Roles } from 'src/roles/roles-auth.decorator';
-import { RolesGuard } from 'src/roles/roles.guard';
+import { Body, Controller, Get, Post, UseGuards } from "@nestjs/common";
+import { UsersService } from "./users.service";
+import { CreateUserDto } from "./dto/create-user.dto";
+import { Roles } from "src/roles/roles-auth.decorator";
+import { RolesGuard } from "src/roles/roles.guard";
 
-@Controller('users')
+@Controller("users")
 export class UsersController {
   constructor(private usersService: UsersService) {}
 
@@ -13,7 +13,7 @@ export class UsersController {
     return this.usersService.createUser(userDto);
   }
 
-  @Roles('admin')
+  @Roles("admin")
   @UseGuards(RolesGuard)
   @Get()
   getAll() {
