@@ -1,7 +1,5 @@
-import { Role } from 'src/roles/role.entity';
-
 export type JwtPayload = {
   email: string;
   id: number;
-  role: Role;
+  role: string;
 };

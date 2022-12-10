@@ -39,7 +39,8 @@ export class RolesGuard implements CanActivate {
         secret: process.env.AT_SECRET || 'SECRET',
       });
       req.user = user;
-      return user.roles.some((role) => requiredRoles.includes(role.value));
+
+      return requiredRoles.includes(user.role);
     } catch (e) {
       console.log(e);
       throw new HttpException('Access forbidden', HttpStatus.FORBIDDEN);

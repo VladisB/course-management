@@ -98,7 +98,7 @@ export class AuthService {
     const jwtPayload: JwtPayload = {
       email: user.email,
       id: user.id,
-      role: user.role,
+      role: user.role.name,
     };
 
     const [at, rt] = await Promise.all([
