@@ -1,10 +1,10 @@
 import { Module } from "@nestjs/common";
 import { ConfigModule } from "@nestjs/config";
-import { User } from "./users/user.entity";
-import { Role } from "./roles/role.entity";
 import { TypeOrmModule } from "@nestjs/typeorm";
 import { typeOrmConfig } from "./config/typeorm.config";
 import { UsersModule } from "./users/users.module";
+import { AuthModule } from "./auth/auth.module";
+import { RolesModule } from "./roles/roles.module";
 
 @Module({
   imports: [
@@ -13,8 +13,8 @@ import { UsersModule } from "./users/users.module";
     }),
     TypeOrmModule.forRoot(typeOrmConfig),
     UsersModule,
-    // RolesModule,
-    // AuthModule,
+    RolesModule,
+    AuthModule,
   ],
   controllers: [],
   providers: [],

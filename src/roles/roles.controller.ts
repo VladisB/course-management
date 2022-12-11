@@ -3,7 +3,6 @@ import { RolesService } from "./roles.service";
 import { CreateRoleDto } from "./dto/create-role.dto";
 import { AssignRoleDto } from "./dto/assign-role.dto";
 import { Roles } from "./roles-auth.decorator";
-import { RolesGuard } from "./roles.guard";
 
 @Controller("roles")
 export class RolesController {

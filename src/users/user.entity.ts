@@ -40,12 +40,8 @@ import {
   BaseEntity,
   Column,
   Entity,
-  JoinTable,
   ManyToOne,
-  OneToMany,
-  OneToOne,
   PrimaryGeneratedColumn,
-  Unique,
 } from "typeorm";
 // import * as bcrypt from "bcrypt";
 

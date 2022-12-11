@@ -10,21 +10,22 @@ import {
 import { UsersService } from "./users.service";
 import { CreateUserDto } from "./dto/create-user.dto";
 import { Roles } from "src/roles/roles-auth.decorator";
+import { AuthGuard } from "@nestjs/passport";
 import { RolesGuard } from "src/roles/roles.guard";
+import { Role } from "src/roles/roles.enum";
 
 @Controller("users")
+@Roles(Role.Admin)
+@UseGuards(AuthGuard(), RolesGuard)
 export class UsersController {
   constructor(private usersService: UsersService) {}
 
   @Post()
-  @Roles("admin")
   @UsePipes(ValidationPipe)
   create(@Body() userDto: CreateUserDto) {
     return this.usersService.createUser(userDto);
   }
 
-  @Roles("admin")
-  @UseGuards(RolesGuard)
   @Get()
   getAll() {
     return this.usersService.getAllUsers();

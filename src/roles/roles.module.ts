@@ -4,8 +4,8 @@ import { RolesController } from "./roles.controller";
 // import { SequelizeModule } from '@nestjs/sequelize';
 import { Role } from "./role.entity";
 // import { UserRoles } from './user-roles.model';
-import { UsersModule } from "src/users/users.module";
-import { AuthModule } from "src/auth/auth.module";
+// import { UsersModule } from "src/users/users.module";
+// import { AuthModule } from "src/auth/auth.module";
 import { TypeOrmModule } from "@nestjs/typeorm";
 
 @Module({

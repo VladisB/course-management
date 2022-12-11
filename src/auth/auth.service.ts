@@ -60,6 +60,16 @@ export class AuthService {
     throw new UnauthorizedException({ message: "Wrong credentials!" });
   }
 
+  public async validateJwtUser(payload: JwtPayload): Promise<User> {
+    const user = await this.userService.getUserByEmail(payload.email);
+    console.log("user", { user, payload });
+    if (!user) {
+      throw new UnauthorizedException({ message: "Invalid token" });
+    }
+
+    return user;
+  }
+
   private async updateRefreshTokenHash(
     userEmail: string,
     refreshToken: string,
@@ -109,11 +119,13 @@ export class AuthService {
 
     const [at, rt] = await Promise.all([
       this.jwtService.signAsync(jwtPayload, {
-        secret: process.env.AT_SECRET || "SECRET",
+        // secret: process.env.AT_SECRET || "someSecret22",
+        secret: "someSecret22",
         expiresIn: "60m",
       }),
       this.jwtService.signAsync(jwtPayload, {
-        secret: process.env.RT_SECRET || "SECRET_RT",
+        // secret: process.env.RT_SECRET || "someSecret22",
+        secret: "someSecret22",
         expiresIn: "7d",
       }),
     ]);

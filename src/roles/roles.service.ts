@@ -16,7 +16,6 @@ import { Role } from "./role.entity";
 @Injectable()
 export class RolesService {
   constructor(
-    // @InjectModel(Role) private roleRepository: typeof Role,
     @InjectRepository(Role)
     private readonly roleRepository: Repository<Role>, // @Inject(forwardRef(() => UsersService)) // private readonly userService: UsersService,
   ) {}
