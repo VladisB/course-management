@@ -29,7 +29,7 @@ export class AuthController {
   }
 
   @Post("/signup")
-  @UsePipes(ValidationPipe)
+  @UsePipes(new ValidationPipe({ transform: true }))
   @HttpCode(201)
   async registration(
     @Res({ passthrough: true }) res: Response,

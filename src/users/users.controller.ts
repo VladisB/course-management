@@ -2,6 +2,8 @@ import {
   Body,
   Controller,
   Get,
+  Param,
+  Patch,
   Post,
   UseGuards,
   UsePipes,
@@ -11,8 +13,10 @@ import { UsersService } from "./users.service";
 import { CreateUserDto } from "./dto/create-user.dto";
 import { Roles } from "src/roles/roles-auth.decorator";
 import { AuthGuard } from "@nestjs/passport";
-import { RolesGuard } from "src/roles/roles.guard";
 import { Role } from "src/roles/roles.enum";
+import { UpdateUserDto } from "./dto/update-user.dto";
+import { User } from "./user.entity";
+import { RolesGuard } from "src/roles/roles.guard";
 
 @Controller("users")
 @Roles(Role.Admin)
@@ -29,5 +33,13 @@ export class UsersController {
   @Get()
   getAll() {
     return this.usersService.getAllUsers();
+  }
+
+  @Patch(":id")
+  updateUser(
+    @Param("id") id: number,
+    @Body() updateUserDto: UpdateUserDto,
+  ): Promise<User> {
+    return this.usersService.updateUser(id, updateUserDto);
   }
 }
