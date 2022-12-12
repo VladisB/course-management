@@ -10,15 +10,15 @@ import { RolesGuard } from "./roles.guard";
 @UseGuards(AuthGuard(), RolesGuard)
 @Controller("roles")
 export class RolesController {
-  constructor(private roleService: RolesService) {}
+    constructor(private roleService: RolesService) {}
 
-  @Post()
-  create(@Body() dto: CreateRoleDto) {
-    return this.roleService.createRole(dto);
-  }
+    @Post()
+    create(@Body() dto: CreateRoleDto) {
+        return this.roleService.createRole(dto);
+    }
 
-  @Get()
-  getRoles() {
-    return this.roleService.getRoles();
-  }
+    @Get()
+    getRoles() {
+        return this.roleService.getRoles();
+    }
 }

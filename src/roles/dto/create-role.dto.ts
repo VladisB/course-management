@@ -1,3 +1,3 @@
 export class CreateRoleDto {
-  readonly name: string;
+    readonly name: string;
 }

@@ -34,23 +34,16 @@
 // }
 
 import { User } from "src/users/user.entity";
-import {
-  BaseEntity,
-  Column,
-  Entity,
-  ManyToOne,
-  OneToMany,
-  PrimaryGeneratedColumn,
-} from "typeorm";
+import { BaseEntity, Column, Entity, ManyToOne, OneToMany, PrimaryGeneratedColumn } from "typeorm";
 
 @Entity()
 export class Role extends BaseEntity {
-  @PrimaryGeneratedColumn()
-  id: number;
+    @PrimaryGeneratedColumn()
+    id: number;
 
-  @Column({ unique: true })
-  name: string;
+    @Column({ unique: true })
+    name: string;
 
-  @OneToMany(() => User, (user) => user.role)
-  users: User[];
+    @OneToMany(() => User, (user) => user.role)
+    users: User[];
 }

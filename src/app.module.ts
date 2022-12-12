@@ -7,16 +7,16 @@ import { AuthModule } from "./auth/auth.module";
 import { RolesModule } from "./roles/roles.module";
 
 @Module({
-  imports: [
-    ConfigModule.forRoot({
-      envFilePath: `.${process.env.NODE_ENV}.env`,
-    }),
-    TypeOrmModule.forRoot(typeOrmConfig),
-    UsersModule,
-    RolesModule,
-    AuthModule,
-  ],
-  controllers: [],
-  providers: [],
+    imports: [
+        ConfigModule.forRoot({
+            envFilePath: `.${process.env.NODE_ENV}.env`,
+        }),
+        TypeOrmModule.forRoot(typeOrmConfig),
+        UsersModule,
+        RolesModule,
+        AuthModule,
+    ],
+    controllers: [],
+    providers: [],
 })
 export class AppModule {}

@@ -9,20 +9,20 @@ import { AuthService } from "./auth.service";
 
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy) {
-  constructor(private authService: AuthService) {
-    super({
-      jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
-      secretOrKey: "someSecret22",
-    });
-  }
-
-  async validate(payload: JwtPayload): Promise<User> {
-    const user = await this.authService.validateJwtUser(payload);
-
-    if (!user) {
-      throw new UnauthorizedException("Invalid token");
+    constructor(private authService: AuthService) {
+        super({
+            jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
+            secretOrKey: "someSecret22",
+        });
     }
 
-    return user;
-  }
+    async validate(payload: JwtPayload): Promise<User> {
+        const user = await this.authService.validateJwtUser(payload);
+
+        if (!user) {
+            throw new UnauthorizedException("Invalid token");
+        }
+
+        return user;
+    }
 }

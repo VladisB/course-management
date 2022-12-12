@@ -1,13 +1,13 @@
 import {
-  Body,
-  Controller,
-  Get,
-  Param,
-  Patch,
-  Post,
-  UseGuards,
-  UsePipes,
-  ValidationPipe,
+    Body,
+    Controller,
+    Get,
+    Param,
+    Patch,
+    Post,
+    UseGuards,
+    UsePipes,
+    ValidationPipe,
 } from "@nestjs/common";
 import { UsersService } from "./users.service";
 import { CreateUserDto } from "./dto/create-user.dto";
@@ -22,24 +22,21 @@ import { RolesGuard } from "src/roles/roles.guard";
 @Roles(Role.Admin)
 @UseGuards(AuthGuard(), RolesGuard)
 export class UsersController {
-  constructor(private usersService: UsersService) {}
+    constructor(private usersService: UsersService) {}
 
-  @Post()
-  @UsePipes(ValidationPipe)
-  create(@Body() userDto: CreateUserDto) {
-    return this.usersService.createUser(userDto);
-  }
+    @Post()
+    @UsePipes(ValidationPipe)
+    create(@Body() userDto: CreateUserDto) {
+        return this.usersService.createUser(userDto);
+    }
 
-  @Get()
-  getAll() {
-    return this.usersService.getAllUsers();
-  }
+    @Get()
+    getAll() {
+        return this.usersService.getAllUsers();
+    }
 
-  @Patch(":id")
-  updateUser(
-    @Param("id") id: number,
-    @Body() updateUserDto: UpdateUserDto,
-  ): Promise<User> {
-    return this.usersService.updateUser(id, updateUserDto);
-  }
+    @Patch(":id")
+    updateUser(@Param("id") id: number, @Body() updateUserDto: UpdateUserDto): Promise<User> {
+        return this.usersService.updateUser(id, updateUserDto);
+    }
 }

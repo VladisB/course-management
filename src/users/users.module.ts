@@ -8,15 +8,15 @@ import { User } from "./user.entity";
 import { UsersService } from "./users.service";
 
 @Module({
-  controllers: [UsersController],
-  providers: [UsersService],
-  imports: [
-    TypeOrmModule.forFeature([User]),
-    forwardRef(() => AuthModule),
-    RolesModule,
-    // TypeOrmModule.forFeature([User, Role]),
-    // forwardRef(() => RolesModule),
-  ],
-  exports: [UsersService],
+    controllers: [UsersController],
+    providers: [UsersService],
+    imports: [
+        TypeOrmModule.forFeature([User]),
+        forwardRef(() => AuthModule),
+        RolesModule,
+        // TypeOrmModule.forFeature([User, Role]),
+        // forwardRef(() => RolesModule),
+    ],
+    exports: [UsersService],
 })
 export class UsersModule {}
