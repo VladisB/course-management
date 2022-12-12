@@ -1,15 +1,7 @@
+import { IsEmail, IsNotEmpty, IsString, Matches, MaxLength, MinLength } from "class-validator";
 import { Transform } from "class-transformer";
-import {
-    IsEmail,
-    IsNotEmpty,
-    IsNumber,
-    IsString,
-    Matches,
-    MaxLength,
-    MinLength,
-} from "class-validator";
 
-export class CreateUserDto {
+export class AuthCredentialsDto {
     @IsString()
     @MinLength(4)
     @MaxLength(25)
@@ -25,18 +17,9 @@ export class CreateUserDto {
     })
     password: string;
 
-    @IsString()
     @IsNotEmpty()
-    @MinLength(4)
-    @MaxLength(25)
     firstName: string;
 
-    @IsString()
     @IsNotEmpty()
-    @MinLength(4)
-    @MaxLength(25)
     lastName: string;
-
-    @IsNumber()
-    roleId?: number;
 }

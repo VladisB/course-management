@@ -15,52 +15,49 @@ import { UpdateUserDto } from "./dto/update-user.dto";
 
 @Injectable()
 export class UsersService {
-  constructor(
-    @InjectRepository(User)
-    private readonly userRepository: Repository<User>,
-    private roleService: RolesService,
-  ) {}
+    constructor(
+        @InjectRepository(User)
+        private readonly userRepository: Repository<User>,
+        private roleService: RolesService,
+    ) {}
 
-  async createUser(dto: CreateUserDto): Promise<User> {
-    // TODO: Add validation for email field
-    // TODO: Handle duplicates
-    // TODO: Handle if role not exist
-    const role = await this.roleService.getRoleByName(Role.Student);
+    async createUser(dto: CreateUserDto): Promise<User> {
+        // TODO: Add validation for email field
+        // TODO: Handle duplicates
+        // TODO: Handle if role not exist
+        const role = await this.roleService.getRoleByName(Role.Student);
 
-    const user = await this.userRepository.create({
-      ...dto,
-      role,
-    });
+        const user = await this.userRepository.create({
+            ...dto,
+            role,
+        });
 
-    return user.save();
-  }
+        return user.save();
+    }
 
-  public async updateUser(
-    id: number,
-    updateUserDto: UpdateUserDto,
-  ): Promise<User> {
-    // TODO: Add validation for email field
-    // TODO: Handle duplicates
-    // TODO: Handle if role not exist
+    public async updateUser(id: number, updateUserDto: UpdateUserDto): Promise<User> {
+        // TODO: Add validation for email field
+        // TODO: Handle duplicates
+        // TODO: Handle if role not exist
 
-    const role = await this.roleService.getRoleById(updateUserDto.roleId);
+        const role = await this.roleService.getRoleById(updateUserDto.roleId);
 
-    const user = await this.userRepository.preload({
-      id,
-      ...updateUserDto,
-      role,
-    });
+        const user = await this.userRepository.preload({
+            id,
+            ...updateUserDto,
+            role,
+        });
 
-    return user.save();
-  }
+        return user.save();
+    }
 
-  async getAllUsers() {
-    const users = await this.userRepository.find();
-    return users;
-  }
+    async getAllUsers() {
+        const users = await this.userRepository.find();
+        return users;
+    }
 
-  async getUserByEmail(email: string) {
-    const user = await this.userRepository.findOneBy({ email });
-    return user;
-  }
+    async getUserByEmail(email: string) {
+        const user = await this.userRepository.findOneBy({ email });
+        return user;
+    }
 }
