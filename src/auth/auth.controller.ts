@@ -5,13 +5,17 @@ import {
     Post,
     Req,
     Res,
+    UseGuards,
     UsePipes,
     ValidationPipe,
 } from "@nestjs/common";
+import { AuthGuard } from "@nestjs/passport";
 import { Response, Request } from "express";
+import { User } from "src/users/user.entity";
 import { CreateUserDto } from "../users/dto/create-user.dto";
 import { AuthService } from "./auth.service";
 import { AuthCredentialsDto } from "./dto/auth-credentials.dto";
+import { GetUser } from "./get-user.decorator";
 
 @Controller("auth")
 export class AuthController {
@@ -49,11 +53,9 @@ export class AuthController {
     }
 
     @Post("/logout")
+    @UseGuards(AuthGuard())
     @HttpCode(200)
-    async logout(@Req() req: Request) {
-        const { refreshToken } = req.cookies;
-        const tokens = await this.authService.logout(refreshToken);
-
-        return tokens;
+    async logout(@GetUser() user: User) {
+        await this.authService.logout(user);
     }
 }
