@@ -34,7 +34,7 @@
 // }
 
 import { User } from "src/users/user.entity";
-import { BaseEntity, Column, Entity, ManyToOne, OneToMany, PrimaryGeneratedColumn } from "typeorm";
+import { BaseEntity, Column, Entity, OneToMany, PrimaryGeneratedColumn } from "typeorm";
 
 @Entity()
 export class Role extends BaseEntity {
