@@ -1,4 +1,10 @@
-import { HttpException, HttpStatus, Injectable, UnauthorizedException } from "@nestjs/common";
+import {
+    HttpException,
+    HttpStatus,
+    Injectable,
+    NotFoundException,
+    UnauthorizedException,
+} from "@nestjs/common";
 import { CreateUserDto } from "../users/dto/create-user.dto";
 import { UsersService } from "../users/users.service";
 import { JwtService } from "@nestjs/jwt";
@@ -11,7 +17,7 @@ import { AuthCredentialsDto } from "./dto/auth-credentials.dto";
 export class AuthService {
     constructor(private userService: UsersService, private jwtService: JwtService) {}
 
-    async login(userDto: CreateUserDto) {
+    async login(userDto: CreateUserDto): Promise<Tokens> {
         const user = await this.validateLogin(userDto);
         const tokens = await this.generateTokens(user);
         await this.updateRefreshTokenHash(user.email, tokens.refresh_token);
@@ -19,7 +25,7 @@ export class AuthService {
         return tokens;
     }
 
-    async signUp(authCredentialsDto: AuthCredentialsDto) {
+    async signUp(authCredentialsDto: AuthCredentialsDto): Promise<Tokens> {
         this.validateCreate(authCredentialsDto);
 
         const user = await this.userService.createUser({
@@ -29,7 +35,7 @@ export class AuthService {
         return this.generateTokens(user);
     }
 
-    private async validateCreate(authCredentialsDto: AuthCredentialsDto) {
+    private async validateCreate(authCredentialsDto: AuthCredentialsDto): Promise<void> {
         await this.checkIfExist(authCredentialsDto);
     }
 
@@ -85,7 +91,7 @@ export class AuthService {
         await user.save();
     }
 
-    private async removeTokenHash(userEmail: string, refreshToken: string): Promise<void> {
+    private async removeTokenHash(userEmail: string): Promise<void> {
         const user = await this.userService.getUserByEmail(userEmail);
         user.refreshToken = null;
 
@@ -163,24 +169,15 @@ export class AuthService {
         }
     }
 
-    public async logout(refreshToken: string) {
+    public async logout(tokenUser: User): Promise<void> {
         try {
-            if (!refreshToken) {
-                throw new UnauthorizedException({ message: "Unauthorized user!" });
-            }
-
-            const userData = await this.validateRefreshToken(refreshToken);
-            const user = await this.findRefreshTokenHashDB(userData, refreshToken);
+            const user = await this.userService.getUserById(tokenUser.id);
 
             if (!user) {
-                throw new UnauthorizedException({ message: "Unauthorized user!" });
+                throw new NotFoundException();
             }
 
-            const tokens = await this.generateTokens(user);
-            await this.removeTokenHash(user.email, tokens.refresh_token);
-
-            //@TODO: refactor responce
-            return true;
+            await this.removeTokenHash(user.email);
         } catch {
             throw new UnauthorizedException({ message: "Unauthorized user!" });
         }
