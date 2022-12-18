@@ -1,4 +1,3 @@
-import { Role } from "src/roles/role.entity";
 import * as bcrypt from "bcryptjs";
 import {
     BaseEntity,
@@ -10,6 +9,7 @@ import {
     PrimaryGeneratedColumn,
 } from "typeorm";
 import { IsEmail } from "class-validator";
+import { Role } from "../roles/role.entity";
 
 @Entity()
 export class User extends BaseEntity {

@@ -1,11 +1,11 @@
 import { Injectable } from "@nestjs/common";
 import { User } from "./user.entity";
 import { CreateUserDto } from "./dto/create-user.dto";
-import { RolesService } from "src/roles/roles.service";
 import { Repository } from "typeorm";
 import { InjectRepository } from "@nestjs/typeorm";
-import { Role } from "src/roles/roles.enum";
 import { UpdateUserDto } from "./dto/update-user.dto";
+import { RolesService } from "../roles/roles.service";
+import { Role } from "../roles/roles.enum";
 
 // export interface UserViewModel {
 //   id: number;

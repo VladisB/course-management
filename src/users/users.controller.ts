@@ -11,12 +11,12 @@ import {
 } from "@nestjs/common";
 import { UsersService } from "./users.service";
 import { CreateUserDto } from "./dto/create-user.dto";
-import { Roles } from "src/roles/roles-auth.decorator";
 import { AuthGuard } from "@nestjs/passport";
-import { Role } from "src/roles/roles.enum";
 import { UpdateUserDto } from "./dto/update-user.dto";
 import { User } from "./user.entity";
-import { RolesGuard } from "src/roles/roles.guard";
+import { Roles } from "../roles/roles-auth.decorator";
+import { RolesGuard } from "../roles/roles.guard";
+import { Role } from "../roles/roles.enum";
 
 @Controller("users")
 @Roles(Role.Admin)

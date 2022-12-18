@@ -3,7 +3,7 @@ import { RolesService } from "./roles.service";
 import { RolesController } from "./roles.controller";
 import { Role } from "./role.entity";
 import { TypeOrmModule } from "@nestjs/typeorm";
-import { AuthModule } from "src/auth/auth.module";
+import { AuthModule } from "../auth/auth.module";
 
 @Module({
     imports: [forwardRef(() => AuthModule), TypeOrmModule.forFeature([Role])],
