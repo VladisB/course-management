@@ -17,7 +17,7 @@ import { AuthCredentialsDto } from "./dto/auth-credentials.dto";
 export class AuthService {
     constructor(private userService: UsersService, private jwtService: JwtService) {}
 
-    async login(userDto: CreateUserDto): Promise<Tokens> {
+    async login(userDto: AuthCredentialsDto): Promise<Tokens> {
         const user = await this.validateLogin(userDto);
         const tokens = await this.generateTokens(user);
         await this.updateRefreshTokenHash(user.email, tokens.refresh_token);
@@ -25,7 +25,7 @@ export class AuthService {
         return tokens;
     }
 
-    async signUp(authCredentialsDto: AuthCredentialsDto): Promise<Tokens> {
+    async signUp(authCredentialsDto: CreateUserDto): Promise<Tokens> {
         this.validateCreate(authCredentialsDto);
 
         const user = await this.userService.createUser({
@@ -67,7 +67,7 @@ export class AuthService {
         user: User,
     ): Promise<void> {
         const { password } = authCredentialsDto;
-        const equals = await bcrypt.compare(password, user.password);
+        const equals = await user.validatePassword(password);
 
         if (!equals) throw new UnauthorizedException({ message: "Wrong credentials!" });
     }

@@ -14,7 +14,6 @@ import { Response, Request } from "express";
 import { CreateUserDto } from "../users/dto/create-user.dto";
 import { User } from "../users/user.entity";
 import { AuthService } from "./auth.service";
-import { AuthCredentialsDto } from "./dto/auth-credentials.dto";
 import { GetUser } from "./get-user.decorator";
 
 @Controller("auth")
@@ -35,7 +34,7 @@ export class AuthController {
     @HttpCode(201)
     async registration(
         @Res({ passthrough: true }) res: Response,
-        @Body() authCredentialsDto: AuthCredentialsDto,
+        @Body() authCredentialsDto: CreateUserDto,
     ) {
         const tokens = await this.authService.signUp(authCredentialsDto);
         res.cookie("refreshToken", tokens.refresh_token, { httpOnly: true });
