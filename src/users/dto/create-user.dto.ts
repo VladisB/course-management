@@ -37,6 +37,6 @@ export class CreateUserDto {
     @MaxLength(25)
     lastName: string;
 
-    @IsNumber()
+    // @IsNumber()
     roleId?: number;
 }
