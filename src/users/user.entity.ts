@@ -35,13 +35,14 @@ export class User extends BaseEntity {
     @Column({ nullable: false })
     roleId: number;
 
-    // async validatePassword(password: string): Promise<boolean> {
-    //     const hash = await bcrypt.hash(password, this.salt);
-    //     return hash === this.password;
-    // }
+    async validatePassword(password: string): Promise<boolean> {
+        const hash = await bcrypt.hash(password, this.salt);
+        return hash === this.password;
+    }
 
     @BeforeInsert()
-    @BeforeUpdate()
+    // @BeforeUpdate()
+    // TODO: Update logic to run it on update ONLY if password field changed
     async setPassword() {
         if (this.password) {
             this.salt = await bcrypt.genSalt();
