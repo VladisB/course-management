@@ -7,7 +7,7 @@ import { AuthGuard } from "@nestjs/passport";
 import { RolesGuard } from "./roles.guard";
 
 @Roles(Role.Admin)
-@UseGuards(AuthGuard(), RolesGuard)
+@UseGuards(AuthGuard("jwt"), RolesGuard)
 @Controller("roles")
 export class RolesController {
     constructor(private roleService: RolesService) {}
