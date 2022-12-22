@@ -52,7 +52,7 @@ export class AuthController {
     }
 
     @Post("/logout")
-    @UseGuards(AuthGuard())
+    @UseGuards(AuthGuard("jwt"))
     @HttpCode(200)
     async logout(@GetUser() user: User) {
         await this.authService.logout(user);

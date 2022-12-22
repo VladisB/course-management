@@ -10,29 +10,40 @@ import { UsersService } from "../users/users.service";
 import { JwtService } from "@nestjs/jwt";
 import * as bcrypt from "bcryptjs";
 import { User } from "../users/user.entity";
-import { JwtPayload, Tokens } from "./types";
 import { AuthCredentialsDto } from "./dto/auth-credentials.dto";
+import { JwtModelFactory } from "./model-factories/jwt.m-factory";
+import { UserViewModelFactory } from "../users/model-factories/user.vm-factory";
+import { UserViewModel } from "../users/view-models";
+import { AuthViewModel, JwtModel } from "./models";
 
 @Injectable()
 export class AuthService {
-    constructor(private userService: UsersService, private jwtService: JwtService) {}
+    constructor(
+        private userService: UsersService,
+        private jwtService: JwtService,
+        private jwtModelFactory: JwtModelFactory,
+        private userViewModelFactory: UserViewModelFactory,
+    ) {}
 
-    async login(userDto: AuthCredentialsDto): Promise<Tokens> {
+    async login(userDto: AuthCredentialsDto): Promise<AuthViewModel> {
         const user = await this.validateLogin(userDto);
-        const tokens = await this.generateTokens(user);
+
+        const jwtModel = this.jwtModelFactory.initJwtModel(user);
+        const tokens = await this.generateTokens(jwtModel);
+
         await this.updateRefreshTokenHash(user.email, tokens.refresh_token);
 
         return tokens;
     }
 
-    async signUp(authCredentialsDto: CreateUserDto): Promise<Tokens> {
+    async signUp(authCredentialsDto: CreateUserDto): Promise<AuthViewModel> {
         this.validateCreate(authCredentialsDto);
 
         const user = await this.userService.createUser({
             ...authCredentialsDto,
         });
 
-        return this.generateTokens(user);
+        return this.generateTokens({ email: user.email, role: user.role.name, id: user.id });
     }
 
     private async validateCreate(authCredentialsDto: AuthCredentialsDto): Promise<void> {
@@ -72,14 +83,14 @@ export class AuthService {
         if (!equals) throw new UnauthorizedException({ message: "Wrong credentials!" });
     }
 
-    public async validateJwtUser(payload: JwtPayload): Promise<User> {
+    public async validateJwtUser(payload: JwtModel): Promise<UserViewModel> {
         const user = await this.userService.getUserByEmail(payload.email);
 
         if (!user) {
             throw new UnauthorizedException({ message: "Invalid token" });
         }
 
-        return user;
+        return this.userViewModelFactory.initUserViewModel(user);
     }
 
     private async updateRefreshTokenHash(userEmail: string, refreshToken: string): Promise<void> {
@@ -98,7 +109,7 @@ export class AuthService {
         await user.save();
     }
 
-    private async findRefreshTokenHashDB(payload: JwtPayload, refreshToken: string): Promise<User> {
+    private async findRefreshTokenHashDB(payload: JwtModel, refreshToken: string): Promise<User> {
         const candidate = await User.findOne({ where: { email: payload?.email } });
 
         if (candidate) {
@@ -110,20 +121,14 @@ export class AuthService {
         }
     }
 
-    private async generateTokens(user: User): Promise<Tokens> {
-        const jwtPayload: JwtPayload = {
-            email: user.email,
-            id: user.id,
-            role: user.role.name,
-        };
-
+    public async generateTokens(payload: JwtModel): Promise<AuthViewModel> {
         const [access_token, refresh_token] = await Promise.all([
-            this.jwtService.signAsync(jwtPayload, {
+            this.jwtService.signAsync(payload, {
                 // secret: process.env.AT_SECRET || "someSecret22",
                 secret: "someSecret22",
                 expiresIn: "15m",
             }),
-            this.jwtService.signAsync(jwtPayload, {
+            this.jwtService.signAsync(payload, {
                 // secret: process.env.RT_SECRET || "someSecret22",
                 secret: "someSecret22",
                 expiresIn: "3d",
@@ -160,7 +165,11 @@ export class AuthService {
                 throw new UnauthorizedException({ message: "Unauthorized user!" });
             }
 
-            const tokens = await this.generateTokens(user);
+            const tokens = await this.generateTokens({
+                email: user.email,
+                role: user.role.name,
+                id: user.id,
+            });
             await this.updateRefreshTokenHash(user.email, tokens.refresh_token);
 
             return tokens;

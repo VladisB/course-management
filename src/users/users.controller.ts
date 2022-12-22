@@ -20,7 +20,7 @@ import { Role } from "../roles/roles.enum";
 
 @Controller("users")
 @Roles(Role.Admin)
-@UseGuards(AuthGuard(), RolesGuard)
+@UseGuards(AuthGuard("jwt"), RolesGuard)
 export class UsersController {
     constructor(private usersService: UsersService) {}
 

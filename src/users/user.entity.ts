@@ -23,6 +23,12 @@ export class User extends BaseEntity {
     @Column()
     password: string;
 
+    @Column()
+    firstName: string;
+
+    @Column()
+    lastName: string;
+
     @Column({ nullable: true })
     refreshToken: string;
 
