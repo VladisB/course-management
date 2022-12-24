@@ -24,7 +24,7 @@ export class AuthController {
     @HttpCode(200)
     async login(@Res({ passthrough: true }) res: Response, @Body() userDto: CreateUserDto) {
         const tokens = await this.authService.login(userDto);
-        res.cookie("refreshToken", tokens.refresh_token, { httpOnly: true });
+        res.cookie("refreshToken", tokens.refreshToken, { httpOnly: true });
 
         return tokens;
     }
@@ -37,7 +37,7 @@ export class AuthController {
         @Body() authCredentialsDto: CreateUserDto,
     ) {
         const tokens = await this.authService.signUp(authCredentialsDto);
-        res.cookie("refreshToken", tokens.refresh_token, { httpOnly: true });
+        res.cookie("refreshToken", tokens.refreshToken, { httpOnly: true });
 
         return tokens;
     }

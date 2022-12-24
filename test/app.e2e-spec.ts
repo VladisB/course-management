@@ -6,22 +6,29 @@ import { AuthService } from "../src/auth/auth.service";
 import { RolesService } from "../src/roles/roles.service";
 import { CreateRoleDto } from "../src/roles/dto/create-role.dto";
 import { Role } from "../src/roles/role.entity";
+import { UserViewModel } from "../src/users/view-models";
 
-const mockAdminCredentials = {
+const mockAdminCredentials: UserViewModel = {
     id: 333331,
     email: "admin@unexisted.com",
+    firstName: "John",
+    lastName: "Doe",
     role: "admin",
 };
 
-const mockStudentCredentials = {
+const mockStudentCredentials: UserViewModel = {
     id: 333332,
     email: "student@unexisted.com",
+    firstName: "John",
+    lastName: "Doe",
     role: "student",
 };
 
-const mockInstructorCredentials = {
+const mockInstructorCredentials: UserViewModel = {
     id: 333333,
     email: "instructor@unexisted.com",
+    firstName: "John",
+    lastName: "Doe",
     role: "instructor",
 };
 
@@ -75,7 +82,7 @@ describe("AppController (e2e)", () => {
                 jest.spyOn(authService, "validateJwtUser").mockResolvedValue(mockAdminCredentials);
 
                 const signInAdmin = await authService.generateTokens(mockAdminCredentials);
-                const accessTokenAdmin = signInAdmin.access_token;
+                const accessTokenAdmin = signInAdmin.accessToken;
 
                 const { body } = await request(app.getHttpServer())
                     .get("/roles")
@@ -92,7 +99,7 @@ describe("AppController (e2e)", () => {
                 );
 
                 const signInStudent = await authService.generateTokens(mockStudentCredentials);
-                const accessTokenStudent = signInStudent.access_token;
+                const accessTokenStudent = signInStudent.accessToken;
 
                 return request(app.getHttpServer())
                     .get("/roles")
@@ -108,7 +115,7 @@ describe("AppController (e2e)", () => {
                 const signInInstructor = await authService.generateTokens(
                     mockInstructorCredentials,
                 );
-                const accessTokenInstructor = signInInstructor.access_token;
+                const accessTokenInstructor = signInInstructor.accessToken;
 
                 return request(app.getHttpServer())
                     .get("/roles")
@@ -122,7 +129,7 @@ describe("AppController (e2e)", () => {
                 jest.spyOn(authService, "validateJwtUser").mockResolvedValue(mockAdminCredentials);
 
                 const signInAdmin = await authService.generateTokens(mockAdminCredentials);
-                const accessTokenAdmin = signInAdmin.access_token;
+                const accessTokenAdmin = signInAdmin.accessToken;
 
                 const { body } = await request(app.getHttpServer())
                     .post("/roles")
@@ -142,7 +149,7 @@ describe("AppController (e2e)", () => {
                 );
 
                 const signInStudent = await authService.generateTokens(mockStudentCredentials);
-                const accessTokenStudent = signInStudent.access_token;
+                const accessTokenStudent = signInStudent.accessToken;
 
                 return request(app.getHttpServer())
                     .post("/roles")
@@ -159,7 +166,7 @@ describe("AppController (e2e)", () => {
                 const signInInstructor = await authService.generateTokens(
                     mockInstructorCredentials,
                 );
-                const accessTokenInstructor = signInInstructor.access_token;
+                const accessTokenInstructor = signInInstructor.accessToken;
 
                 return request(app.getHttpServer())
                     .post("/roles")

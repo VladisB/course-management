@@ -9,12 +9,12 @@ import { CreateUserDto } from "../users/dto/create-user.dto";
 import { UsersService } from "../users/users.service";
 import { JwtService } from "@nestjs/jwt";
 import * as bcrypt from "bcryptjs";
-import { User } from "../users/user.entity";
 import { AuthCredentialsDto } from "./dto/auth-credentials.dto";
 import { JwtModelFactory } from "./model-factories/jwt.m-factory";
 import { UserViewModelFactory } from "../users/model-factories/user.vm-factory";
 import { UserViewModel } from "../users/view-models";
 import { AuthViewModel, JwtModel } from "./models";
+import { User } from "../users/user.entity";
 
 @Injectable()
 export class AuthService {
@@ -25,25 +25,34 @@ export class AuthService {
         private userViewModelFactory: UserViewModelFactory,
     ) {}
 
-    async login(userDto: AuthCredentialsDto): Promise<AuthViewModel> {
+    public async login(userDto: AuthCredentialsDto): Promise<AuthViewModel> {
         const user = await this.validateLogin(userDto);
 
         const jwtModel = this.jwtModelFactory.initJwtModel(user);
         const tokens = await this.generateTokens(jwtModel);
 
-        await this.updateRefreshTokenHash(user.email, tokens.refresh_token);
+        await this.updateRefreshToken(user.email, tokens.refreshToken);
 
         return tokens;
     }
 
-    async signUp(authCredentialsDto: CreateUserDto): Promise<AuthViewModel> {
+    public async signUp(authCredentialsDto: CreateUserDto): Promise<AuthViewModel> {
         this.validateCreate(authCredentialsDto);
 
         const user = await this.userService.createUser({
             ...authCredentialsDto,
         });
+        const jwtModel = this.jwtModelFactory.initJwtModel(user);
 
-        return this.generateTokens({ email: user.email, role: user.role.name, id: user.id });
+        return this.generateTokens(jwtModel);
+    }
+
+    public async validateJwtUser(payload: JwtModel): Promise<UserViewModel> {
+        const user = await this.userService.getUserByEmail(payload.email);
+
+        if (!user) throw new UnauthorizedException({ message: "Invalid token" });
+
+        return this.userViewModelFactory.initUserViewModel(user);
     }
 
     private async validateCreate(authCredentialsDto: AuthCredentialsDto): Promise<void> {
@@ -83,17 +92,7 @@ export class AuthService {
         if (!equals) throw new UnauthorizedException({ message: "Wrong credentials!" });
     }
 
-    public async validateJwtUser(payload: JwtModel): Promise<UserViewModel> {
-        const user = await this.userService.getUserByEmail(payload.email);
-
-        if (!user) {
-            throw new UnauthorizedException({ message: "Invalid token" });
-        }
-
-        return this.userViewModelFactory.initUserViewModel(user);
-    }
-
-    private async updateRefreshTokenHash(userEmail: string, refreshToken: string): Promise<void> {
+    private async updateRefreshToken(userEmail: string, refreshToken: string): Promise<void> {
         const hashToken = await bcrypt.hash(refreshToken, 5);
 
         const user = await this.userService.getUserByEmail(userEmail);
@@ -110,19 +109,14 @@ export class AuthService {
     }
 
     private async findRefreshTokenHashDB(payload: JwtModel, refreshToken: string): Promise<User> {
-        const candidate = await User.findOne({ where: { email: payload?.email } });
+        const candidate = await this.userService.getUserByEmail(payload.email);
+        const hashEquals = await bcrypt.compare(refreshToken, candidate.refreshToken);
 
-        if (candidate) {
-            const hashEquals = await bcrypt.compare(refreshToken, candidate.refreshToken);
-
-            return hashEquals ? candidate : null;
-        } else {
-            return null;
-        }
+        return hashEquals ? candidate : null;
     }
 
     public async generateTokens(payload: JwtModel): Promise<AuthViewModel> {
-        const [access_token, refresh_token] = await Promise.all([
+        const [accessToken, refreshToken] = await Promise.all([
             this.jwtService.signAsync(payload, {
                 // secret: process.env.AT_SECRET || "someSecret22",
                 secret: "someSecret22",
@@ -136,41 +130,34 @@ export class AuthService {
         ]);
 
         return {
-            access_token,
-            refresh_token,
+            accessToken,
+            refreshToken,
         };
     }
 
-    private async validateRefreshToken(refreshToken: string) {
-        try {
-            const userData = await this.jwtService.verifyAsync(refreshToken, {
-                secret: process.env.RT_SECRET || "SECRET_RT",
-            });
-
-            return userData;
-        } catch {
-            return null;
+    private async validateRefreshToken(refreshToken: string): Promise<JwtModel> {
+        if (!refreshToken) {
+            throw new UnauthorizedException({ message: "Unauthorized user!" });
         }
+
+        const model = await this.jwtService.verifyAsync(refreshToken, {
+            secret: process.env.RT_SECRET || "SECRET_RT",
+        });
+
+        return model;
     }
 
     public async refresh(refreshToken: string) {
         try {
-            if (!refreshToken) {
-                throw new UnauthorizedException({ message: "Unauthorized user!" });
-            }
-            const userData = await this.validateRefreshToken(refreshToken);
-            const user = await this.findRefreshTokenHashDB(userData, refreshToken);
+            const authModel = await this.validateRefreshToken(refreshToken);
+            const user = await this.findRefreshTokenHashDB(authModel, refreshToken);
 
-            if (!userData || !user) {
+            if (!authModel || !user) {
                 throw new UnauthorizedException({ message: "Unauthorized user!" });
             }
 
-            const tokens = await this.generateTokens({
-                email: user.email,
-                role: user.role.name,
-                id: user.id,
-            });
-            await this.updateRefreshTokenHash(user.email, tokens.refresh_token);
+            const tokens = await this.generateTokens(authModel);
+            await this.updateRefreshToken(user.email, tokens.refreshToken);
 
             return tokens;
         } catch {
