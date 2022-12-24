@@ -5,6 +5,7 @@ import { UsersModule } from "../users/users.module";
 import { AuthController } from "./auth.controller";
 import { AuthService } from "./auth.service";
 import { JwtStrategy } from "./jwt.stratagy";
+import { JwtModelFactory } from "./model-factories";
 
 @Module({
     imports: [
@@ -19,7 +20,7 @@ import { JwtStrategy } from "./jwt.stratagy";
         forwardRef(() => UsersModule),
     ],
     controllers: [AuthController],
-    providers: [AuthService, JwtStrategy],
+    providers: [AuthService, JwtStrategy, JwtModelFactory],
     exports: [AuthService, PassportModule, JwtStrategy],
 })
 export class AuthModule {}

@@ -9,7 +9,7 @@ import { UserViewModelFactory } from "./model-factories/user.vm-factory";
 
 @Module({
     controllers: [UsersController],
-    providers: [UsersService],
+    providers: [UsersService, UserViewModelFactory],
     imports: [TypeOrmModule.forFeature([User]), forwardRef(() => AuthModule), RolesModule],
     exports: [UsersService, UserViewModelFactory],
 })
