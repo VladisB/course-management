@@ -1,11 +1,11 @@
-import { BadRequestException, Injectable, UnauthorizedException } from "@nestjs/common";
+import { BadRequestException, Injectable } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 import { PassportStrategy } from "@nestjs/passport";
 import { Request } from "express";
 import { ExtractJwt, Strategy } from "passport-jwt";
-import { UserViewModel } from "../users/view-models";
-import { AuthService } from "./auth.service";
-import { JwtModel } from "./models";
+import { UserViewModel } from "../../users/view-models";
+import { AuthService } from "../auth.service";
+import { JwtModel } from "../models";
 
 @Injectable()
 export class RefreshStrategy extends PassportStrategy(Strategy, "refresh") {
