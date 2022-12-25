@@ -15,13 +15,15 @@ import { UserViewModelFactory } from "../users/model-factories/user.vm-factory";
 import { UserViewModel } from "../users/view-models";
 import { AuthViewModel, JwtModel } from "./models";
 import { User } from "../users/user.entity";
+import { ConfigService } from "@nestjs/config";
 
 @Injectable()
 export class AuthService {
     constructor(
-        private userService: UsersService,
-        private jwtService: JwtService,
         private jwtModelFactory: JwtModelFactory,
+        private jwtService: JwtService,
+        private readonly configService: ConfigService,
+        private userService: UsersService,
         private userViewModelFactory: UserViewModelFactory,
     ) {}
 
@@ -47,10 +49,25 @@ export class AuthService {
         return this.generateTokens(jwtModel);
     }
 
-    public async validateJwtUser(payload: JwtModel): Promise<UserViewModel> {
+    public async validateJwt(payload: JwtModel): Promise<UserViewModel> {
         const user = await this.userService.getUserByEmail(payload.email);
 
         if (!user) throw new UnauthorizedException({ message: "Invalid token" });
+
+        return this.userViewModelFactory.initUserViewModel(user);
+    }
+
+    public async validateRefreshJwt(
+        payload: JwtModel,
+        refreshToken: string,
+    ): Promise<UserViewModel> {
+        const user = await this.userService.getUserByEmail(payload.email);
+
+        if (!user) throw new UnauthorizedException({ message: "Invalid token" });
+
+        const result = await bcrypt.compare(refreshToken, user.refreshToken);
+
+        if (!result) throw new UnauthorizedException({ message: "Invalid token" });
 
         return this.userViewModelFactory.initUserViewModel(user);
     }
@@ -108,24 +125,15 @@ export class AuthService {
         await user.save();
     }
 
-    private async findRefreshTokenHashDB(payload: JwtModel, refreshToken: string): Promise<User> {
-        const candidate = await this.userService.getUserByEmail(payload.email);
-        const hashEquals = await bcrypt.compare(refreshToken, candidate.refreshToken);
-
-        return hashEquals ? candidate : null;
-    }
-
     public async generateTokens(payload: JwtModel): Promise<AuthViewModel> {
         const [accessToken, refreshToken] = await Promise.all([
             this.jwtService.signAsync(payload, {
-                // secret: process.env.AT_SECRET || "someSecret22",
-                secret: "someSecret22",
+                secret: this.configService.get<string>("app.jwt"),
                 expiresIn: "15m",
             }),
             this.jwtService.signAsync(payload, {
-                // secret: process.env.RT_SECRET || "someSecret22",
-                secret: "someSecret22",
-                expiresIn: "3d",
+                secret: this.configService.get<string>("app.jwt"),
+                expiresIn: "1d",
             }),
         ]);
 
@@ -135,34 +143,13 @@ export class AuthService {
         };
     }
 
-    private async validateRefreshToken(refreshToken: string): Promise<JwtModel> {
-        if (!refreshToken) {
-            throw new UnauthorizedException({ message: "Unauthorized user!" });
-        }
+    public async refresh(user: User) {
+        const jwtModel = this.jwtModelFactory.initJwtModel(user);
 
-        const model = await this.jwtService.verifyAsync(refreshToken, {
-            secret: process.env.RT_SECRET || "SECRET_RT",
-        });
+        const tokens = await this.generateTokens(jwtModel);
+        await this.updateRefreshToken(user.email, tokens.refreshToken);
 
-        return model;
-    }
-
-    public async refresh(refreshToken: string) {
-        try {
-            const authModel = await this.validateRefreshToken(refreshToken);
-            const user = await this.findRefreshTokenHashDB(authModel, refreshToken);
-
-            if (!authModel || !user) {
-                throw new UnauthorizedException({ message: "Unauthorized user!" });
-            }
-
-            const tokens = await this.generateTokens(authModel);
-            await this.updateRefreshToken(user.email, tokens.refreshToken);
-
-            return tokens;
-        } catch {
-            throw new UnauthorizedException({ message: "Unauthorized user!" });
-        }
+        return tokens;
     }
 
     public async logout(tokenUser: User): Promise<void> {

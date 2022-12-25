@@ -3,7 +3,6 @@ import {
     Controller,
     HttpCode,
     Post,
-    Req,
     Res,
     UseGuards,
     UsePipes,
@@ -43,10 +42,12 @@ export class AuthController {
     }
 
     @Post("/refresh")
+    @UseGuards(AuthGuard("refresh"))
     @HttpCode(201)
-    async updateRefresh(@Res({ passthrough: true }) res: Response, @Req() req: Request) {
-        const { refreshToken } = req.cookies;
-        const tokens = await this.authService.refresh(refreshToken);
+    async updateRefresh(@GetUser() user: User, @Res({ passthrough: true }) res: Response) {
+        const tokens = await this.authService.refresh(user);
+
+        res.cookie("refreshToken", tokens.refreshToken, { httpOnly: true });
 
         return tokens;
     }
