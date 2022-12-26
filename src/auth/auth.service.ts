@@ -63,7 +63,8 @@ export class AuthService {
     ): Promise<UserViewModel> {
         const user = await this.userService.getUserByEmail(payload.email);
 
-        if (!user) throw new UnauthorizedException({ message: "Invalid token" });
+        if (!user || !user.refreshToken)
+            throw new UnauthorizedException({ message: "Invalid token" });
 
         const result = await bcrypt.compare(refreshToken, user.refreshToken);
 
