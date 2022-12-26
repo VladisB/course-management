@@ -79,7 +79,7 @@ describe("AppController (e2e)", () => {
     describe("Roles Module", () => {
         describe("/roles (GET)", () => {
             it("Successfuly GET roles(3) as an Admin", async () => {
-                jest.spyOn(authService, "validateJwtUser").mockResolvedValue(mockAdminCredentials);
+                jest.spyOn(authService, "validateJwt").mockResolvedValue(mockAdminCredentials);
 
                 const signInAdmin = await authService.generateTokens(mockAdminCredentials);
                 const accessTokenAdmin = signInAdmin.accessToken;
@@ -94,9 +94,7 @@ describe("AppController (e2e)", () => {
             });
 
             it("Fail during getting roles as student", async () => {
-                jest.spyOn(authService, "validateJwtUser").mockResolvedValue(
-                    mockStudentCredentials,
-                );
+                jest.spyOn(authService, "validateJwt").mockResolvedValue(mockStudentCredentials);
 
                 const signInStudent = await authService.generateTokens(mockStudentCredentials);
                 const accessTokenStudent = signInStudent.accessToken;
@@ -108,9 +106,7 @@ describe("AppController (e2e)", () => {
             });
 
             it("Fail during getting roles as an Instructor", async () => {
-                jest.spyOn(authService, "validateJwtUser").mockResolvedValue(
-                    mockInstructorCredentials,
-                );
+                jest.spyOn(authService, "validateJwt").mockResolvedValue(mockInstructorCredentials);
 
                 const signInInstructor = await authService.generateTokens(
                     mockInstructorCredentials,
@@ -126,7 +122,7 @@ describe("AppController (e2e)", () => {
 
         describe("/roles (POST)", () => {
             it("Successfuly create role as an Admin", async () => {
-                jest.spyOn(authService, "validateJwtUser").mockResolvedValue(mockAdminCredentials);
+                jest.spyOn(authService, "validateJwt").mockResolvedValue(mockAdminCredentials);
 
                 const signInAdmin = await authService.generateTokens(mockAdminCredentials);
                 const accessTokenAdmin = signInAdmin.accessToken;
@@ -144,9 +140,7 @@ describe("AppController (e2e)", () => {
             });
 
             it("Fail during creating role as student", async () => {
-                jest.spyOn(authService, "validateJwtUser").mockResolvedValue(
-                    mockStudentCredentials,
-                );
+                jest.spyOn(authService, "validateJwt").mockResolvedValue(mockStudentCredentials);
 
                 const signInStudent = await authService.generateTokens(mockStudentCredentials);
                 const accessTokenStudent = signInStudent.accessToken;
@@ -159,9 +153,7 @@ describe("AppController (e2e)", () => {
             });
 
             it("Fail during creating role as an Instructor", async () => {
-                jest.spyOn(authService, "validateJwtUser").mockResolvedValue(
-                    mockInstructorCredentials,
-                );
+                jest.spyOn(authService, "validateJwt").mockResolvedValue(mockInstructorCredentials);
 
                 const signInInstructor = await authService.generateTokens(
                     mockInstructorCredentials,
