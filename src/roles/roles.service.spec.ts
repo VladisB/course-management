@@ -18,7 +18,7 @@ const rolesMock = [
     },
 ];
 
-const mockRoleRepository = () => ({
+const mockRolesRepository = () => ({
     getAllUsers: jest.fn(),
     findOne: jest.fn().mockResolvedValue(rolesMock[0]),
     findOneBy: jest.fn().mockResolvedValue(rolesMock[0]),
@@ -39,26 +39,26 @@ const USER_REPOSITORY_TOKEN = getRepositoryToken(Role);
 
 describe("RolesService", () => {
     let rolesService: RolesService;
-    let roleRepository: Repository<Role>;
+    let rolesRepository: Repository<Role>;
 
     beforeEach(async () => {
         const module = await Test.createTestingModule({
             providers: [
                 RolesService,
-                { provide: USER_REPOSITORY_TOKEN, useFactory: mockRoleRepository },
+                { provide: USER_REPOSITORY_TOKEN, useFactory: mockRolesRepository },
             ],
         }).compile();
 
         rolesService = await module.get<RolesService>(RolesService);
-        roleRepository = module.get(USER_REPOSITORY_TOKEN);
+        rolesRepository = module.get(USER_REPOSITORY_TOKEN);
     });
 
     it("RolesService should be defined", () => {
         expect(rolesService).toBeDefined();
     });
 
-    it("tasksRepository should be defined", () => {
-        expect(roleRepository).toBeDefined();
+    it("rolesRepository should be defined", () => {
+        expect(rolesRepository).toBeDefined();
     });
 
     describe("create a role", () => {
@@ -80,7 +80,7 @@ describe("RolesService", () => {
 
     describe("get role by name", () => {
         it("calls getRoleByName and successfully retrieve and return the role", async () => {
-            const repoSpy = jest.spyOn(roleRepository, "findOne");
+            const repoSpy = jest.spyOn(rolesRepository, "findOne");
             const adminEntity = { ...rolesMock[0] };
 
             expect(rolesService.getRoleByName(RoleEnum.Admin)).resolves.toEqual(adminEntity);
@@ -96,7 +96,7 @@ describe("RolesService", () => {
 
     describe("get role by id", () => {
         it("calls getRoleById and successfully retrieve and return the role", async () => {
-            const repoSpy = jest.spyOn(roleRepository, "findOneBy");
+            const repoSpy = jest.spyOn(rolesRepository, "findOneBy");
             const adminEntity = { ...rolesMock[0] };
 
             expect(rolesService.getRoleById(1)).resolves.toEqual(adminEntity);

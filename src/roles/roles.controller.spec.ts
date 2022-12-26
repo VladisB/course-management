@@ -26,7 +26,7 @@ const mockRolesService = {
     }),
 };
 
-describe("RolesService", () => {
+describe("Roles controller", () => {
     let controller: RolesController;
 
     beforeEach(async () => {
