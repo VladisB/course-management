@@ -7,6 +7,7 @@ import { RolesModule } from "./roles/roles.module";
 import databaseConfig from "./config/database.config";
 import appConfig from "./config/app.config";
 import { TypeOrmConfigService } from "./database/typeorm-config.service";
+import { FacultiesModule } from "./faculties/faculties.module";
 
 @Module({
     imports: [
@@ -19,6 +20,7 @@ import { TypeOrmConfigService } from "./database/typeorm-config.service";
         UsersModule,
         RolesModule,
         AuthModule,
+        FacultiesModule,
     ],
     controllers: [],
     providers: [TypeOrmConfigService],
