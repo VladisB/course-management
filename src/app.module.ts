@@ -8,6 +8,7 @@ import databaseConfig from "./config/database.config";
 import appConfig from "./config/app.config";
 import { TypeOrmConfigService } from "./database/typeorm-config.service";
 import { FacultiesModule } from "./faculties/faculties.module";
+import { GroupsModule } from "./groups/groups.module";
 
 @Module({
     imports: [
@@ -21,6 +22,7 @@ import { FacultiesModule } from "./faculties/faculties.module";
         RolesModule,
         AuthModule,
         FacultiesModule,
+        GroupsModule,
     ],
     controllers: [],
     providers: [TypeOrmConfigService],

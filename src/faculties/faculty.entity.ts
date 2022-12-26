@@ -1,4 +1,5 @@
-import { BaseEntity, Column, Entity, PrimaryGeneratedColumn } from "typeorm";
+import { BaseEntity, Column, Entity, OneToMany, PrimaryGeneratedColumn } from "typeorm";
+import { Group } from "../groups/group.entity";
 
 @Entity()
 export class Faculty extends BaseEntity {
@@ -7,4 +8,7 @@ export class Faculty extends BaseEntity {
 
     @Column({ unique: true })
     name: string;
+
+    @OneToMany(() => Group, (group) => group.faculty)
+    groups: Group[];
 }
