@@ -2,38 +2,11 @@ import { NotFoundException } from "@nestjs/common";
 import { Test } from "@nestjs/testing";
 import { getRepositoryToken } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
-import { CreateRoleDto } from "./dto/create-role.dto";
-import { Role } from "./role.entity";
-import { Role as RoleEnum } from "./roles.enum";
-import { RolesService } from "./roles.service";
-
-const rolesMock = [
-    {
-        id: 2,
-        name: "admin",
-    },
-    {
-        id: 3,
-        name: "student",
-    },
-];
-
-const mockRolesRepository = () => ({
-    getAllUsers: jest.fn(),
-    findOne: jest.fn().mockResolvedValue(rolesMock[0]),
-    findOneBy: jest.fn().mockResolvedValue(rolesMock[0]),
-    find: jest.fn().mockResolvedValue(rolesMock),
-    create: jest.fn((dto: CreateRoleDto) => {
-        const role = new Role();
-        role.name = dto.name;
-
-        return role;
-    }),
-    save: jest.fn().mockImplementation((role: Role): Promise<Role> => {
-        role.id = 1;
-        return Promise.resolve(role);
-    }),
-});
+import { CreateRoleDto } from "../dto/create-role.dto";
+import { Role } from "../role.entity";
+import { Role as RoleEnum } from "../roles.enum";
+import { RolesService } from "../roles.service";
+import { mockRolesRepository, rolesMock } from "./mocks";
 
 const USER_REPOSITORY_TOKEN = getRepositoryToken(Role);
 
