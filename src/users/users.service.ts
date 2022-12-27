@@ -7,12 +7,6 @@ import { UpdateUserDto } from "./dto/update-user.dto";
 import { RolesService } from "../roles/roles.service";
 import { Role } from "../roles/roles.enum";
 
-// export interface UserViewModel {
-//   id: number;
-//   email: string;
-//   role: string;
-// }
-
 @Injectable()
 export class UsersService {
     constructor(
