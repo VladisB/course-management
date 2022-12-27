@@ -1,5 +1,6 @@
-import { BaseEntity, Column, Entity, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
+import { BaseEntity, Column, Entity, ManyToOne, OneToMany, PrimaryGeneratedColumn } from "typeorm";
 import { Faculty } from "../faculties/faculty.entity";
+import { User } from "../users/user.entity";
 
 @Entity()
 export class Group extends BaseEntity {
@@ -14,4 +15,7 @@ export class Group extends BaseEntity {
 
     @Column({ nullable: false })
     facultyId: number;
+
+    @OneToMany(() => User, (user) => user.group)
+    users: User[];
 }

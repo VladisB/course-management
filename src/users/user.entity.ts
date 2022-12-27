@@ -10,6 +10,7 @@ import {
 } from "typeorm";
 import { IsEmail } from "class-validator";
 import { Role } from "../roles/role.entity";
+import { Group } from "../groups/group.entity";
 
 @Entity()
 export class User extends BaseEntity {
@@ -40,6 +41,12 @@ export class User extends BaseEntity {
 
     @Column({ nullable: false })
     roleId: number;
+
+    @ManyToOne(() => Group, (group) => group.users, { eager: true })
+    group: Group;
+
+    @Column({ nullable: true })
+    groupId: number;
 
     async validatePassword(password: string): Promise<boolean> {
         const hash = await bcrypt.hash(password, this.salt);
