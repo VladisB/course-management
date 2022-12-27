@@ -8,6 +8,7 @@ import { AuthService } from "./auth.service";
 import { JwtStrategy } from "./strategies/jwt.strategy";
 import { JwtModelFactory } from "./model-factories";
 import { RefreshStrategy } from "./strategies/jwt-refresh.strategy";
+import { IsUserNotExist } from "../utils/validators/is-not-exists.users.validator";
 
 @Module({
     imports: [
@@ -28,7 +29,14 @@ import { RefreshStrategy } from "./strategies/jwt-refresh.strategy";
         forwardRef(() => UsersModule),
     ],
     controllers: [AuthController],
-    providers: [AuthService, JwtStrategy, RefreshStrategy, JwtModelFactory, ConfigService],
+    providers: [
+        AuthService,
+        JwtStrategy,
+        RefreshStrategy,
+        JwtModelFactory,
+        ConfigService,
+        IsUserNotExist,
+    ],
     exports: [AuthService, PassportModule, JwtStrategy],
 })
 export class AuthModule {}

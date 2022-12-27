@@ -3,11 +3,13 @@ import {
     IsEmail,
     IsNotEmpty,
     IsNumber,
+    IsOptional,
     IsString,
     Matches,
     MaxLength,
     MinLength,
 } from "class-validator";
+import { IsNotExistedUser } from "../../utils/validators/is-not-exists.users.validator";
 
 export class CreateUserDto {
     @IsString()
@@ -15,6 +17,7 @@ export class CreateUserDto {
     @MaxLength(25)
     @IsEmail()
     @Transform(({ value }) => value?.toLowerCase().trim())
+    @IsNotExistedUser({ message: "User already existed" })
     email: string;
 
     @IsString()
@@ -37,6 +40,11 @@ export class CreateUserDto {
     @MaxLength(25)
     lastName: string;
 
-    // @IsNumber()
+    @IsNumber()
+    @IsOptional()
     roleId?: number;
+
+    @IsNumber()
+    @IsOptional()
+    groupId?: number;
 }
