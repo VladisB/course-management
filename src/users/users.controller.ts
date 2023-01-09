@@ -16,10 +16,10 @@ import { UpdateUserDto } from "./dto/update-user.dto";
 import { User } from "./user.entity";
 import { Roles } from "../roles/roles-auth.decorator";
 import { RolesGuard } from "../roles/roles.guard";
-import { Role } from "../roles/roles.enum";
+import { RoleName } from "../roles/roles.enum";
 
 @Controller("users")
-@Roles(Role.Admin)
+@Roles(RoleName.Admin)
 @UseGuards(AuthGuard("jwt"), RolesGuard)
 export class UsersController {
     constructor(private usersService: UsersService) {}

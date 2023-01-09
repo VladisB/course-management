@@ -1,4 +1,5 @@
 import {
+    ConflictException,
     HttpException,
     HttpStatus,
     Injectable,
@@ -39,7 +40,7 @@ export class AuthService {
     }
 
     public async signUp(authCredentialsDto: CreateUserDto): Promise<AuthViewModel> {
-        this.validateCreate(authCredentialsDto);
+        await this.validateCreate(authCredentialsDto);
 
         const user = await this.userService.createUser({
             ...authCredentialsDto,
@@ -80,7 +81,7 @@ export class AuthService {
     private async checkIfExist(authCredentialsDto: AuthCredentialsDto): Promise<void> {
         const user = await this.userService.getUserByEmail(authCredentialsDto.email);
 
-        if (user) throw new HttpException("User already exists", HttpStatus.BAD_REQUEST);
+        if (user) throw new ConflictException("User already exists");
     }
 
     private async validateLogin(authCredentialsDto: AuthCredentialsDto): Promise<User> {

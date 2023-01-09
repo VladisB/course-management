@@ -3,6 +3,7 @@ import {
     IsEmail,
     IsNotEmpty,
     IsNumber,
+    IsOptional,
     IsString,
     Matches,
     MaxLength,
@@ -37,6 +38,11 @@ export class CreateUserDto {
     @MaxLength(25)
     lastName: string;
 
-    // @IsNumber()
+    @IsNumber()
+    @IsOptional()
     roleId?: number;
+
+    @IsNumber()
+    @IsOptional()
+    groupId?: number;
 }

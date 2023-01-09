@@ -13,6 +13,7 @@ import { Response } from "express";
 import { CreateUserDto } from "../users/dto/create-user.dto";
 import { User } from "../users/user.entity";
 import { AuthService } from "./auth.service";
+import { AuthCredentialsDto } from "./dto";
 import { GetUser } from "./get-user.decorator";
 
 @Controller("auth")
@@ -21,8 +22,8 @@ export class AuthController {
 
     @Post("/login")
     @HttpCode(200)
-    async login(@Res({ passthrough: true }) res: Response, @Body() userDto: CreateUserDto) {
-        const tokens = await this.authService.login(userDto);
+    async login(@Res({ passthrough: true }) res: Response, @Body() authDto: AuthCredentialsDto) {
+        const tokens = await this.authService.login(authDto);
         res.cookie("refreshToken", tokens.refreshToken, { httpOnly: true });
 
         return tokens;
@@ -31,11 +32,8 @@ export class AuthController {
     @Post("/signup")
     @UsePipes(new ValidationPipe({ transform: true }))
     @HttpCode(201)
-    async registration(
-        @Res({ passthrough: true }) res: Response,
-        @Body() authCredentialsDto: CreateUserDto,
-    ) {
-        const tokens = await this.authService.signUp(authCredentialsDto);
+    async registration(@Res({ passthrough: true }) res: Response, @Body() userDto: CreateUserDto) {
+        const tokens = await this.authService.signUp(userDto);
         res.cookie("refreshToken", tokens.refreshToken, { httpOnly: true });
 
         return tokens;

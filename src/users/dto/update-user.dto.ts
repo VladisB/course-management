@@ -2,6 +2,7 @@ import {
     IsEmail,
     IsNotEmpty,
     IsNumber,
+    IsOptional,
     IsString,
     Matches,
     MaxLength,
@@ -13,6 +14,7 @@ export class UpdateUserDto {
     @MinLength(4)
     @MaxLength(20)
     @IsEmail()
+    @IsOptional()
     email?: string;
 
     @IsString()
@@ -21,20 +23,24 @@ export class UpdateUserDto {
     @Matches(/((?=.*\d)|(?=.*\W+))(?![.\n])(?=.*[A-Z])(?=.*[a-z]).*$/, {
         message: "password too weak",
     })
+    @IsOptional()
     password?: string;
 
     @IsNumber()
+    @IsOptional()
     roleId?: number;
 
     @IsString()
     @IsNotEmpty()
     @MinLength(4)
     @MaxLength(25)
+    @IsOptional()
     firstName?: string;
 
     @IsString()
     @IsNotEmpty()
     @MinLength(4)
     @MaxLength(25)
+    @IsOptional()
     lastName?: string;
 }
