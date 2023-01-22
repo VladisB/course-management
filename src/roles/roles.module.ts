@@ -4,10 +4,11 @@ import { RolesController } from "./roles.controller";
 import { Role } from "./role.entity";
 import { TypeOrmModule } from "@nestjs/typeorm";
 import { AuthModule } from "../auth/auth.module";
+import { RolesRepository } from "./roles.repository";
 
 @Module({
     imports: [forwardRef(() => AuthModule), TypeOrmModule.forFeature([Role])],
-    providers: [RolesService],
+    providers: [RolesService, RolesRepository],
     controllers: [RolesController],
     exports: [RolesService],
 })

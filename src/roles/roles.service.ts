@@ -1,32 +1,53 @@
-import { Injectable } from "@nestjs/common";
-import { InjectRepository } from "@nestjs/typeorm";
-import { Repository } from "typeorm";
+import { ConflictException, Injectable } from "@nestjs/common";
 import { CreateRoleDto } from "./dto/create-role.dto";
 import { Role } from "./role.entity";
+import { RolesRepository } from "./roles.repository";
 
 @Injectable()
-export class RolesService {
-    constructor(
-        @InjectRepository(Role)
-        private readonly roleRepository: Repository<Role>, // private readonly userService: UsersService,
-    ) {}
+export class RolesService implements IRolesService {
+    constructor(private readonly roleRepository: RolesRepository) {}
 
-    async createRole(dto: CreateRoleDto): Promise<Role> {
-        const role = await this.roleRepository.create(dto);
-        return this.roleRepository.save(role);
+    //#region Public methods
+
+    public async createRole(dto: CreateRoleDto): Promise<Role> {
+        await this.validateCreate(dto);
+
+        return await this.roleRepository.create(dto);
     }
 
-    async getRoleByName(name: string): Promise<Role> {
-        const role = await this.roleRepository.findOne({ where: { name } });
-        return role;
+    public async getRoleByName(name: string): Promise<Role> {
+        return await this.roleRepository.getByName(name);
     }
 
-    async getRoleById(id: number): Promise<Role> {
-        const role = await this.roleRepository.findOneBy({ id });
-        return role;
+    public async getRoleById(id: number): Promise<Role> {
+        return await this.roleRepository.getById(id);
     }
 
-    async getRoles(): Promise<Role[]> {
-        return await this.roleRepository.find();
+    public async getRoles(): Promise<Role[]> {
+        // TODO: Add pagination, sorting, filtering, etc.
+        return await this.roleRepository.getAll();
     }
+
+    //#endregion
+
+    //#region Private methods
+
+    private async validateCreate(dto: CreateRoleDto): Promise<void> {
+        await this.checkifExist(dto);
+    }
+
+    private async checkifExist(dto: CreateRoleDto): Promise<void> {
+        const role = await this.roleRepository.getByName(dto.name);
+
+        if (role) throw new ConflictException(`Role with name ${dto.name} already exists.`);
+    }
+
+    //#endregion
+}
+
+interface IRolesService {
+    createRole(dto: CreateRoleDto): Promise<Role>;
+    getRoleByName(name: string): Promise<Role>;
+    getRoleById(id: number): Promise<Role>;
+    getRoles(): Promise<Role[]>;
 }
