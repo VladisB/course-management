@@ -62,7 +62,7 @@ export class UsersService {
     private async checkIfUserExistByEmail(email: string): Promise<void> {
         if (!email) return;
 
-        const user = await this.userRepository.findBy({ email });
+        const user = await this.userRepository.findOneBy({ email });
 
         if (user) throw new HttpException("User already exists", HttpStatus.BAD_REQUEST);
     }
