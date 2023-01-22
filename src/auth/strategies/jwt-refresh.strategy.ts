@@ -33,6 +33,6 @@ export class RefreshStrategy extends PassportStrategy(Strategy, "refresh") {
             throw new BadRequestException("invalid refresh token");
         }
 
-        return await this.authService.validateRefreshJwt(payload, refreshToken);
+        return await this.authService.validateRefreshToken(payload, refreshToken);
     }
 }

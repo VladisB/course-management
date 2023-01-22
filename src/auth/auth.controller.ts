@@ -43,7 +43,7 @@ export class AuthController {
     @UseGuards(AuthGuard("refresh"))
     @HttpCode(201)
     async updateRefresh(@GetUser() user: User, @Res({ passthrough: true }) res: Response) {
-        const tokens = await this.authService.refresh(user);
+        const tokens = await this.authService.refreshToken(user);
 
         res.cookie("refreshToken", tokens.refreshToken, { httpOnly: true });
 

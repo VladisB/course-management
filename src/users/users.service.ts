@@ -1,43 +1,28 @@
 import { HttpException, HttpStatus, Injectable, NotFoundException } from "@nestjs/common";
 import { User } from "./user.entity";
 import { CreateUserDto } from "./dto/create-user.dto";
-import { Repository } from "typeorm";
-import { InjectRepository } from "@nestjs/typeorm";
 import { UpdateUserDto } from "./dto/update-user.dto";
 import { RolesService } from "../roles/roles.service";
 import { RoleName } from "../roles/roles.enum";
 import { Role } from "../roles/role.entity";
+import { UsersRepository } from "./users.repository";
 
 @Injectable()
 export class UsersService {
-    constructor(
-        @InjectRepository(User)
-        private readonly userRepository: Repository<User>,
-        private roleService: RolesService,
-    ) {}
+    constructor(private roleService: RolesService, private usersRepository: UsersRepository) {}
 
     async createUser(dto: CreateUserDto): Promise<User> {
         let role = await this.validateCreate(dto);
 
         if (!role) role = await this.roleService.getRoleByName(RoleName.Student);
-        const user = await this.userRepository.create({
-            ...dto,
-            role,
-        });
 
-        return user.save();
+        return await this.usersRepository.create(dto, role);
     }
 
     public async updateUser(id: number, updateUserDto: UpdateUserDto): Promise<User> {
         const role = await this.validateUpdate(id, updateUserDto);
 
-        const user = await this.userRepository.preload({
-            id,
-            ...updateUserDto,
-            role,
-        });
-
-        return user.save();
+        return await this.usersRepository.update(id, updateUserDto, role);
     }
 
     private async validateCreate(updateUserDto: UpdateUserDto): Promise<Role> {
@@ -54,7 +39,7 @@ export class UsersService {
     }
 
     private async checkIfUserExistById(id: number): Promise<void> {
-        const user = await this.userRepository.findBy({ id });
+        const user = await this.usersRepository.getById(id);
 
         if (!user) throw new NotFoundException("User already exists");
     }
@@ -62,7 +47,7 @@ export class UsersService {
     private async checkIfUserExistByEmail(email: string): Promise<void> {
         if (!email) return;
 
-        const user = await this.userRepository.findOneBy({ email });
+        const user = await this.usersRepository.getByEmail(email);
 
         if (user) throw new HttpException("User already exists", HttpStatus.BAD_REQUEST);
     }
@@ -78,16 +63,15 @@ export class UsersService {
     }
 
     async getAllUsers() {
-        const users = await this.userRepository.find();
-        return users;
+        // TODO: add pagination, sorting, filtering
+        return await this.usersRepository.getAll();
     }
 
     async getUserByEmail(email: string) {
-        const user = await this.userRepository.findOneBy({ email });
-        return user;
+        return await this.usersRepository.getByEmail(email);
     }
 
     async getUserById(id: number): Promise<User> {
-        return await this.userRepository.findOneBy({ id });
+        return await this.usersRepository.getById(id);
     }
 }
