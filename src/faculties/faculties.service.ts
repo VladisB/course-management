@@ -1,23 +1,22 @@
 import { Injectable } from "@nestjs/common";
-import { InjectRepository } from "@nestjs/typeorm";
-import { Repository } from "typeorm";
 import { CreateFacultyDto } from "./dto/create-faculty.dto";
+import { FacultiesRepository } from "./faculties.repository";
 import { Faculty } from "./faculty.entity";
 
 @Injectable()
-export class FacultiesService {
-    constructor(
-        @InjectRepository(Faculty)
-        private readonly facultyRepository: Repository<Faculty>,
-    ) {}
+export class FacultiesService implements IFacultiesService {
+    constructor(private readonly facultiesRepository: FacultiesRepository) {}
 
     public async createFaculty(dto: CreateFacultyDto): Promise<Faculty> {
-        const faculty = await this.facultyRepository.create(dto);
-
-        return this.facultyRepository.save(faculty);
+        return await this.facultiesRepository.create(dto);
     }
 
     public async getFaculties(): Promise<Faculty[]> {
-        return await this.facultyRepository.find();
+        return await this.facultiesRepository.getAll();
     }
+}
+
+interface IFacultiesService {
+    createFaculty(dto: CreateFacultyDto): Promise<Faculty>;
+    getFaculties(): Promise<Faculty[]>;
 }

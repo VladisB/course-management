@@ -5,10 +5,12 @@ import { RolesModule } from "../roles/roles.module";
 import { FacultiesController } from "./faculties.controller";
 import { FacultiesService } from "./faculties.service";
 import { Faculty } from "./faculty.entity";
+import { FacultiesRepository } from "./faculties.repository";
 
 @Module({
     controllers: [FacultiesController],
-    providers: [FacultiesService],
-    imports: [RolesModule, AuthModule, TypeOrmModule.forFeature([Faculty])],
+    providers: [FacultiesService, FacultiesRepository],
+    imports: [TypeOrmModule.forFeature([Faculty]), RolesModule, AuthModule],
+    exports: [FacultiesService, FacultiesRepository],
 })
 export class FacultiesModule {}

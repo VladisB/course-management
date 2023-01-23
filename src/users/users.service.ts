@@ -8,10 +8,12 @@ import { Role } from "../roles/role.entity";
 import { UsersRepository } from "./users.repository";
 
 @Injectable()
-export class UsersService {
+export class UsersService implements IUsersService {
     constructor(private roleService: RolesService, private usersRepository: UsersRepository) {}
 
-    async createUser(dto: CreateUserDto): Promise<User> {
+    //#region Public methods
+
+    public async createUser(dto: CreateUserDto): Promise<User> {
         let role = await this.validateCreate(dto);
 
         if (!role) role = await this.roleService.getRoleByName(RoleName.Student);
@@ -24,6 +26,15 @@ export class UsersService {
 
         return await this.usersRepository.update(id, updateUserDto, role);
     }
+
+    public async getAllUsers(): Promise<User[]> {
+        // TODO: add pagination, sorting, filtering
+        return await this.usersRepository.getAll();
+    }
+
+    //#endregion
+
+    //#region Private methods
 
     private async validateCreate(updateUserDto: UpdateUserDto): Promise<Role> {
         await this.checkIfUserExistByEmail(updateUserDto.email);
@@ -62,16 +73,11 @@ export class UsersService {
         return role;
     }
 
-    async getAllUsers() {
-        // TODO: add pagination, sorting, filtering
-        return await this.usersRepository.getAll();
-    }
+    //#endregion
+}
 
-    async getUserByEmail(email: string) {
-        return await this.usersRepository.getByEmail(email);
-    }
-
-    async getUserById(id: number): Promise<User> {
-        return await this.usersRepository.getById(id);
-    }
+interface IUsersService {
+    createUser(dto: CreateUserDto): Promise<User>;
+    updateUser(id: number, updateUserDto: UpdateUserDto): Promise<User>;
+    getAllUsers(): Promise<User[]>;
 }
