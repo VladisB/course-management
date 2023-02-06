@@ -40,7 +40,7 @@ export class UsersService implements IUsersService {
     public async getAllUsers(
         queryParams: QueryParamsDTO,
     ): Promise<DataListResponse<UserViewModel>> {
-        const usersQuery = this.usersRepository.getAll(queryParams);
+        const usersQuery = this.usersRepository.getAll();
 
         const config = {
             columns: [
