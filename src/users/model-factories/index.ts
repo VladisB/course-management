@@ -1,3 +1,3 @@
-import { UserViewModelFactory } from "./user.vm-factory";
+import { UsersViewModelFactory } from "./user.vm-factory";
 
-export { UserViewModelFactory };
+export { UsersViewModelFactory };

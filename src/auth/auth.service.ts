@@ -10,7 +10,7 @@ import { JwtService } from "@nestjs/jwt";
 import * as bcrypt from "bcryptjs";
 import { AuthCredentialsDto } from "./dto/auth-credentials.dto";
 import { JwtModelFactory } from "./model-factories/jwt.m-factory";
-import { UserViewModelFactory } from "../users/model-factories/user.vm-factory";
+import { UsersViewModelFactory } from "../users/model-factories/user.vm-factory";
 import { UserViewModel } from "../users/view-models";
 import { AuthViewModel, JwtModel } from "./models";
 import { User } from "../users/user.entity";
@@ -25,7 +25,7 @@ export class AuthService implements IAuthService {
         private readonly configService: ConfigService,
         private usersRepository: UsersRepository,
         private userService: UsersService,
-        private userViewModelFactory: UserViewModelFactory,
+        private usersViewModelFactory: UsersViewModelFactory,
     ) {}
 
     //#region Public methods
@@ -55,7 +55,7 @@ export class AuthService implements IAuthService {
 
         if (!user) throw new UnauthorizedException({ message: "Invalid token" });
 
-        return this.userViewModelFactory.initUserViewModel(user);
+        return this.usersViewModelFactory.initUserViewModel(user);
     }
 
     public async validateRefreshToken(
@@ -71,7 +71,7 @@ export class AuthService implements IAuthService {
 
         if (!result) throw new UnauthorizedException({ message: "Invalid token" });
 
-        return this.userViewModelFactory.initUserViewModel(user);
+        return this.usersViewModelFactory.initUserViewModel(user);
     }
 
     public async generateTokens(payload: JwtModel): Promise<AuthViewModel> {

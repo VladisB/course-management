@@ -5,13 +5,14 @@ import { User } from "./user.entity";
 import { UsersService } from "./users.service";
 import { RolesModule } from "../roles/roles.module";
 import { AuthModule } from "../auth/auth.module";
-import { UserViewModelFactory } from "./model-factories/user.vm-factory";
+import { UsersViewModelFactory } from "./model-factories/user.vm-factory";
 import { UsersRepository } from "./users.repository";
+import { ApplyToQueryExtension } from "../infrastructure/common/query-extention";
 
 @Module({
     controllers: [UsersController],
-    providers: [UsersService, UserViewModelFactory, UsersRepository],
+    providers: [UsersService, UsersViewModelFactory, UsersRepository, ApplyToQueryExtension],
     imports: [TypeOrmModule.forFeature([User]), forwardRef(() => AuthModule), RolesModule],
-    exports: [UsersService, UserViewModelFactory, UsersRepository],
+    exports: [UsersService, UsersViewModelFactory, UsersRepository],
 })
 export class UsersModule {}

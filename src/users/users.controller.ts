@@ -5,6 +5,7 @@ import {
     Param,
     Patch,
     Post,
+    Query,
     UseGuards,
     UsePipes,
     ValidationPipe,
@@ -17,6 +18,9 @@ import { User } from "./user.entity";
 import { Roles } from "../roles/roles-auth.decorator";
 import { RolesGuard } from "../roles/roles.guard";
 import { RoleName } from "../roles/roles.enum";
+import { UserViewModel } from "./view-models";
+import { DataListResponse } from "src/infrastructure/common/db/data-list-response";
+import { QueryParamsDTO } from "../infrastructure/common/dto/query-params.dto";
 
 @Controller("users")
 @Roles(RoleName.Admin)
@@ -31,8 +35,9 @@ export class UsersController {
     }
 
     @Get()
-    getAll() {
-        return this.usersService.getAllUsers();
+    @UsePipes(new ValidationPipe({ transform: true }))
+    getAll(@Query() queryParams: QueryParamsDTO): Promise<DataListResponse<UserViewModel>> {
+        return this.usersService.getAllUsers(queryParams);
     }
 
     @Patch(":id")

@@ -4,9 +4,11 @@ import {
     BeforeInsert,
     BeforeUpdate,
     Column,
+    CreateDateColumn,
     Entity,
     ManyToOne,
     PrimaryGeneratedColumn,
+    UpdateDateColumn,
 } from "typeorm";
 import { IsEmail } from "class-validator";
 import { Role } from "../roles/role.entity";
@@ -47,6 +49,16 @@ export class User extends BaseEntity {
 
     @Column({ nullable: true })
     groupId: number;
+
+    @CreateDateColumn({ type: "timestamp", default: () => "CURRENT_TIMESTAMP(6)" })
+    public createdAt: Date;
+
+    @UpdateDateColumn({
+        type: "timestamp",
+        default: () => "CURRENT_TIMESTAMP(6)",
+        onUpdate: "CURRENT_TIMESTAMP(6)",
+    })
+    public updatedAt: Date;
 
     async validatePassword(password: string): Promise<boolean> {
         const hash = await bcrypt.hash(password, this.salt);

@@ -6,10 +6,19 @@ import { RolesService } from "../roles/roles.service";
 import { RoleName } from "../roles/roles.enum";
 import { Role } from "../roles/role.entity";
 import { UsersRepository } from "./users.repository";
+import { UsersViewModelFactory } from "./model-factories";
+import { UserViewModel } from "./view-models";
+import { DataListResponse } from "src/infrastructure/common/db/data-list-response";
+import { QueryParamsDTO } from "../infrastructure/common/dto/query-params.dto";
+import { ApplyToQueryExtension } from "../infrastructure/common/query-extention";
 
 @Injectable()
 export class UsersService implements IUsersService {
-    constructor(private roleService: RolesService, private usersRepository: UsersRepository) {}
+    constructor(
+        private roleService: RolesService,
+        private usersRepository: UsersRepository,
+        private usersViewModelFactory: UsersViewModelFactory,
+    ) {}
 
     //#region Public methods
 
@@ -27,9 +36,47 @@ export class UsersService implements IUsersService {
         return await this.usersRepository.update(id, updateUserDto, role);
     }
 
-    public async getAllUsers(): Promise<User[]> {
-        // TODO: add pagination, sorting, filtering
-        return await this.usersRepository.getAll();
+    // TODO: Check config
+    public async getAllUsers(
+        queryParams: QueryParamsDTO,
+    ): Promise<DataListResponse<UserViewModel>> {
+        const usersQuery = this.usersRepository.getAll(queryParams);
+
+        const config = {
+            columns: [
+                {
+                    name: "id",
+                    prop: "id",
+                    tableName: "user",
+                    isSearchable: true,
+                    isSortable: true,
+                },
+                {
+                    name: "firstName",
+                    prop: "firstName",
+                    tableName: "user",
+                    isSearchable: true,
+                    isSortable: true,
+                },
+                {
+                    name: "lastName",
+                    prop: "lastName",
+                    tableName: "user",
+                    isSearchable: true,
+                    isSortable: true,
+                },
+            ],
+        };
+
+        const [users, count] = await ApplyToQueryExtension.applyToQuery<User>(
+            queryParams,
+            usersQuery,
+            config,
+        );
+
+        const model = this.usersViewModelFactory.initUserListViewModel(users);
+
+        return new DataListResponse<UserViewModel>(model, count);
     }
 
     //#endregion
@@ -79,5 +126,5 @@ export class UsersService implements IUsersService {
 interface IUsersService {
     createUser(dto: CreateUserDto): Promise<User>;
     updateUser(id: number, updateUserDto: UpdateUserDto): Promise<User>;
-    getAllUsers(): Promise<User[]>;
+    getAllUsers(queryParams: QueryParamsDTO): Promise<DataListResponse<UserViewModel>>;
 }
