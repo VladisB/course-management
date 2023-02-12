@@ -22,19 +22,24 @@ export class Group extends BaseEntity {
     @ManyToOne(() => Faculty, (faculty) => faculty.groups, { eager: true })
     faculty: Faculty;
 
-    @Column({ nullable: false })
+    @Column({ nullable: false, name: "faculty_id" })
     facultyId: number;
 
     @OneToMany(() => User, (user) => user.group)
     users: User[];
 
-    @CreateDateColumn({ type: "timestamp", default: () => "CURRENT_TIMESTAMP(6)" })
+    @CreateDateColumn({
+        type: "timestamp",
+        default: () => "CURRENT_TIMESTAMP(6)",
+        name: "created_at",
+    })
     public createdAt: Date;
 
     @UpdateDateColumn({
         type: "timestamp",
         default: () => "CURRENT_TIMESTAMP(6)",
         onUpdate: "CURRENT_TIMESTAMP(6)",
+        name: "updated_at",
     })
     public updatedAt: Date;
 }
