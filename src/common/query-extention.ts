@@ -68,7 +68,7 @@ export class ApplyToQueryExtension {
         const page = request.page || 1;
         const skip = (page - 1) * take;
 
-        if (request.limit > 0) query = query.take(take).skip(skip);
+        if (request.limit > 0) query = query.limit(take).offset(skip);
 
         return query;
     }
@@ -84,7 +84,9 @@ export class ApplyToQueryExtension {
                 const columnName = column.prop;
                 const table = column.tableName;
 
-                query.where(`${table}.${columnName} = :search`, { search: column.search });
+                query.where(`${table}.${columnName} iLike :search`, {
+                    search: `%${column.search}%`,
+                });
             }
         });
 
