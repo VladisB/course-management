@@ -42,12 +42,11 @@ export class ApplyToQueryExtension {
         query: SelectQueryBuilder<TRecord>,
         config: DatatablesConfig,
     ): SelectQueryBuilder<TRecord> {
-        const sortableColumns = config.columns.filter((s) => s.isSortable);
+        const sortableColumns = config.columns.filter((column) => column.isSortable);
 
         if (!sortableColumns.length) return query;
 
-        // find first column to sort by
-        const sortByColumn = sortableColumns.find((c) => c.sort.apply === true);
+        const sortByColumn = sortableColumns.find((column) => column.sort.apply === true);
 
         if (sortByColumn) {
             const columnName = sortByColumn.prop;
@@ -78,15 +77,14 @@ export class ApplyToQueryExtension {
         query: SelectQueryBuilder<TRecord>,
         config: DatatablesConfig,
     ): SelectQueryBuilder<TRecord> {
-        // get all searchable columns
-        const searchableColumns = config.columns.filter((s) => s.isSearchable);
+        const searchableColumns = config.columns.filter((column) => column.isSearchable);
 
-        searchableColumns.forEach((col) => {
-            if (col.search) {
-                const columnName = col.prop;
-                const table = col.tableName;
+        searchableColumns.forEach((column) => {
+            if (column.search) {
+                const columnName = column.prop;
+                const table = column.tableName;
 
-                query.where(`${table}.${columnName} = :search`, { search: col.search });
+                query.where(`${table}.${columnName} = :search`, { search: column.search });
             }
         });
 
@@ -117,7 +115,6 @@ export class ApplyToQueryExtension {
     }
 
     private static setSortValue(column: Column, sortBy: string, sortType: SortDirection): void {
-        // set initial value
         const sort: Sort = {
             apply: false,
             direction: SortDirection.ASC,
@@ -129,7 +126,7 @@ export class ApplyToQueryExtension {
             sort.direction = column.sort.direction;
         }
 
-        // set column sort value (override)
+        // set column sort value
         if (column.name === sortBy) {
             sort.apply = true;
             sort.direction = sortType;
@@ -148,7 +145,8 @@ export class ApplyToQueryExtension {
         const { searchBy, sortBy } = queryParams;
 
         if (searchBy) {
-            const searchColumn = columns.find((col) => col.name === searchBy);
+            const searchColumn = columns.find((column) => column.name === searchBy);
+
             if (!searchColumn) {
                 throw new HttpException(
                     `Invalid datatables column '${searchBy}'.`,
@@ -163,7 +161,8 @@ export class ApplyToQueryExtension {
         }
 
         if (sortBy) {
-            const sortColumn = columns.find((col) => col.name === sortBy);
+            const sortColumn = columns.find((column) => column.name === sortBy);
+
             if (!sortColumn) {
                 throw new HttpException(
                     `Invalid datatables column '${sortBy}'.`,

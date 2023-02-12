@@ -19,8 +19,8 @@ import { Roles } from "../roles/roles-auth.decorator";
 import { RolesGuard } from "../roles/roles.guard";
 import { RoleName } from "../roles/roles.enum";
 import { UserViewModel } from "./view-models";
-import { DataListResponse } from "src/infrastructure/common/db/data-list-response";
-import { QueryParamsDTO } from "../infrastructure/common/dto/query-params.dto";
+import { DataListResponse } from "src/common/db/data-list-response";
+import { QueryParamsDTO } from "src/common/dto/query-params.dto";
 
 @Controller("users")
 @Roles(RoleName.Admin)

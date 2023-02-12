@@ -4,7 +4,7 @@ import { Role } from "src/roles/role.entity";
 import { Repository, SelectQueryBuilder } from "typeorm";
 import { CreateUserDto } from "./dto/create-user.dto";
 import { UpdateUserDto } from "./dto/update-user.dto";
-import { QueryParamsDTO } from "../infrastructure/common/dto/query-params.dto";
+import { QueryParamsDTO } from "../common/dto/query-params.dto";
 import { User } from "./user.entity";
 
 @Injectable()
@@ -30,7 +30,7 @@ export class UsersRepository implements IUsersRepository {
         });
     }
 
-    public getAll(): SelectQueryBuilder<User> {
+    public getAllQ(): SelectQueryBuilder<User> {
         const userQuery = this.userEntityRepository
             .createQueryBuilder("user")
             .leftJoinAndSelect("user.role", "role");
@@ -60,7 +60,7 @@ export class UsersRepository implements IUsersRepository {
 
 interface IUsersRepository {
     create(dto: CreateUserDto, role: Role): Promise<User>;
-    getAll(queryParams: QueryParamsDTO): SelectQueryBuilder<User>;
+    getAllQ(queryParams: QueryParamsDTO): SelectQueryBuilder<User>;
     getByEmail(email: string): Promise<User>;
     getById(id: number): Promise<User>;
     update(id: number, dto: CreateUserDto, role: Role): Promise<User>;

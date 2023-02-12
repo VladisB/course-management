@@ -26,13 +26,13 @@ export class User extends BaseEntity {
     @Column()
     password: string;
 
-    @Column()
+    @Column({ name: "first_name" })
     firstName: string;
 
-    @Column()
+    @Column({ name: "last_name" })
     lastName: string;
 
-    @Column({ nullable: true })
+    @Column({ nullable: true, name: "refresh_token" })
     refreshToken: string;
 
     @Column({ nullable: false })
@@ -41,22 +41,27 @@ export class User extends BaseEntity {
     @ManyToOne(() => Role, (role) => role.users, { eager: true })
     role: Role;
 
-    @Column({ nullable: false })
+    @Column({ nullable: false, name: "role_id" })
     roleId: number;
 
     @ManyToOne(() => Group, (group) => group.users, { eager: true })
     group: Group;
 
-    @Column({ nullable: true })
+    @Column({ nullable: true, name: "group_id" })
     groupId: number;
 
-    @CreateDateColumn({ type: "timestamp", default: () => "CURRENT_TIMESTAMP(6)" })
+    @CreateDateColumn({
+        type: "timestamp",
+        default: () => "CURRENT_TIMESTAMP(6)",
+        name: "created_at",
+    })
     public createdAt: Date;
 
     @UpdateDateColumn({
         type: "timestamp",
         default: () => "CURRENT_TIMESTAMP(6)",
         onUpdate: "CURRENT_TIMESTAMP(6)",
+        name: "updated_at",
     })
     public updatedAt: Date;
 

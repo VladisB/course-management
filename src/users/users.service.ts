@@ -8,9 +8,9 @@ import { Role } from "../roles/role.entity";
 import { UsersRepository } from "./users.repository";
 import { UsersViewModelFactory } from "./model-factories";
 import { UserViewModel } from "./view-models";
-import { DataListResponse } from "src/infrastructure/common/db/data-list-response";
-import { QueryParamsDTO } from "../infrastructure/common/dto/query-params.dto";
-import { ApplyToQueryExtension } from "../infrastructure/common/query-extention";
+import { DataListResponse } from "src/common/db/data-list-response";
+import { QueryParamsDTO } from "../common/dto/query-params.dto";
+import { ApplyToQueryExtension } from "../common/query-extention";
 
 @Injectable()
 export class UsersService implements IUsersService {
@@ -36,13 +36,12 @@ export class UsersService implements IUsersService {
         return await this.usersRepository.update(id, updateUserDto, role);
     }
 
-    // TODO: Check config
     public async getAllUsers(
         queryParams: QueryParamsDTO,
     ): Promise<DataListResponse<UserViewModel>> {
-        const usersQuery = this.usersRepository.getAll();
+        const usersQuery = this.usersRepository.getAllQ();
 
-        const config = {
+        const usersQConfig = {
             columns: [
                 {
                     name: "id",
@@ -53,14 +52,14 @@ export class UsersService implements IUsersService {
                 },
                 {
                     name: "firstName",
-                    prop: "firstName",
+                    prop: "first_name",
                     tableName: "user",
                     isSearchable: true,
                     isSortable: true,
                 },
                 {
                     name: "lastName",
-                    prop: "lastName",
+                    prop: "last_name",
                     tableName: "user",
                     isSearchable: true,
                     isSortable: true,
@@ -71,7 +70,7 @@ export class UsersService implements IUsersService {
         const [users, count] = await ApplyToQueryExtension.applyToQuery<User>(
             queryParams,
             usersQuery,
-            config,
+            usersQConfig,
         );
 
         const model = this.usersViewModelFactory.initUserListViewModel(users);

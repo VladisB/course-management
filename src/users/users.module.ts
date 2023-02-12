@@ -7,7 +7,7 @@ import { RolesModule } from "../roles/roles.module";
 import { AuthModule } from "../auth/auth.module";
 import { UsersViewModelFactory } from "./model-factories/user.vm-factory";
 import { UsersRepository } from "./users.repository";
-import { ApplyToQueryExtension } from "../infrastructure/common/query-extention";
+import { ApplyToQueryExtension } from "../common/query-extention";
 
 @Module({
     controllers: [UsersController],
