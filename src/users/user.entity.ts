@@ -6,6 +6,7 @@ import {
     Column,
     CreateDateColumn,
     Entity,
+    JoinColumn,
     ManyToOne,
     PrimaryGeneratedColumn,
     UpdateDateColumn,
@@ -39,16 +40,12 @@ export class User extends BaseEntity {
     salt: string;
 
     @ManyToOne(() => Role, (role) => role.users, { eager: true })
+    @JoinColumn({ name: "role_id" })
     role: Role;
 
-    @Column({ nullable: false, name: "role_id" })
-    roleId: number;
-
     @ManyToOne(() => Group, (group) => group.users, { eager: true })
+    @JoinColumn({ name: "group_id" })
     group: Group;
-
-    @Column({ nullable: true, name: "group_id" })
-    groupId: number;
 
     @CreateDateColumn({
         type: "timestamp",
