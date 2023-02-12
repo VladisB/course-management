@@ -3,6 +3,7 @@ import {
     Column,
     CreateDateColumn,
     Entity,
+    JoinColumn,
     ManyToOne,
     OneToMany,
     PrimaryGeneratedColumn,
@@ -20,10 +21,8 @@ export class Group extends BaseEntity {
     name: string;
 
     @ManyToOne(() => Faculty, (faculty) => faculty.groups, { eager: true })
+    @JoinColumn({ name: "faculty_id" })
     faculty: Faculty;
-
-    @Column({ nullable: false, name: "faculty_id" })
-    facultyId: number;
 
     @OneToMany(() => User, (user) => user.group)
     users: User[];
