@@ -14,7 +14,7 @@ export class TypeOrmConfigService implements TypeOrmOptionsFactory {
             logging: this.configService.get<string>("app.nodeEnv") !== "production",
             password: this.configService.get<string>("database.password"),
             port: this.configService.get<number>("database.port"),
-            synchronize: this.configService.get<boolean>("database.synchronize"),
+            synchronize: false,
             type: this.configService.get<string>("database.type"),
             username: this.configService.get<string>("database.username"),
         } as TypeOrmModuleOptions;
