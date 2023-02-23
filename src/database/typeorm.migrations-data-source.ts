@@ -3,7 +3,7 @@ import { DataSource, DataSourceOptions } from "typeorm";
 
 @Injectable()
 export class MigrationDataSourceConfigService {
-    public createOptions() {
+    public createOptions(): DataSourceOptions {
         return {
             database: process.env.PG_DATABASE,
             entities: [__dirname + "/../**/*.entity{.ts,.js}"],
