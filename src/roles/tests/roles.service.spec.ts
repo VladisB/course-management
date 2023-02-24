@@ -3,8 +3,8 @@ import { Test } from "@nestjs/testing";
 import { getRepositoryToken } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
 import { CreateRoleDto } from "../dto/create-role.dto";
-import { Role } from "../role.entity";
-import { Role as RoleEnum } from "../roles.enum";
+import { Role } from "../entities/role.entity";
+import { RoleName } from "../roles.enum";
 import { RolesService } from "../roles.service";
 import { mockRolesRepository, rolesMock } from "./mocks";
 
@@ -56,8 +56,8 @@ describe("RolesService", () => {
             const repoSpy = jest.spyOn(rolesRepository, "findOne");
             const adminEntity = { ...rolesMock[0] };
 
-            expect(rolesService.getRoleByName(RoleEnum.Admin)).resolves.toEqual(adminEntity);
-            expect(repoSpy).toBeCalledWith({ where: { name: RoleEnum.Admin } });
+            expect(rolesService.getRoleByName(RoleName.Admin)).resolves.toEqual(adminEntity);
+            expect(repoSpy).toBeCalledWith({ where: { name: RoleName.Admin } });
         });
 
         it("throws an error if role is not found ", async () => {

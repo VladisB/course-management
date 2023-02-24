@@ -5,7 +5,7 @@ import { AppModule } from "./../src/app.module";
 import { AuthService } from "../src/auth/auth.service";
 import { RolesService } from "../src/roles/roles.service";
 import { CreateRoleDto } from "../src/roles/dto/create-role.dto";
-import { Role } from "../src/roles/role.entity";
+import { Role } from "../src/roles/entities/role.entity";
 import { UserViewModel } from "../src/users/view-models";
 
 const mockAdminCredentials: UserViewModel = {

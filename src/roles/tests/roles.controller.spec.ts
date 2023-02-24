@@ -1,6 +1,6 @@
 import { Test, TestingModule } from "@nestjs/testing";
 import { CreateRoleDto } from "../dto/create-role.dto";
-import { Role } from "../role.entity";
+import { Role } from "../entities/role.entity";
 import { RolesController } from "../roles.controller";
 import { RolesService } from "../roles.service";
 import { rolesMock } from "./mocks";

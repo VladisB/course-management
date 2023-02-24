@@ -1,7 +1,7 @@
 import { Test, TestingModule } from "@nestjs/testing";
 import { getRepositoryToken } from "@nestjs/typeorm";
 import { AuthModule } from "../../auth/auth.module";
-import { Role } from "../role.entity";
+import { Role } from "../entities/role.entity";
 import { RolesController } from "../roles.controller";
 import { RolesService } from "../roles.service";
 import { mockRolesRepository } from "./mocks";

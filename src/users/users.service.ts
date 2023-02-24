@@ -4,7 +4,7 @@ import { CreateUserDto } from "./dto/create-user.dto";
 import { UpdateUserDto } from "./dto/update-user.dto";
 import { RolesService } from "../roles/roles.service";
 import { RoleName } from "../roles/roles.enum";
-import { Role } from "../roles/role.entity";
+import { Role } from "../roles/entities/role.entity";
 import { UsersRepository } from "./users.repository";
 import { UsersViewModelFactory } from "./model-factories";
 import { UserViewModel } from "./view-models";

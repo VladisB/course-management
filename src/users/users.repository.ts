@@ -1,6 +1,6 @@
 import { Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
-import { Role } from "src/roles/role.entity";
+import { Role } from "src/roles/entities/role.entity";
 import { Repository, SelectQueryBuilder } from "typeorm";
 import { CreateUserDto } from "./dto/create-user.dto";
 import { UpdateUserDto } from "./dto/update-user.dto";

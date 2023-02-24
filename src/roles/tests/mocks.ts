@@ -1,5 +1,5 @@
 import { CreateRoleDto } from "../dto/create-role.dto";
-import { Role } from "../role.entity";
+import { Role } from "../entities/role.entity";
 
 const rolesMock = [
     {

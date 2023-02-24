@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Post, UseGuards } from "@nestjs/common";
+import { Body, Controller, Delete, Get, Param, Patch, Post, UseGuards } from "@nestjs/common";
 import { RolesService } from "./roles.service";
 import { CreateRoleDto } from "./dto/create-role.dto";
 import { Roles } from "./roles-auth.decorator";
@@ -18,7 +18,22 @@ export class RolesController {
     }
 
     @Get()
-    getRoles() {
+    findAll() {
         return this.roleService.getRoles();
+    }
+
+    @Get(":id")
+    findOne(@Param("id") id: number) {
+        throw new Error("Method not implemented.");
+    }
+
+    @Patch(":id")
+    update(@Param("id") id: number, @Body() updateRoleDto: Any) {
+        throw new Error("Method not implemented.");
+    }
+
+    @Delete(":id")
+    remove(@Param("id") id: string) {
+        throw new Error("Method not implemented.");
     }
 }
