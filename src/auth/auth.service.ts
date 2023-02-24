@@ -13,7 +13,7 @@ import { JwtModelFactory } from "./model-factories/jwt.m-factory";
 import { UsersViewModelFactory } from "../users/model-factories/user.vm-factory";
 import { UserViewModel } from "../users/view-models";
 import { AuthViewModel, JwtModel } from "./models";
-import { User } from "../users/user.entity";
+import { User } from "../users/entities/user.entity";
 import { ConfigService } from "@nestjs/config";
 import { UsersRepository } from "src/users/users.repository";
 

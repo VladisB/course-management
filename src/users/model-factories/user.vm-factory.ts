@@ -1,4 +1,4 @@
-import { User } from "../user.entity";
+import { User } from "../entities/user.entity";
 import { UserViewModel } from "../view-models";
 
 export class UsersViewModelFactory implements IUsersViewModelFactory {

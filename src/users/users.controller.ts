@@ -1,6 +1,7 @@
 import {
     Body,
     Controller,
+    Delete,
     Get,
     Param,
     Patch,
@@ -14,7 +15,7 @@ import { UsersService } from "./users.service";
 import { CreateUserDto } from "./dto/create-user.dto";
 import { AuthGuard } from "@nestjs/passport";
 import { UpdateUserDto } from "./dto/update-user.dto";
-import { User } from "./user.entity";
+import { User } from "./entities/user.entity";
 import { Roles } from "../roles/roles-auth.decorator";
 import { RolesGuard } from "../roles/roles.guard";
 import { RoleName } from "../roles/roles.enum";
@@ -36,12 +37,22 @@ export class UsersController {
 
     @Get()
     @UsePipes(new ValidationPipe({ transform: true }))
-    getAll(@Query() queryParams: QueryParamsDTO): Promise<DataListResponse<UserViewModel>> {
+    findAll(@Query() queryParams: QueryParamsDTO): Promise<DataListResponse<UserViewModel>> {
         return this.usersService.getAllUsers(queryParams);
     }
 
+    @Get(":id")
+    findOne(@Param("id") id: string) {
+        throw new Error("Not implemented");
+    }
+
     @Patch(":id")
-    updateUser(@Param("id") id: number, @Body() updateUserDto: UpdateUserDto): Promise<User> {
+    update(@Param("id") id: number, @Body() updateUserDto: UpdateUserDto): Promise<User> {
         return this.usersService.updateUser(id, updateUserDto);
+    }
+
+    @Delete(":id")
+    remove(@Param("id") id: string) {
+        throw new Error("Not implemented");
     }
 }

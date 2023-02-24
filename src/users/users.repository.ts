@@ -5,7 +5,7 @@ import { Repository, SelectQueryBuilder } from "typeorm";
 import { CreateUserDto } from "./dto/create-user.dto";
 import { UpdateUserDto } from "./dto/update-user.dto";
 import { QueryParamsDTO } from "../common/dto/query-params.dto";
-import { User } from "./user.entity";
+import { User } from "./entities/user.entity";
 
 @Injectable()
 export class UsersRepository implements IUsersRepository {

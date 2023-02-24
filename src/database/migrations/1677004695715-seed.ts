@@ -1,6 +1,6 @@
 import { Role } from "src/roles/role.entity";
 import { RoleName } from "src/roles/roles.enum";
-import { User } from "src/users/user.entity";
+import { User } from "src/users/entities/user.entity";
 import { MigrationInterface, QueryRunner } from "typeorm";
 
 export class seed1677004695715 implements MigrationInterface {

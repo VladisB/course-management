@@ -12,8 +12,8 @@ import {
     UpdateDateColumn,
 } from "typeorm";
 import { IsEmail } from "class-validator";
-import { Role } from "../roles/role.entity";
-import { Group } from "../groups/group.entity";
+import { Role } from "../../roles/role.entity";
+import { Group } from "../../groups/group.entity";
 
 @Entity()
 export class User extends BaseEntity {
