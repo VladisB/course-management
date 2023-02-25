@@ -86,6 +86,14 @@ export class UsersService implements IUsersService {
         return this.usersViewModelFactory.initUserViewModel(user);
     }
 
+    public async deleteUser(id: number): Promise<void> {
+        const user = await this.usersRepository.getById(id);
+
+        if (!user) throw new NotFoundException("User not found");
+
+        await user.remove();
+    }
+
     //#endregion
 
     //#region Private methods
@@ -132,6 +140,7 @@ export class UsersService implements IUsersService {
 
 interface IUsersService {
     createUser(dto: CreateUserDto): Promise<User>;
+    deleteUser(id: number): Promise<void>;
     getAllUsers(queryParams: QueryParamsDTO): Promise<DataListResponse<UserViewModel>>;
     getUser(id: number): Promise<UserViewModel>;
     updateUser(id: number, updateUserDto: UpdateUserDto): Promise<User>;

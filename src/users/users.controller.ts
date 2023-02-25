@@ -59,6 +59,6 @@ export class UsersController {
 
     @Delete(":id")
     remove(@Param("id") id: number) {
-        throw new Error("Not implemented");
+        return this.usersService.deleteUser(id);
     }
 }
