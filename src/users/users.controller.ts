@@ -22,17 +22,23 @@ import { RoleName } from "../roles/roles.enum";
 import { UserViewModel } from "./view-models";
 import { DataListResponse } from "src/common/db/data-list-response";
 import { QueryParamsDTO } from "src/common/dto/query-params.dto";
+import { UsersViewModelFactory } from "./model-factories";
 
 @Controller("users")
 @Roles(RoleName.Admin)
 @UseGuards(AuthGuard("jwt"), RolesGuard)
 export class UsersController {
-    constructor(private usersService: UsersService) {}
+    constructor(
+        private usersService: UsersService,
+        private usersViewModelFactory: UsersViewModelFactory,
+    ) {}
 
     @Post()
     @UsePipes(ValidationPipe)
-    create(@Body() userDto: CreateUserDto): Promise<User> {
-        return this.usersService.createUser(userDto);
+    async create(@Body() userDto: CreateUserDto): Promise<UserViewModel> {
+        const model = await this.usersService.createUser(userDto);
+
+        return this.usersViewModelFactory.initUserViewModel(model);
     }
 
     @Get()
@@ -42,7 +48,7 @@ export class UsersController {
     }
 
     @Get(":id")
-    findOne(@Param("id") id: string) {
+    findOne(@Param("id") id: number) {
         throw new Error("Not implemented");
     }
 
@@ -52,7 +58,7 @@ export class UsersController {
     }
 
     @Delete(":id")
-    remove(@Param("id") id: string) {
+    remove(@Param("id") id: number) {
         throw new Error("Not implemented");
     }
 }
