@@ -1,6 +1,6 @@
 import { Test, TestingModule } from "@nestjs/testing";
 import { CreateGroupDto } from "../dto/create-group.dto";
-import { Group } from "../group.entity";
+import { Group } from "../entities/group.entity";
 import { GroupsController } from "../groups.controller";
 import { GroupsService } from "../groups.service";
 import { createDto, groupsMock } from "./mocks";

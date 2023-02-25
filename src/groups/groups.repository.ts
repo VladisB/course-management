@@ -3,7 +3,7 @@ import { InjectRepository } from "@nestjs/typeorm";
 import { Faculty } from "src/faculties/faculty.entity";
 import { Repository } from "typeorm";
 import { CreateGroupDto } from "./dto/create-group.dto";
-import { Group } from "./group.entity";
+import { Group } from "./entities/group.entity";
 
 @Injectable()
 export class GroupsRepository implements IGroupsRepository {

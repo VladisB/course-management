@@ -2,7 +2,7 @@ import { Test, TestingModule } from "@nestjs/testing";
 import { getRepositoryToken } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
 import { CreateGroupDto } from "../dto/create-group.dto";
-import { Group } from "../group.entity";
+import { Group } from "../entities/group.entity";
 import { GroupsService } from "../groups.service";
 import { createDto, groupsMock } from "./mocks";
 

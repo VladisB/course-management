@@ -7,7 +7,7 @@ import {
     PrimaryGeneratedColumn,
     UpdateDateColumn,
 } from "typeorm";
-import { Group } from "../groups/group.entity";
+import { Group } from "../groups/entities/group.entity";
 
 @Entity()
 export class Faculty extends BaseEntity {

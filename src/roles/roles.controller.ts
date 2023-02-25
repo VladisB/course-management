@@ -28,7 +28,7 @@ export class RolesController {
     }
 
     @Patch(":id")
-    update(@Param("id") id: number, @Body() updateRoleDto: Any) {
+    update(@Param("id") id: number, @Body() updateRoleDto: any) {
         throw new Error("Method not implemented.");
     }
 

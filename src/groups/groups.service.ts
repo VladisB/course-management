@@ -2,7 +2,7 @@ import { ConflictException, Injectable } from "@nestjs/common";
 import { FacultiesRepository } from "src/faculties/faculties.repository";
 import { Faculty } from "src/faculties/faculty.entity";
 import { CreateGroupDto } from "./dto/create-group.dto";
-import { Group } from "./group.entity";
+import { Group } from "./entities/group.entity";
 import { GroupsRepository } from "./groups.repository";
 
 @Injectable()

@@ -1,4 +1,15 @@
-import { Body, Controller, Get, Post, UseGuards, UsePipes, ValidationPipe } from "@nestjs/common";
+import {
+    Body,
+    Controller,
+    Delete,
+    Get,
+    Param,
+    Patch,
+    Post,
+    UseGuards,
+    UsePipes,
+    ValidationPipe,
+} from "@nestjs/common";
 import { AuthGuard } from "@nestjs/passport";
 import { RoleName } from "../roles/roles.enum";
 import { Roles } from "../roles/roles-auth.decorator";
@@ -21,5 +32,20 @@ export class GroupsController {
     @Get()
     getGroups() {
         return this.groupsService.getGroups();
+    }
+
+    @Get(":id")
+    findOne(@Param("id") id: number) {
+        throw new Error("Method not implemented.");
+    }
+
+    @Patch(":id")
+    update(@Param("id") id: number, @Body() updateGroupDto: any) {
+        throw new Error("Method not implemented.");
+    }
+
+    @Delete(":id")
+    remove(@Param("id") id: number) {
+        throw new Error("Method not implemented.");
     }
 }
