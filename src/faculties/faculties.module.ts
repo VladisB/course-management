@@ -4,7 +4,7 @@ import { AuthModule } from "../auth/auth.module";
 import { RolesModule } from "../roles/roles.module";
 import { FacultiesController } from "./faculties.controller";
 import { FacultiesService } from "./faculties.service";
-import { Faculty } from "./faculty.entity";
+import { Faculty } from "./entities/faculty.entity";
 import { FacultiesRepository } from "./faculties.repository";
 
 @Module({

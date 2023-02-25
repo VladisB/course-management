@@ -2,7 +2,7 @@ import { Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
 import { CreateFacultyDto } from "./dto/create-faculty.dto";
-import { Faculty } from "./faculty.entity";
+import { Faculty } from "./entities/faculty.entity";
 
 @Injectable()
 export class FacultiesRepository implements IFacultiesRepository {

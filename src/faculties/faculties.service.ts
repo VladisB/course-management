@@ -1,7 +1,7 @@
 import { Injectable } from "@nestjs/common";
 import { CreateFacultyDto } from "./dto/create-faculty.dto";
 import { FacultiesRepository } from "./faculties.repository";
-import { Faculty } from "./faculty.entity";
+import { Faculty } from "./entities/faculty.entity";
 
 @Injectable()
 export class FacultiesService implements IFacultiesService {

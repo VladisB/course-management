@@ -1,4 +1,15 @@
-import { Body, Controller, Get, Post, UseGuards, UsePipes, ValidationPipe } from "@nestjs/common";
+import {
+    Body,
+    Controller,
+    Delete,
+    Get,
+    Param,
+    Patch,
+    Post,
+    UseGuards,
+    UsePipes,
+    ValidationPipe,
+} from "@nestjs/common";
 import { AuthGuard } from "@nestjs/passport";
 import { RoleName } from "../roles/roles.enum";
 import { Roles } from "../roles/roles-auth.decorator";
@@ -19,7 +30,22 @@ export class FacultiesController {
     }
 
     @Get()
-    getFaculties() {
+    findAll() {
         return this.facultyService.getFaculties();
+    }
+
+    @Get(":id")
+    findOne(@Param("id") id: number) {
+        throw new Error("Not implemented");
+    }
+
+    @Patch(":id")
+    update(@Param("id") id: number, @Body() updateFacultyDto: any) {
+        throw new Error("Method not implemented");
+    }
+
+    @Delete(":id")
+    remove(@Param("id") id: number) {
+        throw new Error("Method not implemented");
     }
 }

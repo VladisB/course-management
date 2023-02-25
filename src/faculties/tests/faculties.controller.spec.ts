@@ -2,7 +2,7 @@ import { Test, TestingModule } from "@nestjs/testing";
 import { CreateFacultyDto } from "../dto/create-faculty.dto";
 import { FacultiesController } from "../faculties.controller";
 import { FacultiesService } from "../faculties.service";
-import { Faculty } from "../faculty.entity";
+import { Faculty } from "../entities/faculty.entity";
 import { facultiesMock } from "./mocks";
 
 const mockFacultiesService = {

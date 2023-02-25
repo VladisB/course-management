@@ -3,7 +3,7 @@ import { getRepositoryToken } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
 import { CreateFacultyDto } from "../dto/create-faculty.dto";
 import { FacultiesService } from "../faculties.service";
-import { Faculty } from "../faculty.entity";
+import { Faculty } from "../entities/faculty.entity";
 import { facultiesMock } from "./mocks";
 
 const mockFacultyRepository = () => ({
