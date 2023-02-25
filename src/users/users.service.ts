@@ -78,6 +78,14 @@ export class UsersService implements IUsersService {
         return new DataListResponse<UserViewModel>(model, count);
     }
 
+    public async getUser(id: number): Promise<UserViewModel> {
+        const user = await this.usersRepository.getById(id);
+
+        if (!user) throw new NotFoundException("User not found");
+
+        return this.usersViewModelFactory.initUserViewModel(user);
+    }
+
     //#endregion
 
     //#region Private methods
@@ -124,6 +132,7 @@ export class UsersService implements IUsersService {
 
 interface IUsersService {
     createUser(dto: CreateUserDto): Promise<User>;
-    updateUser(id: number, updateUserDto: UpdateUserDto): Promise<User>;
     getAllUsers(queryParams: QueryParamsDTO): Promise<DataListResponse<UserViewModel>>;
+    getUser(id: number): Promise<UserViewModel>;
+    updateUser(id: number, updateUserDto: UpdateUserDto): Promise<User>;
 }

@@ -48,8 +48,8 @@ export class UsersController {
     }
 
     @Get(":id")
-    findOne(@Param("id") id: number) {
-        throw new Error("Not implemented");
+    findOne(@Param("id") id: number): Promise<UserViewModel> {
+        return this.usersService.getUser(id);
     }
 
     @Patch(":id")
