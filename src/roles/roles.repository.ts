@@ -1,7 +1,7 @@
 import { Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Role } from "src/roles/entities/role.entity";
-import { Repository } from "typeorm";
+import { Repository, SelectQueryBuilder } from "typeorm";
 import { CreateRoleDto } from "./dto/create-role.dto";
 
 @Injectable()
@@ -17,8 +17,10 @@ export class RolesRepository implements IRolesRepository {
     public async getById(id: number): Promise<Role> {
         return await this.roleEntityRepository.findOneBy({ id });
     }
-    public async getAll(): Promise<Role[]> {
-        return await this.roleEntityRepository.find();
+    public getAllQ(): SelectQueryBuilder<Role> {
+        const userQuery = this.roleEntityRepository.createQueryBuilder("role");
+
+        return userQuery;
     }
 
     public async create(dto: CreateRoleDto): Promise<Role> {
@@ -32,5 +34,5 @@ interface IRolesRepository {
     create(dto: CreateRoleDto): Promise<Role>;
     getByName(name: string): Promise<Role>;
     getById(id: number): Promise<Role>;
-    getAll(): Promise<Role[]>;
+    getAllQ(): SelectQueryBuilder<Role>;
 }
