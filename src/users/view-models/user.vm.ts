@@ -3,5 +3,5 @@ export class UserViewModel {
     email: string;
     firstName: string;
     lastName: string;
-    role: string;
+    role: string | null;
 }

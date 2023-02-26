@@ -1,4 +1,4 @@
-import { HttpException, HttpStatus, Injectable, NotFoundException } from "@nestjs/common";
+import { ConflictException, Injectable, NotFoundException } from "@nestjs/common";
 import { User } from "./entities/user.entity";
 import { CreateUserDto } from "./dto/create-user.dto";
 import { UpdateUserDto } from "./dto/update-user.dto";
@@ -30,10 +30,12 @@ export class UsersService implements IUsersService {
         return await this.usersRepository.create(dto, role);
     }
 
-    public async updateUser(id: number, updateUserDto: UpdateUserDto): Promise<User> {
+    public async updateUser(id: number, updateUserDto: UpdateUserDto): Promise<UserViewModel> {
         const role = await this.validateUpdate(id, updateUserDto);
 
-        return await this.usersRepository.update(id, updateUserDto, role);
+        const model = await this.usersRepository.update(id, updateUserDto, role);
+
+        return this.usersViewModelFactory.initUserViewModel(model);
     }
 
     public async getAllUsers(
@@ -106,7 +108,7 @@ export class UsersService implements IUsersService {
 
     private async validateUpdate(id: number, updateUserDto: UpdateUserDto): Promise<Role> {
         await this.checkIfUserExistById(id);
-        await this.checkIfUserExistByEmail(updateUserDto.email);
+        await this.checkIfUserExistByEmail(updateUserDto.email, id);
 
         return await this.checkIfRoleExist(updateUserDto.roleId);
     }
@@ -114,15 +116,17 @@ export class UsersService implements IUsersService {
     private async checkIfUserExistById(id: number): Promise<void> {
         const user = await this.usersRepository.getById(id);
 
-        if (!user) throw new NotFoundException("User already exists");
+        if (!user) throw new NotFoundException();
     }
 
-    private async checkIfUserExistByEmail(email: string): Promise<void> {
+    private async checkIfUserExistByEmail(email: string, id?: number): Promise<void> {
         if (!email) return;
 
         const user = await this.usersRepository.getByEmail(email);
 
-        if (user) throw new HttpException("User already exists", HttpStatus.BAD_REQUEST);
+        if (id && user && user.id === id) return;
+
+        if (user) throw new ConflictException("Email is already taken");
     }
 
     private async checkIfRoleExist(roleId: number): Promise<Role> {
@@ -143,5 +147,5 @@ interface IUsersService {
     deleteUser(id: number): Promise<void>;
     getAllUsers(queryParams: QueryParamsDTO): Promise<DataListResponse<UserViewModel>>;
     getUser(id: number): Promise<UserViewModel>;
-    updateUser(id: number, updateUserDto: UpdateUserDto): Promise<User>;
+    updateUser(id: number, updateUserDto: UpdateUserDto): Promise<UserViewModel>;
 }

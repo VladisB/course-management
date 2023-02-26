@@ -26,7 +26,7 @@ export class UsersViewModelFactory implements IUsersViewModelFactory {
             model.email = user.email;
             model.firstName = user.firstName;
             model.lastName = user.lastName;
-            model.role = user.role.name;
+            model.role = user?.role?.name ?? null;
         }
 
         return model;

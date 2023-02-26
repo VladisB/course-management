@@ -24,6 +24,7 @@
         "migration:generate": "npm run typeorm -- migration:generate src/database/migrations/$npm_config_filename",
         "migration:create": "npm run build && npx typeorm migration:create src/database/migrations/$npm_config_filename",
         "migration:run": "npm run typeorm -- migration:run",
+        "migration:run:fake": "npm run typeorm -- migration:run --fake",
         "migration:revert": "npm run typeorm -- migration:revert"
     },
     "dependencies": {

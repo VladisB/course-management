@@ -4,6 +4,7 @@ import {
     Delete,
     Get,
     Param,
+    ParseIntPipe,
     Patch,
     Post,
     Query,
@@ -53,12 +54,15 @@ export class UsersController {
     }
 
     @Patch(":id")
-    update(@Param("id") id: number, @Body() updateUserDto: UpdateUserDto): Promise<User> {
+    update(
+        @Param("id", ParseIntPipe) id: number,
+        @Body() updateUserDto: UpdateUserDto,
+    ): Promise<UserViewModel> {
         return this.usersService.updateUser(id, updateUserDto);
     }
 
     @Delete(":id")
-    remove(@Param("id") id: number) {
+    remove(@Param("id", ParseIntPipe) id: number): Promise<void> {
         return this.usersService.deleteUser(id);
     }
 }

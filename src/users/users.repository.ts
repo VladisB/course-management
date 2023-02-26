@@ -54,7 +54,12 @@ export class UsersRepository implements IUsersRepository {
             role,
         });
 
-        return user.save();
+        return await this.userEntityRepository.save(user);
+    }
+
+    public async updateRefreshToken(id: number, refreshToken: string | null): Promise<void> {
+        // NOTE: update() does not trigger the @beforeUpdate() hook
+        await this.userEntityRepository.update({ id }, { refreshToken });
     }
 }
 
@@ -64,4 +69,5 @@ interface IUsersRepository {
     getByEmail(email: string): Promise<User>;
     getById(id: number): Promise<User>;
     update(id: number, dto: CreateUserDto, role: Role): Promise<User>;
+    updateRefreshToken(id: number, refreshToken: string | null): Promise<void>;
 }

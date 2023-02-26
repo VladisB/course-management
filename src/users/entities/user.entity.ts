@@ -68,8 +68,7 @@ export class User extends BaseEntity {
     }
 
     @BeforeInsert()
-    // @BeforeUpdate()
-    // TODO: Update logic to run it on update ONLY if password field changed
+    @BeforeUpdate()
     async setPassword() {
         if (this.password) {
             this.salt = await bcrypt.genSalt();

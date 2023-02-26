@@ -36,7 +36,7 @@ export class AuthService implements IAuthService {
         const jwtModel = this.jwtModelFactory.initJwtModel(user);
         const tokens = await this.generateTokens(jwtModel);
 
-        await this.updateRefreshToken(user.email, tokens.refreshToken);
+        await this.updateRefreshToken(user.id, tokens.refreshToken);
 
         return tokens;
     }
@@ -96,7 +96,7 @@ export class AuthService implements IAuthService {
         const jwtModel = this.jwtModelFactory.initJwtModel(user);
 
         const tokens = await this.generateTokens(jwtModel);
-        await this.updateRefreshToken(user.email, tokens.refreshToken);
+        await this.updateRefreshToken(user.id, tokens.refreshToken);
 
         return tokens;
     }
@@ -156,20 +156,16 @@ export class AuthService implements IAuthService {
         if (!equals) throw new UnauthorizedException({ message: "Wrong credentials!" });
     }
 
-    private async updateRefreshToken(userEmail: string, refreshToken: string): Promise<void> {
+    private async updateRefreshToken(id: number, refreshToken: string): Promise<void> {
         const hashToken = await bcrypt.hash(refreshToken, 5);
-        const user = await this.usersRepository.getByEmail(userEmail);
 
-        user.refreshToken = hashToken;
-
-        await user.save();
+        await this.usersRepository.updateRefreshToken(id, hashToken);
     }
 
     private async removeTokenHash(userEmail: string): Promise<void> {
         const user = await this.usersRepository.getByEmail(userEmail);
-        user.refreshToken = null;
 
-        await user.save();
+        await this.usersRepository.updateRefreshToken(user.id, null);
     }
 
     //#endregion
