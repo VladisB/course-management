@@ -14,9 +14,11 @@ export class RolesRepository implements IRolesRepository {
     public async getByName(name: string): Promise<Role> {
         return await this.roleEntityRepository.findOne({ where: { name } });
     }
+
     public async getById(id: number): Promise<Role> {
         return await this.roleEntityRepository.findOneBy({ id });
     }
+
     public getAllQ(): SelectQueryBuilder<Role> {
         const userQuery = this.roleEntityRepository.createQueryBuilder("role");
 

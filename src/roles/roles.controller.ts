@@ -4,6 +4,7 @@ import {
     Delete,
     Get,
     Param,
+    ParseIntPipe,
     Patch,
     Post,
     Query,
@@ -39,8 +40,8 @@ export class RolesController {
     }
 
     @Get(":id")
-    findOne(@Param("id") id: number) {
-        throw new Error("Method not implemented.");
+    findOne(@Param("id", ParseIntPipe) id: number): Promise<RoleViewModel> {
+        return this.roleService.getRole(id);
     }
 
     @Patch(":id")

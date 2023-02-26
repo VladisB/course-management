@@ -16,6 +16,6 @@ import { RolesViewModelFactory } from "./model-factories/roles.vm-factory";
     ],
     providers: [RolesService, RolesRepository, RolesViewModelFactory],
     controllers: [RolesController],
-    exports: [RolesService],
+    exports: [RolesService, RolesRepository],
 })
 export class RolesModule {}
