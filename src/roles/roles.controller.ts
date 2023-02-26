@@ -21,6 +21,7 @@ import { RolesGuard } from "./roles.guard";
 import { DataListResponse } from "src/common/db/data-list-response";
 import { QueryParamsDTO } from "src/common/dto/query-params.dto";
 import { RoleViewModel } from "./view-models";
+import { UpdateRoleDto } from "./dto/update-role.dto";
 
 @Roles(RoleName.Admin)
 @UseGuards(AuthGuard("jwt"), RolesGuard)
@@ -45,12 +46,15 @@ export class RolesController {
     }
 
     @Patch(":id")
-    update(@Param("id") id: number, @Body() updateRoleDto: any) {
-        throw new Error("Method not implemented.");
+    update(
+        @Param("id", ParseIntPipe) id: number,
+        @Body() updateRoleDto: UpdateRoleDto,
+    ): Promise<RoleViewModel> {
+        return this.roleService.updateRole(id, updateRoleDto);
     }
 
     @Delete(":id")
-    remove(@Param("id", ParseIntPipe) id: number) {
+    remove(@Param("id", ParseIntPipe) id: number): Promise<void> {
         return this.roleService.deleteRole(id);
     }
 }

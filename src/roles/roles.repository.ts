@@ -3,6 +3,7 @@ import { InjectRepository } from "@nestjs/typeorm";
 import { Role } from "src/roles/entities/role.entity";
 import { Repository, SelectQueryBuilder } from "typeorm";
 import { CreateRoleDto } from "./dto/create-role.dto";
+import { UpdateRoleDto } from "./dto/update-role.dto";
 
 @Injectable()
 export class RolesRepository implements IRolesRepository {
@@ -30,11 +31,21 @@ export class RolesRepository implements IRolesRepository {
 
         return await this.roleEntityRepository.save(role);
     }
+
+    public async update(id: number, dto: UpdateRoleDto): Promise<Role> {
+        const role = await this.roleEntityRepository.preload({
+            id,
+            ...dto,
+        });
+
+        return await this.roleEntityRepository.save(role);
+    }
 }
 
 interface IRolesRepository {
     create(dto: CreateRoleDto): Promise<Role>;
-    getByName(name: string): Promise<Role>;
-    getById(id: number): Promise<Role>;
     getAllQ(): SelectQueryBuilder<Role>;
+    getById(id: number): Promise<Role>;
+    getByName(name: string): Promise<Role>;
+    update(id: number, dto: UpdateRoleDto): Promise<Role>;
 }

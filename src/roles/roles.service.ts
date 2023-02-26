@@ -3,6 +3,7 @@ import { DataListResponse } from "src/common/db/data-list-response";
 import { QueryParamsDTO } from "src/common/dto/query-params.dto";
 import { ApplyToQueryExtension } from "src/common/query-extention";
 import { CreateRoleDto } from "./dto/create-role.dto";
+import { UpdateRoleDto } from "./dto/update-role.dto";
 import { Role } from "./entities/role.entity";
 import { RolesViewModelFactory } from "./model-factories/roles.vm-factory";
 import { RolesRepository } from "./roles.repository";
@@ -68,6 +69,14 @@ export class RolesService implements IRolesService {
         return new DataListResponse<RoleViewModel>(model, count);
     }
 
+    public async updateRole(id: number, updateRoleDto: UpdateRoleDto): Promise<RoleViewModel> {
+        await this.validateUpdate(id);
+
+        const model = await this.rolesRepository.update(id, updateRoleDto);
+
+        return this.rolesViewModelFactory.initRoleViewModel(model);
+    }
+
     public async deleteRole(id: number): Promise<void> {
         const role = await this.rolesRepository.getById(id);
 
@@ -84,10 +93,20 @@ export class RolesService implements IRolesService {
         await this.checkifExist(dto);
     }
 
+    private async validateUpdate(id: number): Promise<void> {
+        await this.checkifNotExist(id);
+    }
+
     private async checkifExist(dto: CreateRoleDto): Promise<void> {
         const role = await this.rolesRepository.getByName(dto.name);
 
         if (role) throw new ConflictException(`Role with name ${dto.name} already exists.`);
+    }
+
+    private async checkifNotExist(id: number): Promise<void> {
+        const role = await this.rolesRepository.getById(id);
+
+        if (!role) throw new NotFoundException();
     }
 
     //#endregion
