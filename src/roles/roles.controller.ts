@@ -50,7 +50,7 @@ export class RolesController {
     }
 
     @Delete(":id")
-    remove(@Param("id") id: string) {
-        throw new Error("Method not implemented.");
+    remove(@Param("id", ParseIntPipe) id: number) {
+        return this.roleService.deleteRole(id);
     }
 }

@@ -68,6 +68,14 @@ export class RolesService implements IRolesService {
         return new DataListResponse<RoleViewModel>(model, count);
     }
 
+    public async deleteRole(id: number): Promise<void> {
+        const role = await this.rolesRepository.getById(id);
+
+        if (!role) throw new NotFoundException(`Role not found.`);
+
+        await role.remove();
+    }
+
     //#endregion
 
     //#region Private methods
@@ -87,6 +95,7 @@ export class RolesService implements IRolesService {
 
 interface IRolesService {
     createRole(dto: CreateRoleDto): Promise<Role>;
+    deleteRole(id: number): Promise<void>;
     getRole(id: number): Promise<RoleViewModel>;
     getRoleByName(name: string): Promise<Role>;
     getRoles(queryParams: QueryParamsDTO): Promise<DataListResponse<RoleViewModel>>;
