@@ -16,7 +16,6 @@ import { UsersService } from "./users.service";
 import { CreateUserDto } from "./dto/create-user.dto";
 import { AuthGuard } from "@nestjs/passport";
 import { UpdateUserDto } from "./dto/update-user.dto";
-import { User } from "./entities/user.entity";
 import { Roles } from "../roles/roles-auth.decorator";
 import { RolesGuard } from "../roles/roles.guard";
 import { RoleName } from "../roles/roles.enum";
