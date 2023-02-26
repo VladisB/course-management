@@ -22,6 +22,7 @@ export class QueryParamsDTO {
     @MaxLength(25)
     @MinLength(1)
     @IsOptional()
+    @Transform(({ value }) => value?.toLowerCase().trim())
     search?: string;
 
     @IsString()
