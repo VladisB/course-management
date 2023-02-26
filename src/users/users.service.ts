@@ -2,7 +2,6 @@ import { ConflictException, Injectable, NotFoundException } from "@nestjs/common
 import { User } from "./entities/user.entity";
 import { CreateUserDto } from "./dto/create-user.dto";
 import { UpdateUserDto } from "./dto/update-user.dto";
-import { RolesService } from "../roles/roles.service";
 import { RoleName } from "../roles/roles.enum";
 import { Role } from "../roles/entities/role.entity";
 import { UsersRepository } from "./users.repository";
@@ -11,11 +10,12 @@ import { UserViewModel } from "./view-models";
 import { DataListResponse } from "src/common/db/data-list-response";
 import { QueryParamsDTO } from "../common/dto/query-params.dto";
 import { ApplyToQueryExtension } from "../common/query-extention";
+import { RolesRepository } from "src/roles/roles.repository";
 
 @Injectable()
 export class UsersService implements IUsersService {
     constructor(
-        private roleService: RolesService,
+        private rolesRepository: RolesRepository,
         private usersRepository: UsersRepository,
         private usersViewModelFactory: UsersViewModelFactory,
     ) {}
@@ -25,7 +25,7 @@ export class UsersService implements IUsersService {
     public async createUser(dto: CreateUserDto): Promise<User> {
         let role = await this.validateCreate(dto);
 
-        if (!role) role = await this.roleService.getRoleByName(RoleName.Student);
+        if (!role) role = await this.rolesRepository.getByName(RoleName.Student);
 
         return await this.usersRepository.create(dto, role);
     }
@@ -132,7 +132,7 @@ export class UsersService implements IUsersService {
     private async checkIfRoleExist(roleId: number): Promise<Role> {
         if (!roleId) return;
 
-        const role = await this.roleService.getRoleById(roleId);
+        const role = await this.rolesRepository.getById(roleId);
 
         if (!role) throw new NotFoundException("Role not found");
 
