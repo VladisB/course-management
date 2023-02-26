@@ -5,7 +5,7 @@ import { User } from "./entities/user.entity";
 import { UsersService } from "./users.service";
 import { RolesModule } from "../roles/roles.module";
 import { AuthModule } from "../auth/auth.module";
-import { UsersViewModelFactory } from "./model-factories/user.vm-factory";
+import { UsersViewModelFactory } from "./model-factories/users.vm-factory";
 import { UsersRepository } from "./users.repository";
 import { ApplyToQueryExtension } from "../common/query-extention";
 
