@@ -78,6 +78,12 @@ export class FacultiesService implements IFacultiesService {
         return this.facultiesViewModelFactory.initFacultyViewModel(faculty);
     }
 
+    public async deleteFaculty(id: number): Promise<void> {
+        const faculty = await this.validateDelete(id);
+
+        await this.facultiesRepository.deleteById(faculty.id);
+    }
+
     private async validateCreate(dto: CreateFacultyDto): Promise<void> {
         await this.checkifNotExistByName(dto.name);
     }
@@ -85,6 +91,10 @@ export class FacultiesService implements IFacultiesService {
     private async validateUpdate(id: number, dto: UpdateFacultyDto): Promise<void> {
         await this.checkifExist(id);
         await this.checkifNotExistByName(dto.name, id);
+    }
+
+    private async validateDelete(id: number): Promise<Faculty> {
+        return await this.checkifExist(id);
     }
 
     private async checkifNotExistByName(name: string, id?: number): Promise<void> {
@@ -95,10 +105,12 @@ export class FacultiesService implements IFacultiesService {
         if (faculty) throw new ConflictException(`Faculty with name ${name} already exists.`);
     }
 
-    private async checkifExist(id: number): Promise<void> {
+    private async checkifExist(id: number): Promise<Faculty> {
         const faculty = await this.facultiesRepository.getById(id);
 
         if (!faculty) throw new NotFoundException();
+
+        return faculty;
     }
 }
 

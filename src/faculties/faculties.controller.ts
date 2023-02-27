@@ -54,7 +54,7 @@ export class FacultiesController {
     }
 
     @Delete(":id")
-    remove(@Param("id") id: number) {
-        throw new Error("Method not implemented");
+    remove(@Param("id") id: number): Promise<void> {
+        return this.facultyService.deleteFaculty(id);
     }
 }

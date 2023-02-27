@@ -26,6 +26,12 @@ export class FacultiesRepository implements IFacultiesRepository {
         });
     }
 
+    public async deleteById(id: number): Promise<void> {
+        await this.facultyEntityRepository.delete(id);
+
+        return;
+    }
+
     public async getByName(name: string): Promise<Faculty> {
         return await this.facultyEntityRepository.findOne({
             where: {
@@ -52,6 +58,7 @@ export class FacultiesRepository implements IFacultiesRepository {
 
 interface IFacultiesRepository {
     create(dto: CreateFacultyDto): Promise<Faculty>;
+    deleteById(id: number): Promise<void>;
     getAllQ(): SelectQueryBuilder<Faculty>;
     getById(id: number): Promise<Faculty>;
     getByName(name: string): Promise<Faculty>;
