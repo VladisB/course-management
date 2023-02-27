@@ -25,6 +25,7 @@ import { UpdateRoleDto } from "./dto/update-role.dto";
 
 @Roles(RoleName.Admin)
 @UseGuards(AuthGuard("jwt"), RolesGuard)
+@UsePipes(new ValidationPipe({ transform: true }))
 @Controller("roles")
 export class RolesController {
     constructor(private roleService: RolesService) {}
@@ -35,7 +36,6 @@ export class RolesController {
     }
 
     @Get()
-    @UsePipes(new ValidationPipe({ transform: true }))
     findAll(@Query() queryParams: QueryParamsDTO): Promise<DataListResponse<RoleViewModel>> {
         return this.roleService.getRoles(queryParams);
     }
