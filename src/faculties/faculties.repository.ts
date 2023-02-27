@@ -24,6 +24,14 @@ export class FacultiesRepository implements IFacultiesRepository {
         });
     }
 
+    public async getByName(name: string): Promise<Faculty> {
+        return await this.facultyEntityRepository.findOne({
+            where: {
+                name,
+            },
+        });
+    }
+
     public async create(dto: CreateFacultyDto): Promise<Faculty> {
         const faculty = this.facultyEntityRepository.create(dto);
 
@@ -35,4 +43,5 @@ interface IFacultiesRepository {
     create(dto: CreateFacultyDto): Promise<Faculty>;
     getAll(): Promise<Faculty[]>;
     getById(id: number): Promise<Faculty>;
+    getByName(name: string): Promise<Faculty>;
 }

@@ -16,16 +16,17 @@ import { Roles } from "../roles/roles-auth.decorator";
 import { RolesGuard } from "../roles/roles.guard";
 import { CreateFacultyDto } from "./dto/create-faculty.dto";
 import { FacultiesService } from "./faculties.service";
+import { FacultyViewModel } from "./view-models";
 
 @Roles(RoleName.Admin)
 @UseGuards(AuthGuard("jwt"), RolesGuard)
+@UsePipes(new ValidationPipe({ transform: true }))
 @Controller("faculties")
 export class FacultiesController {
     constructor(private facultyService: FacultiesService) {}
 
-    @UsePipes(ValidationPipe)
     @Post()
-    create(@Body() dto: CreateFacultyDto) {
+    create(@Body() dto: CreateFacultyDto): Promise<FacultyViewModel> {
         return this.facultyService.createFaculty(dto);
     }
 

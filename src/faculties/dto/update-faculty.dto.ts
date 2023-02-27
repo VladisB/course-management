@@ -1,7 +1,7 @@
 import { Transform } from "class-transformer";
 import { IsNotEmpty, IsString, MaxLength, MinLength } from "class-validator";
 
-export class CreateFacultyDto {
+export class UpdateFacultyDto {
     @IsString()
     @MinLength(4)
     @MaxLength(25)
