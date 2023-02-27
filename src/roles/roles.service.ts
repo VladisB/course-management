@@ -70,7 +70,7 @@ export class RolesService implements IRolesService {
     }
 
     public async updateRole(id: number, updateRoleDto: UpdateRoleDto): Promise<RoleViewModel> {
-        await this.validateUpdate(id);
+        await this.validateUpdate(id, updateRoleDto);
 
         const model = await this.rolesRepository.update(id, updateRoleDto);
 
@@ -90,20 +90,21 @@ export class RolesService implements IRolesService {
     //#region Private methods
 
     private async validateCreate(dto: CreateRoleDto): Promise<void> {
-        await this.checkifExist(dto);
+        await this.checkifNotExistByName(dto.name);
     }
 
-    private async validateUpdate(id: number): Promise<void> {
-        await this.checkifNotExist(id);
+    private async validateUpdate(id: number, dto: UpdateRoleDto): Promise<void> {
+        await this.checkifExist(id);
+        await this.checkifNotExistByName(dto.name);
     }
 
-    private async checkifExist(dto: CreateRoleDto): Promise<void> {
-        const role = await this.rolesRepository.getByName(dto.name);
+    private async checkifNotExistByName(name: string): Promise<void> {
+        const role = await this.rolesRepository.getByName(name);
 
-        if (role) throw new ConflictException(`Role with name ${dto.name} already exists.`);
+        if (role) throw new ConflictException(`Role with name ${name} already exists.`);
     }
 
-    private async checkifNotExist(id: number): Promise<void> {
+    private async checkifExist(id: number): Promise<void> {
         const role = await this.rolesRepository.getById(id);
 
         if (!role) throw new NotFoundException();
