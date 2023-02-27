@@ -4,18 +4,23 @@ import { Faculty } from "src/faculties/entities/faculty.entity";
 import { CreateGroupDto } from "./dto/create-group.dto";
 import { Group } from "./entities/group.entity";
 import { GroupsRepository } from "./groups.repository";
+import { GroupsViewModelFactory } from "./model-factories";
+import { GroupViewModel } from "./view-models";
 
 @Injectable()
 export class GroupsService implements IGroupsService {
     constructor(
         private readonly groupsRepository: GroupsRepository,
         private readonly facultiesRepository: FacultiesRepository,
+        private readonly groupsViewModelFactory: GroupsViewModelFactory,
     ) {}
 
-    public async createGroup(dto: CreateGroupDto): Promise<Group> {
+    public async createGroup(dto: CreateGroupDto): Promise<GroupViewModel> {
         const faculty = await this.validateCreate(dto);
 
-        return this.groupsRepository.create(dto, faculty);
+        const group = await this.groupsRepository.create(dto, faculty);
+
+        return this.groupsViewModelFactory.initGroupViewModel(group);
     }
 
     public async getGroups(): Promise<Group[]> {
@@ -23,6 +28,8 @@ export class GroupsService implements IGroupsService {
     }
 
     private async validateCreate(dto: CreateGroupDto): Promise<Faculty> {
+        await this.checkifNotExistByName(dto.name);
+
         return await this.checkIfFacultyExists(dto.facultyId);
     }
 
@@ -33,9 +40,17 @@ export class GroupsService implements IGroupsService {
 
         return faculty;
     }
+
+    private async checkifNotExistByName(name: string, id?: number): Promise<void> {
+        const group = await this.groupsRepository.getByName(name);
+
+        if (id && group && group.id === id) return;
+
+        if (group) throw new ConflictException(`Group with name ${name} already exists.`);
+    }
 }
 
 interface IGroupsService {
-    createGroup(dto: CreateGroupDto): Promise<Group>;
+    createGroup(dto: CreateGroupDto): Promise<GroupViewModel>;
     getGroups(): Promise<Group[]>;
 }

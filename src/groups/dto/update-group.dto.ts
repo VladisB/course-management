@@ -1,7 +1,7 @@
 import { Transform } from "class-transformer";
 import { IsNotEmpty, IsNumber, IsString, MaxLength, MinLength } from "class-validator";
 
-export class CreateGroupDto {
+export class UpdateGroupDto {
     @IsString()
     @MinLength(4)
     @MaxLength(25)

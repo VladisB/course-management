@@ -23,9 +23,18 @@ export class GroupsRepository implements IGroupsRepository {
 
         return this.groupEntityRepository.save(group);
     }
+
+    public async getByName(name: string): Promise<Group> {
+        return await this.groupEntityRepository.findOne({
+            where: {
+                name,
+            },
+        });
+    }
 }
 
 interface IGroupsRepository {
     create(dto: CreateGroupDto, faculty: Faculty): Promise<Group>;
     getAll(): Promise<Group[]>;
+    getByName(name: string): Promise<Group>;
 }
