@@ -21,6 +21,7 @@ import { FacultiesService } from "./faculties.service";
 import { FacultyViewModel } from "./view-models";
 import { DataListResponse } from "src/common/db/data-list-response";
 import { QueryParamsDTO } from "src/common/dto/query-params.dto";
+import { UpdateFacultyDto } from "./dto/update-faculty.dto";
 
 @Roles(RoleName.Admin)
 @UseGuards(AuthGuard("jwt"), RolesGuard)
@@ -40,13 +41,16 @@ export class FacultiesController {
     }
 
     @Get(":id")
-    findOne(@Param("id", ParseIntPipe) id: number) {
+    findOne(@Param("id", ParseIntPipe) id: number): Promise<FacultyViewModel> {
         return this.facultyService.getFaculty(id);
     }
 
     @Patch(":id")
-    update(@Param("id") id: number, @Body() updateFacultyDto: any) {
-        throw new Error("Method not implemented");
+    update(
+        @Param("id", ParseIntPipe) id: number,
+        @Body() updateFacultyDto: UpdateFacultyDto,
+    ): Promise<FacultyViewModel> {
+        return this.facultyService.updateFaculty(id, updateFacultyDto);
     }
 
     @Delete(":id")

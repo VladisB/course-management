@@ -7,6 +7,7 @@ import { FacultiesViewModelFactory } from "./model-factories";
 import { DataListResponse } from "src/common/db/data-list-response";
 import { QueryParamsDTO } from "src/common/dto/query-params.dto";
 import { ApplyToQueryExtension } from "src/common/query-extention";
+import { UpdateFacultyDto } from "./dto/update-faculty.dto";
 
 @Injectable()
 export class FacultiesService implements IFacultiesService {
@@ -66,16 +67,38 @@ export class FacultiesService implements IFacultiesService {
         return this.facultiesViewModelFactory.initFacultyViewModel(faculty);
     }
 
-    private async validateCreate(dto: CreateFacultyDto): Promise<void> {
-        await this.checkIfFacultyExists(dto.name);
+    public async updateFaculty(
+        id: number,
+        updateFacultyDto: UpdateFacultyDto,
+    ): Promise<FacultyViewModel> {
+        await this.validateUpdate(id, updateFacultyDto);
+
+        const faculty = await this.facultiesRepository.update(id, updateFacultyDto);
+
+        return this.facultiesViewModelFactory.initFacultyViewModel(faculty);
     }
 
-    private async checkIfFacultyExists(name: string): Promise<void> {
+    private async validateCreate(dto: CreateFacultyDto): Promise<void> {
+        await this.checkifNotExistByName(dto.name);
+    }
+
+    private async validateUpdate(id: number, dto: UpdateFacultyDto): Promise<void> {
+        await this.checkifExist(id);
+        await this.checkifNotExistByName(dto.name, id);
+    }
+
+    private async checkifNotExistByName(name: string, id?: number): Promise<void> {
         const faculty = await this.facultiesRepository.getByName(name);
 
-        if (faculty) {
-            throw new ConflictException("Faculty with this name already exists");
-        }
+        if (id && faculty && faculty.id === id) return;
+
+        if (faculty) throw new ConflictException(`Faculty with name ${name} already exists.`);
+    }
+
+    private async checkifExist(id: number): Promise<void> {
+        const faculty = await this.facultiesRepository.getById(id);
+
+        if (!faculty) throw new NotFoundException();
     }
 }
 
@@ -83,4 +106,5 @@ interface IFacultiesService {
     createFaculty(dto: CreateFacultyDto): Promise<FacultyViewModel>;
     getFaculties(queryParams: QueryParamsDTO): Promise<DataListResponse<FacultyViewModel>>;
     getFaculty(id: number): Promise<FacultyViewModel>;
+    updateFaculty(id: number, updateFacultyDto: UpdateFacultyDto): Promise<FacultyViewModel>;
 }

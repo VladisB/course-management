@@ -2,6 +2,7 @@ import { Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Repository, SelectQueryBuilder } from "typeorm";
 import { CreateFacultyDto } from "./dto/create-faculty.dto";
+import { UpdateFacultyDto } from "./dto/update-faculty.dto";
 import { Faculty } from "./entities/faculty.entity";
 
 @Injectable()
@@ -38,6 +39,15 @@ export class FacultiesRepository implements IFacultiesRepository {
 
         return this.facultyEntityRepository.save(faculty);
     }
+
+    public async update(id: number, dto: UpdateFacultyDto): Promise<Faculty> {
+        const role = await this.facultyEntityRepository.preload({
+            id,
+            ...dto,
+        });
+
+        return await this.facultyEntityRepository.save(role);
+    }
 }
 
 interface IFacultiesRepository {
@@ -45,4 +55,5 @@ interface IFacultiesRepository {
     getAllQ(): SelectQueryBuilder<Faculty>;
     getById(id: number): Promise<Faculty>;
     getByName(name: string): Promise<Faculty>;
+    update(id: number, dto: UpdateFacultyDto): Promise<Faculty>;
 }
