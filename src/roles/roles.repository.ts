@@ -21,9 +21,9 @@ export class RolesRepository implements IRolesRepository {
     }
 
     public getAllQ(): SelectQueryBuilder<Role> {
-        const userQuery = this.roleEntityRepository.createQueryBuilder("role");
+        const roleQuery = this.roleEntityRepository.createQueryBuilder("role");
 
-        return userQuery;
+        return roleQuery;
     }
 
     public async create(dto: CreateRoleDto): Promise<Role> {

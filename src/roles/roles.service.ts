@@ -39,7 +39,7 @@ export class RolesService implements IRolesService {
     public async getRoles(queryParams: QueryParamsDTO): Promise<DataListResponse<RoleViewModel>> {
         const rolesQuery = this.rolesRepository.getAllQ();
 
-        const usersQConfig = {
+        const rolesConfig = {
             columns: [
                 {
                     name: "id",
@@ -61,7 +61,7 @@ export class RolesService implements IRolesService {
         const [roles, count] = await ApplyToQueryExtension.applyToQuery<Role>(
             queryParams,
             rolesQuery,
-            usersQConfig,
+            rolesConfig,
         );
 
         const model = this.rolesViewModelFactory.initRoleListViewModel(roles);
