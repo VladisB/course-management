@@ -78,11 +78,9 @@ export class RolesService implements IRolesService {
     }
 
     public async deleteRole(id: number): Promise<void> {
-        const role = await this.rolesRepository.getById(id);
+        const role = await this.validateDelete(id);
 
-        if (!role) throw new NotFoundException(`Role not found.`);
-
-        await role.remove();
+        await this.rolesRepository.deleteById(role.id);
     }
 
     //#endregion
@@ -98,16 +96,22 @@ export class RolesService implements IRolesService {
         await this.checkifNotExistByName(dto.name);
     }
 
+    private async validateDelete(id: number): Promise<Role> {
+        return await this.checkifExist(id);
+    }
+
     private async checkifNotExistByName(name: string): Promise<void> {
         const role = await this.rolesRepository.getByName(name);
 
         if (role) throw new ConflictException(`Role with name ${name} already exists.`);
     }
 
-    private async checkifExist(id: number): Promise<void> {
+    private async checkifExist(id: number): Promise<Role> {
         const role = await this.rolesRepository.getById(id);
 
         if (!role) throw new NotFoundException();
+
+        return role;
     }
 
     //#endregion

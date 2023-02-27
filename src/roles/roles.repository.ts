@@ -40,10 +40,17 @@ export class RolesRepository implements IRolesRepository {
 
         return await this.roleEntityRepository.save(role);
     }
+
+    public async deleteById(id: number): Promise<void> {
+        await this.roleEntityRepository.delete(id);
+
+        return;
+    }
 }
 
 interface IRolesRepository {
     create(dto: CreateRoleDto): Promise<Role>;
+    deleteById(id: number): Promise<void>;
     getAllQ(): SelectQueryBuilder<Role>;
     getById(id: number): Promise<Role>;
     getByName(name: string): Promise<Role>;
