@@ -4,6 +4,7 @@ import {
     Delete,
     Get,
     Param,
+    ParseIntPipe,
     Patch,
     Post,
     Query,
@@ -39,8 +40,8 @@ export class FacultiesController {
     }
 
     @Get(":id")
-    findOne(@Param("id") id: number) {
-        throw new Error("Not implemented");
+    findOne(@Param("id", ParseIntPipe) id: number) {
+        return this.facultyService.getFaculty(id);
     }
 
     @Patch(":id")

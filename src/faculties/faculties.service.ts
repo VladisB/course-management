@@ -1,4 +1,4 @@
-import { ConflictException, Injectable } from "@nestjs/common";
+import { ConflictException, Injectable, NotFoundException } from "@nestjs/common";
 import { CreateFacultyDto } from "./dto/create-faculty.dto";
 import { FacultiesRepository } from "./faculties.repository";
 import { Faculty } from "./entities/faculty.entity";
@@ -58,6 +58,14 @@ export class FacultiesService implements IFacultiesService {
         return new DataListResponse<FacultyViewModel>(model, count);
     }
 
+    public async getFaculty(id: number): Promise<FacultyViewModel> {
+        const faculty = await this.facultiesRepository.getById(id);
+
+        if (!faculty) throw new NotFoundException(`Faculty not found.`);
+
+        return this.facultiesViewModelFactory.initFacultyViewModel(faculty);
+    }
+
     private async validateCreate(dto: CreateFacultyDto): Promise<void> {
         await this.checkIfFacultyExists(dto.name);
     }
@@ -74,4 +82,5 @@ export class FacultiesService implements IFacultiesService {
 interface IFacultiesService {
     createFaculty(dto: CreateFacultyDto): Promise<FacultyViewModel>;
     getFaculties(queryParams: QueryParamsDTO): Promise<DataListResponse<FacultyViewModel>>;
+    getFaculty(id: number): Promise<FacultyViewModel>;
 }
