@@ -6,6 +6,7 @@ import {
     Param,
     Patch,
     Post,
+    Query,
     UseGuards,
     UsePipes,
     ValidationPipe,
@@ -17,6 +18,8 @@ import { RolesGuard } from "../roles/roles.guard";
 import { CreateFacultyDto } from "./dto/create-faculty.dto";
 import { FacultiesService } from "./faculties.service";
 import { FacultyViewModel } from "./view-models";
+import { DataListResponse } from "src/common/db/data-list-response";
+import { QueryParamsDTO } from "src/common/dto/query-params.dto";
 
 @Roles(RoleName.Admin)
 @UseGuards(AuthGuard("jwt"), RolesGuard)
@@ -31,8 +34,8 @@ export class FacultiesController {
     }
 
     @Get()
-    findAll() {
-        return this.facultyService.getFaculties();
+    findAll(@Query() queryParams: QueryParamsDTO): Promise<DataListResponse<FacultyViewModel>> {
+        return this.facultyService.getFaculties(queryParams);
     }
 
     @Get(":id")

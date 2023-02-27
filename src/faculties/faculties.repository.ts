@@ -1,6 +1,6 @@
 import { Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
-import { Repository } from "typeorm";
+import { Repository, SelectQueryBuilder } from "typeorm";
 import { CreateFacultyDto } from "./dto/create-faculty.dto";
 import { Faculty } from "./entities/faculty.entity";
 
@@ -11,9 +11,10 @@ export class FacultiesRepository implements IFacultiesRepository {
         private readonly facultyEntityRepository: Repository<Faculty>,
     ) {}
 
-    public async getAll(): Promise<Faculty[]> {
-        //TODO: add pagination, sorting, filtering
-        return await this.facultyEntityRepository.find();
+    public getAllQ(): SelectQueryBuilder<Faculty> {
+        const userQuery = this.facultyEntityRepository.createQueryBuilder("faculty");
+
+        return userQuery;
     }
 
     public async getById(id: number): Promise<Faculty> {
@@ -41,7 +42,7 @@ export class FacultiesRepository implements IFacultiesRepository {
 
 interface IFacultiesRepository {
     create(dto: CreateFacultyDto): Promise<Faculty>;
-    getAll(): Promise<Faculty[]>;
+    getAllQ(): SelectQueryBuilder<Faculty>;
     getById(id: number): Promise<Faculty>;
     getByName(name: string): Promise<Faculty>;
 }

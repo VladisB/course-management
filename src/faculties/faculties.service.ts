@@ -4,6 +4,9 @@ import { FacultiesRepository } from "./faculties.repository";
 import { Faculty } from "./entities/faculty.entity";
 import { FacultyViewModel } from "./view-models";
 import { FacultiesViewModelFactory } from "./model-factories";
+import { DataListResponse } from "src/common/db/data-list-response";
+import { QueryParamsDTO } from "src/common/dto/query-params.dto";
+import { ApplyToQueryExtension } from "src/common/query-extention";
 
 @Injectable()
 export class FacultiesService implements IFacultiesService {
@@ -20,8 +23,39 @@ export class FacultiesService implements IFacultiesService {
         return this.facultiesViewModelFactory.initFacultyViewModel(faculty);
     }
 
-    public async getFaculties(): Promise<Faculty[]> {
-        return await this.facultiesRepository.getAll();
+    public async getFaculties(
+        queryParams: QueryParamsDTO,
+    ): Promise<DataListResponse<FacultyViewModel>> {
+        const facultiesQuery = this.facultiesRepository.getAllQ();
+
+        const facultiesConfig = {
+            columns: [
+                {
+                    name: "id",
+                    prop: "id",
+                    tableName: "faculty",
+                    isSearchable: true,
+                    isSortable: true,
+                },
+                {
+                    name: "name",
+                    prop: "name",
+                    tableName: "faculty",
+                    isSearchable: true,
+                    isSortable: true,
+                },
+            ],
+        };
+
+        const [faculties, count] = await ApplyToQueryExtension.applyToQuery<Faculty>(
+            queryParams,
+            facultiesQuery,
+            facultiesConfig,
+        );
+
+        const model = this.facultiesViewModelFactory.initFacultyListViewModel(faculties);
+
+        return new DataListResponse<FacultyViewModel>(model, count);
     }
 
     private async validateCreate(dto: CreateFacultyDto): Promise<void> {
@@ -39,5 +73,5 @@ export class FacultiesService implements IFacultiesService {
 
 interface IFacultiesService {
     createFaculty(dto: CreateFacultyDto): Promise<FacultyViewModel>;
-    getFaculties(): Promise<Faculty[]>;
+    getFaculties(queryParams: QueryParamsDTO): Promise<DataListResponse<FacultyViewModel>>;
 }
