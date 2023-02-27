@@ -6,6 +6,9 @@ import { Group } from "./entities/group.entity";
 import { GroupsRepository } from "./groups.repository";
 import { GroupsViewModelFactory } from "./model-factories";
 import { GroupViewModel } from "./view-models";
+import { ApplyToQueryExtension } from "src/common/query-extention";
+import { QueryParamsDTO } from "src/common/dto/query-params.dto";
+import { DataListResponse } from "src/common/db/data-list-response";
 
 @Injectable()
 export class GroupsService implements IGroupsService {
@@ -23,8 +26,44 @@ export class GroupsService implements IGroupsService {
         return this.groupsViewModelFactory.initGroupViewModel(group);
     }
 
-    public async getGroups(): Promise<Group[]> {
-        return await this.groupsRepository.getAll();
+    public async getGroups(queryParams: QueryParamsDTO): Promise<DataListResponse<GroupViewModel>> {
+        const groupQuery = this.groupsRepository.getAllQ();
+
+        const groupsConfig = {
+            columns: [
+                {
+                    name: "id",
+                    prop: "id",
+                    tableName: "group",
+                    isSearchable: true,
+                    isSortable: true,
+                },
+                {
+                    name: "groupName",
+                    prop: "name",
+                    tableName: "group",
+                    isSearchable: true,
+                    isSortable: true,
+                },
+                {
+                    name: "facultyName",
+                    prop: "name",
+                    tableName: "faculty",
+                    isSearchable: true,
+                    isSortable: true,
+                },
+            ],
+        };
+
+        const [groups, count] = await ApplyToQueryExtension.applyToQuery<Group>(
+            queryParams,
+            groupQuery,
+            groupsConfig,
+        );
+
+        const model = this.groupsViewModelFactory.initGroupListViewModel(groups);
+
+        return new DataListResponse<GroupViewModel>(model, count);
     }
 
     private async validateCreate(dto: CreateGroupDto): Promise<Faculty> {
@@ -52,5 +91,5 @@ export class GroupsService implements IGroupsService {
 
 interface IGroupsService {
     createGroup(dto: CreateGroupDto): Promise<GroupViewModel>;
-    getGroups(): Promise<Group[]>;
+    getGroups(queryParams: QueryParamsDTO): Promise<DataListResponse<GroupViewModel>>;
 }

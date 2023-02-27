@@ -1,7 +1,7 @@
 import { Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Faculty } from "src/faculties/entities/faculty.entity";
-import { Repository } from "typeorm";
+import { Repository, SelectQueryBuilder } from "typeorm";
 import { CreateGroupDto } from "./dto/create-group.dto";
 import { Group } from "./entities/group.entity";
 
@@ -12,10 +12,12 @@ export class GroupsRepository implements IGroupsRepository {
         private readonly groupEntityRepository: Repository<Group>,
     ) {}
 
-    public async getAll(): Promise<Group[]> {
-        return await this.groupEntityRepository.find({
-            loadEagerRelations: false,
-        });
+    public getAllQ(): SelectQueryBuilder<Group> {
+        const groupQuery = this.groupEntityRepository
+            .createQueryBuilder("group")
+            .innerJoinAndSelect("group.faculty", "faculty");
+
+        return groupQuery;
     }
 
     public async create(dto: CreateGroupDto, faculty: Faculty): Promise<Group> {
@@ -35,6 +37,6 @@ export class GroupsRepository implements IGroupsRepository {
 
 interface IGroupsRepository {
     create(dto: CreateGroupDto, faculty: Faculty): Promise<Group>;
-    getAll(): Promise<Group[]>;
+    getAllQ(): SelectQueryBuilder<Group>;
     getByName(name: string): Promise<Group>;
 }

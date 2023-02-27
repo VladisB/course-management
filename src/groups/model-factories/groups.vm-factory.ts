@@ -32,8 +32,8 @@ export class GroupsViewModelFactory implements IGroupsViewModelFactory {
         if (groups.length) {
             const groupList = groups.map<GroupViewModel>((group) => ({
                 id: group.id,
-                groupName: group.faculty.name,
-                facultyName: group.name,
+                groupName: group.name,
+                facultyName: group.faculty.name,
             }));
 
             model.push(...groupList);

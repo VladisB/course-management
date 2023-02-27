@@ -6,6 +6,7 @@ import {
     Param,
     Patch,
     Post,
+    Query,
     UseGuards,
     UsePipes,
     ValidationPipe,
@@ -17,6 +18,8 @@ import { RolesGuard } from "../roles/roles.guard";
 import { CreateGroupDto } from "./dto/create-group.dto";
 import { GroupsService } from "./groups.service";
 import { GroupViewModel } from "./view-models";
+import { QueryParamsDTO } from "src/common/dto/query-params.dto";
+import { DataListResponse } from "src/common/db/data-list-response";
 
 @Roles(RoleName.Admin)
 @UseGuards(AuthGuard("jwt"), RolesGuard)
@@ -31,8 +34,8 @@ export class GroupsController {
     }
 
     @Get()
-    getGroups() {
-        return this.groupsService.getGroups();
+    findAll(@Query() queryParams: QueryParamsDTO): Promise<DataListResponse<GroupViewModel>> {
+        return this.groupsService.getGroups(queryParams);
     }
 
     @Get(":id")
