@@ -89,11 +89,9 @@ export class UsersService implements IUsersService {
     }
 
     public async deleteUser(id: number): Promise<void> {
-        const user = await this.usersRepository.getById(id);
+        const user = await this.validateDelete(id);
 
-        if (!user) throw new NotFoundException("User not found");
-
-        await user.remove();
+        await this.usersRepository.deleteById(user.id);
     }
 
     //#endregion
@@ -113,10 +111,16 @@ export class UsersService implements IUsersService {
         return await this.checkIfRoleExist(updateUserDto.roleId);
     }
 
-    private async checkIfUserExistById(id: number): Promise<void> {
+    private async validateDelete(id: number): Promise<User> {
+        return await this.checkIfUserExistById(id);
+    }
+
+    private async checkIfUserExistById(id: number): Promise<User> {
         const user = await this.usersRepository.getById(id);
 
         if (!user) throw new NotFoundException();
+
+        return user;
     }
 
     private async checkIfUserExistByEmail(email: string, id?: number): Promise<void> {

@@ -57,6 +57,12 @@ export class UsersRepository implements IUsersRepository {
         return await this.userEntityRepository.save(user);
     }
 
+    public async deleteById(id: number): Promise<void> {
+        await this.userEntityRepository.delete(id);
+
+        return;
+    }
+
     public async updateRefreshToken(id: number, refreshToken: string | null): Promise<void> {
         // NOTE: update() does not trigger the @beforeUpdate() hook
         await this.userEntityRepository.update({ id }, { refreshToken });
@@ -65,6 +71,7 @@ export class UsersRepository implements IUsersRepository {
 
 interface IUsersRepository {
     create(dto: CreateUserDto, role: Role): Promise<User>;
+    deleteById(id: number): Promise<void>;
     getAllQ(queryParams: QueryParamsDTO): SelectQueryBuilder<User>;
     getByEmail(email: string): Promise<User>;
     getById(id: number): Promise<User>;
