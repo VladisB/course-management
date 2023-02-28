@@ -1,4 +1,4 @@
-import { ConflictException, Injectable } from "@nestjs/common";
+import { ConflictException, Injectable, NotFoundException } from "@nestjs/common";
 import { FacultiesRepository } from "src/faculties/faculties.repository";
 import { Faculty } from "src/faculties/entities/faculty.entity";
 import { CreateGroupDto } from "./dto/create-group.dto";
@@ -64,6 +64,14 @@ export class GroupsService implements IGroupsService {
         const model = this.groupsViewModelFactory.initGroupListViewModel(groups);
 
         return new DataListResponse<GroupViewModel>(model, count);
+    }
+
+    public async getGroup(id: number): Promise<GroupViewModel> {
+        const group = await this.groupsRepository.getById(id);
+
+        if (!group) throw new NotFoundException(`Group not found.`);
+
+        return this.groupsViewModelFactory.initGroupViewModel(group);
     }
 
     private async validateCreate(dto: CreateGroupDto): Promise<Faculty> {

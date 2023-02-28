@@ -33,10 +33,15 @@ export class GroupsRepository implements IGroupsRepository {
             },
         });
     }
+
+    public async getById(id: number): Promise<Group> {
+        return await this.groupEntityRepository.findOneBy({ id });
+    }
 }
 
 interface IGroupsRepository {
     create(dto: CreateGroupDto, faculty: Faculty): Promise<Group>;
     getAllQ(): SelectQueryBuilder<Group>;
+    getById(id: number): Promise<Group>;
     getByName(name: string): Promise<Group>;
 }
