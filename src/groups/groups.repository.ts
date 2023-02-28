@@ -49,10 +49,17 @@ export class GroupsRepository implements IGroupsRepository {
 
         return await this.getById(group.id);
     }
+
+    public async deleteById(id: number): Promise<void> {
+        await this.groupEntityRepository.delete(id);
+
+        return;
+    }
 }
 
 interface IGroupsRepository {
     create(dto: CreateGroupDto, faculty: Faculty): Promise<Group>;
+    deleteById(id: number): Promise<void>;
     getAllQ(): SelectQueryBuilder<Group>;
     getById(id: number): Promise<Group>;
     getByName(name: string): Promise<Group>;

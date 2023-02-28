@@ -83,6 +83,12 @@ export class GroupsService implements IGroupsService {
         return this.groupsViewModelFactory.initGroupViewModel(group);
     }
 
+    public async deleteGroup(id: number): Promise<void> {
+        const group = await this.validateDelete(id);
+
+        await this.groupsRepository.deleteById(group.id);
+    }
+
     private async validateCreate(dto: CreateGroupDto): Promise<Faculty> {
         await this.checkifNotExistByName(dto.name);
 
@@ -92,6 +98,10 @@ export class GroupsService implements IGroupsService {
     private async validateUpdate(id: number, dto: UpdateGroupDto): Promise<void> {
         await this.checkifExist(id);
         await this.checkifNotExistByName(dto.name, id);
+    }
+
+    private async validateDelete(id: number): Promise<Group> {
+        return await this.checkifExist(id);
     }
 
     private async checkifExist(id: number): Promise<Group> {
@@ -121,5 +131,8 @@ export class GroupsService implements IGroupsService {
 
 interface IGroupsService {
     createGroup(dto: CreateGroupDto): Promise<GroupViewModel>;
+    deleteGroup(id: number): Promise<void>;
+    getGroup(id: number): Promise<GroupViewModel>;
     getGroups(queryParams: QueryParamsDTO): Promise<DataListResponse<GroupViewModel>>;
+    updateGroup(id: number, dto: UpdateGroupDto): Promise<GroupViewModel>;
 }

@@ -55,6 +55,6 @@ export class GroupsController {
 
     @Delete(":id")
     remove(@Param("id") id: number) {
-        throw new Error("Method not implemented.");
+        return this.groupsService.deleteGroup(id);
     }
 }
