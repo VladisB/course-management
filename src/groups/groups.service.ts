@@ -9,6 +9,7 @@ import { GroupViewModel } from "./view-models";
 import { ApplyToQueryExtension } from "src/common/query-extention";
 import { QueryParamsDTO } from "src/common/dto/query-params.dto";
 import { DataListResponse } from "src/common/db/data-list-response";
+import { UpdateGroupDto } from "./dto/update-group.dto";
 
 @Injectable()
 export class GroupsService implements IGroupsService {
@@ -74,10 +75,31 @@ export class GroupsService implements IGroupsService {
         return this.groupsViewModelFactory.initGroupViewModel(group);
     }
 
+    public async updateGroup(id: number, dto: UpdateGroupDto): Promise<GroupViewModel> {
+        await this.validateUpdate(id, dto);
+
+        const group = await this.groupsRepository.update(id, dto);
+
+        return this.groupsViewModelFactory.initGroupViewModel(group);
+    }
+
     private async validateCreate(dto: CreateGroupDto): Promise<Faculty> {
         await this.checkifNotExistByName(dto.name);
 
         return await this.checkIfFacultyExists(dto.facultyId);
+    }
+
+    private async validateUpdate(id: number, dto: UpdateGroupDto): Promise<void> {
+        await this.checkifExist(id);
+        await this.checkifNotExistByName(dto.name, id);
+    }
+
+    private async checkifExist(id: number): Promise<Group> {
+        const group = await this.groupsRepository.getById(id);
+
+        if (!group) throw new NotFoundException();
+
+        return group;
     }
 
     private async checkIfFacultyExists(facultyId: number): Promise<Faculty> {

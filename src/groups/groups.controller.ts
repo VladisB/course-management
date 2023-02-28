@@ -21,6 +21,7 @@ import { GroupsService } from "./groups.service";
 import { GroupViewModel } from "./view-models";
 import { QueryParamsDTO } from "src/common/dto/query-params.dto";
 import { DataListResponse } from "src/common/db/data-list-response";
+import { UpdateGroupDto } from "./dto/update-group.dto";
 
 @Roles(RoleName.Admin)
 @UseGuards(AuthGuard("jwt"), RolesGuard)
@@ -45,8 +46,11 @@ export class GroupsController {
     }
 
     @Patch(":id")
-    update(@Param("id") id: number, @Body() updateGroupDto: any) {
-        throw new Error("Method not implemented.");
+    update(
+        @Param("id", ParseIntPipe) id: number,
+        @Body() updateGroupDto: UpdateGroupDto,
+    ): Promise<GroupViewModel> {
+        return this.groupsService.updateGroup(id, updateGroupDto);
     }
 
     @Delete(":id")

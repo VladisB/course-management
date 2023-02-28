@@ -3,6 +3,7 @@ import { InjectRepository } from "@nestjs/typeorm";
 import { Faculty } from "src/faculties/entities/faculty.entity";
 import { Repository, SelectQueryBuilder } from "typeorm";
 import { CreateGroupDto } from "./dto/create-group.dto";
+import { UpdateGroupDto } from "./dto/update-group.dto";
 import { Group } from "./entities/group.entity";
 
 @Injectable()
@@ -37,6 +38,17 @@ export class GroupsRepository implements IGroupsRepository {
     public async getById(id: number): Promise<Group> {
         return await this.groupEntityRepository.findOneBy({ id });
     }
+
+    public async update(id: number, dto: UpdateGroupDto): Promise<Group> {
+        const role = await this.groupEntityRepository.preload({
+            id,
+            ...dto,
+        });
+
+        const group = await this.groupEntityRepository.save(role);
+
+        return await this.getById(group.id);
+    }
 }
 
 interface IGroupsRepository {
@@ -44,4 +56,5 @@ interface IGroupsRepository {
     getAllQ(): SelectQueryBuilder<Group>;
     getById(id: number): Promise<Group>;
     getByName(name: string): Promise<Group>;
+    update(id: number, dto: UpdateGroupDto): Promise<Group>;
 }
