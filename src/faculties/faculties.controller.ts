@@ -22,9 +22,10 @@ import { FacultyViewModel } from "./view-models";
 import { DataListResponse } from "src/common/db/data-list-response";
 import { QueryParamsDTO } from "src/common/dto/query-params.dto";
 import { UpdateFacultyDto } from "./dto/update-faculty.dto";
+import { Strategies } from "src/auth/strategies.enum";
 
 @Roles(RoleName.Admin)
-@UseGuards(AuthGuard("jwt"), RolesGuard)
+@UseGuards(AuthGuard(Strategies.JWT), RolesGuard)
 @UsePipes(new ValidationPipe({ transform: true }))
 @Controller("faculties")
 export class FacultiesController {

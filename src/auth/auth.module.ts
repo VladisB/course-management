@@ -8,12 +8,12 @@ import { AuthService } from "./auth.service";
 import { JwtStrategy } from "./strategies/jwt.strategy";
 import { JwtModelFactory } from "./model-factories";
 import { RefreshStrategy } from "./strategies/jwt-refresh.strategy";
+import { Strategies } from "./strategies.enum";
 
 @Module({
     imports: [
         ConfigModule,
-        //TODO: Create enums for stratagies
-        PassportModule.register({ defaultStrategy: "jwt" }),
+        PassportModule.register({ defaultStrategy: Strategies.JWT }),
         JwtModule.registerAsync({
             useFactory: (config: ConfigService) => {
                 return {

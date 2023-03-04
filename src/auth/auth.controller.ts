@@ -16,6 +16,7 @@ import { AuthService } from "./auth.service";
 import { AuthCredentialsDto } from "./dto";
 import { GetUser } from "./get-user.decorator";
 import { AuthViewModel } from "./models";
+import { Strategies } from "./strategies.enum";
 
 @Controller("auth")
 export class AuthController {
@@ -61,7 +62,7 @@ export class AuthController {
     }
 
     @Post("/logout")
-    @UseGuards(AuthGuard("jwt"))
+    @UseGuards(AuthGuard(Strategies.JWT))
     @HttpCode(200)
     async logout(@GetUser() user: User): Promise<void> {
         await this.authService.logout(user);

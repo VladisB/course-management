@@ -23,10 +23,11 @@ import { UserViewModel } from "./view-models";
 import { DataListResponse } from "src/common/db/data-list-response";
 import { QueryParamsDTO } from "src/common/dto/query-params.dto";
 import { UsersViewModelFactory } from "./model-factories";
+import { Strategies } from "src/auth/strategies.enum";
 
 @Controller("users")
 @Roles(RoleName.Admin)
-@UseGuards(AuthGuard("jwt"), RolesGuard)
+@UseGuards(AuthGuard(Strategies.JWT), RolesGuard)
 export class UsersController {
     constructor(
         private usersService: UsersService,

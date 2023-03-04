@@ -22,9 +22,10 @@ import { DataListResponse } from "src/common/db/data-list-response";
 import { QueryParamsDTO } from "src/common/dto/query-params.dto";
 import { RoleViewModel } from "./view-models";
 import { UpdateRoleDto } from "./dto/update-role.dto";
+import { Strategies } from "src/auth/strategies.enum";
 
 @Roles(RoleName.Admin)
-@UseGuards(AuthGuard("jwt"), RolesGuard)
+@UseGuards(AuthGuard(Strategies.JWT), RolesGuard)
 @UsePipes(new ValidationPipe({ transform: true }))
 @Controller("roles")
 export class RolesController {

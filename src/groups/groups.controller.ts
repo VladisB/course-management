@@ -22,9 +22,10 @@ import { GroupViewModel } from "./view-models";
 import { QueryParamsDTO } from "src/common/dto/query-params.dto";
 import { DataListResponse } from "src/common/db/data-list-response";
 import { UpdateGroupDto } from "./dto/update-group.dto";
+import { Strategies } from "src/auth/strategies.enum";
 
 @Roles(RoleName.Admin)
-@UseGuards(AuthGuard("jwt"), RolesGuard)
+@UseGuards(AuthGuard(Strategies.JWT), RolesGuard)
 @UsePipes(new ValidationPipe({ transform: true }))
 @Controller("groups")
 export class GroupsController {
