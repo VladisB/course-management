@@ -1,3 +1,4 @@
+import { CourseViewModel } from "src/courses/view-models";
 import { Group } from "../entities/group.entity";
 import { GroupViewModel } from "../view-models";
 
@@ -7,6 +8,7 @@ export class GroupsViewModelFactory implements IGroupsViewModelFactory {
             id: null,
             groupName: "",
             facultyName: "",
+            courses: [],
         };
 
         return this.setGroupViewModel(model, group);
@@ -15,7 +17,7 @@ export class GroupsViewModelFactory implements IGroupsViewModelFactory {
     public initGroupListViewModel(groups: Group[]): GroupViewModel[] {
         const model: GroupViewModel[] = [];
 
-        return this.setFucultyListViewModel(model, groups);
+        return this.setGroupListViewModel(model, groups);
     }
 
     private setGroupViewModel(model: GroupViewModel, group: Group): GroupViewModel {
@@ -23,23 +25,38 @@ export class GroupsViewModelFactory implements IGroupsViewModelFactory {
             model.id = group.id;
             model.groupName = group.name;
             model.facultyName = group.faculty.name;
+            model.courses = this.populateCourses(group);
         }
 
         return model;
     }
 
-    private setFucultyListViewModel(model: GroupViewModel[], groups: Group[]): GroupViewModel[] {
+    private setGroupListViewModel(model: GroupViewModel[], groups: Group[]): GroupViewModel[] {
         if (groups.length) {
             const groupList = groups.map<GroupViewModel>((group) => ({
                 id: group.id,
                 groupName: group.name,
                 facultyName: group.faculty.name,
+                courses: this.populateCourses(group),
             }));
 
             model.push(...groupList);
         }
 
         return model;
+    }
+
+    private populateCourses(group: Group): CourseViewModel[] {
+        if (!group || !group.courses.length) {
+            return [];
+        }
+
+        const courses = group.courses.map<CourseViewModel>((course) => ({
+            id: course.id,
+            name: course.name,
+        }));
+
+        return courses;
     }
 }
 

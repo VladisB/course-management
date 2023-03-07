@@ -10,11 +10,14 @@ import { ApplyToQueryExtension } from "src/common/query-extention";
 import { QueryParamsDTO } from "src/common/dto/query-params.dto";
 import { DataListResponse } from "src/common/db/data-list-response";
 import { UpdateGroupDto } from "./dto/update-group.dto";
+import { CoursesRepository } from "src/courses/courses.repository";
+import { Course } from "src/courses/entities/course.entity";
 
 @Injectable()
 export class GroupsService implements IGroupsService {
     constructor(
         private readonly groupsRepository: GroupsRepository,
+        private readonly coursesRepository: CoursesRepository,
         private readonly facultiesRepository: FacultiesRepository,
         private readonly groupsViewModelFactory: GroupsViewModelFactory,
     ) {}
@@ -76,9 +79,9 @@ export class GroupsService implements IGroupsService {
     }
 
     public async updateGroup(id: number, dto: UpdateGroupDto): Promise<GroupViewModel> {
-        await this.validateUpdate(id, dto);
+        const courses = await this.validateUpdate(id, dto);
 
-        const group = await this.groupsRepository.update(id, dto);
+        const group = await this.groupsRepository.update(id, dto, courses);
 
         return this.groupsViewModelFactory.initGroupViewModel(group);
     }
@@ -95,9 +98,12 @@ export class GroupsService implements IGroupsService {
         return await this.checkIfFacultyExists(dto.facultyId);
     }
 
-    private async validateUpdate(id: number, dto: UpdateGroupDto): Promise<void> {
+    private async validateUpdate(id: number, dto: UpdateGroupDto): Promise<Course[]> {
         await this.checkifExist(id);
         await this.checkifNotExistByName(dto.name, id);
+        const courses = await this.checkIfCoursesExists(dto);
+
+        return courses;
     }
 
     private async validateDelete(id: number): Promise<Group> {
@@ -110,6 +116,15 @@ export class GroupsService implements IGroupsService {
         if (!group) throw new NotFoundException();
 
         return group;
+    }
+
+    private async checkIfCoursesExists(dto: UpdateGroupDto): Promise<Course[]> {
+        const courses = await this.coursesRepository.getByIdList(dto.courseIdList);
+
+        if (courses.length !== dto.courseIdList.length)
+            throw new NotFoundException(`Course not found.`);
+
+        return courses;
     }
 
     private async checkIfFacultyExists(facultyId: number): Promise<Faculty> {

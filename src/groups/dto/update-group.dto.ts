@@ -1,5 +1,13 @@
 import { Transform } from "class-transformer";
-import { IsNotEmpty, IsNumber, IsOptional, IsString, MaxLength, MinLength } from "class-validator";
+import {
+    IsArray,
+    IsNotEmpty,
+    IsNumber,
+    IsOptional,
+    IsString,
+    MaxLength,
+    MinLength,
+} from "class-validator";
 
 export class UpdateGroupDto {
     @IsString()
@@ -14,4 +22,10 @@ export class UpdateGroupDto {
     @IsNumber()
     @IsOptional()
     readonly facultyId?: number;
+
+    @IsNotEmpty()
+    @IsOptional()
+    @IsNumber({}, { each: true })
+    @IsArray()
+    readonly courseIdList?: number[];
 }

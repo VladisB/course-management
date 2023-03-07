@@ -1,5 +1,6 @@
 import { Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
+import { Course } from "src/courses/entities/course.entity";
 import { Faculty } from "src/faculties/entities/faculty.entity";
 import { Repository, SelectQueryBuilder } from "typeorm";
 import { CreateGroupDto } from "./dto/create-group.dto";
@@ -36,18 +37,27 @@ export class GroupsRepository implements IGroupsRepository {
     }
 
     public async getById(id: number): Promise<Group> {
-        return await this.groupEntityRepository.findOneBy({ id });
+        return await this.groupEntityRepository.findOne({
+            where: {
+                id,
+            },
+            relations: {
+                courses: true,
+                faculty: true,
+            },
+        });
     }
 
-    public async update(id: number, dto: UpdateGroupDto): Promise<Group> {
-        const role = await this.groupEntityRepository.preload({
+    public async update(id: number, dto: UpdateGroupDto, courses: Course[]): Promise<Group> {
+        const groupEntity = await this.groupEntityRepository.preload({
             id,
             ...dto,
+            courses,
         });
 
-        const group = await this.groupEntityRepository.save(role);
+        const { id: groupId } = await this.groupEntityRepository.save(groupEntity);
 
-        return await this.getById(group.id);
+        return await this.getById(groupId);
     }
 
     public async deleteById(id: number): Promise<void> {
@@ -63,5 +73,5 @@ interface IGroupsRepository {
     getAllQ(): SelectQueryBuilder<Group>;
     getById(id: number): Promise<Group>;
     getByName(name: string): Promise<Group>;
-    update(id: number, dto: UpdateGroupDto): Promise<Group>;
+    update(id: number, dto: UpdateGroupDto, courses: Course[]): Promise<Group>;
 }

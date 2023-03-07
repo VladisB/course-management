@@ -9,6 +9,7 @@ import { TypeOrmConfigService } from "./database/typeorm-config.service";
 import { FacultiesModule } from "./faculties/faculties.module";
 import { GroupsModule } from "./groups/groups.module";
 import { DatabaseModule } from "./database/database.module";
+import { CoursesModule } from "./courses/courses.module";
 
 @Module({
     imports: [
@@ -23,6 +24,7 @@ import { DatabaseModule } from "./database/database.module";
         FacultiesModule,
         GroupsModule,
         DatabaseModule,
+        CoursesModule,
     ],
     controllers: [],
     providers: [TypeOrmConfigService],

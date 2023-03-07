@@ -1,38 +1,24 @@
-import { Course } from "src/courses/entities/course.entity";
 import {
     BaseEntity,
     Column,
     CreateDateColumn,
     Entity,
-    JoinColumn,
-    JoinTable,
     ManyToMany,
-    ManyToOne,
-    OneToMany,
     PrimaryGeneratedColumn,
     UpdateDateColumn,
 } from "typeorm";
-import { Faculty } from "../../faculties/entities/faculty.entity";
-import { User } from "../../users/entities/user.entity";
+import { Group } from "../../groups/entities/group.entity";
 
 @Entity()
-export class Group extends BaseEntity {
+export class Course extends BaseEntity {
     @PrimaryGeneratedColumn()
     id: number;
 
     @Column({ unique: true })
     name: string;
 
-    @ManyToOne(() => Faculty, (faculty) => faculty.groups, { eager: true })
-    @JoinColumn({ name: "faculty_id" })
-    faculty: Faculty;
-
-    @OneToMany(() => User, (user) => user.group)
-    users: User[];
-
-    @ManyToMany(() => Course, (course) => course.groups)
-    @JoinTable()
-    courses: Course[];
+    @ManyToMany(() => Group, (group) => group.courses)
+    groups: Group[];
 
     @CreateDateColumn({
         type: "timestamp",

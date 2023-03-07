@@ -8,10 +8,17 @@ import { GroupsController } from "./groups.controller";
 import { GroupsRepository } from "./groups.repository";
 import { GroupsService } from "./groups.service";
 import { GroupsViewModelFactory } from "./model-factories";
+import { CoursesModule } from "src/courses/courses.module";
 
 @Module({
     controllers: [GroupsController],
     providers: [GroupsService, GroupsRepository, GroupsViewModelFactory],
-    imports: [FacultiesModule, RolesModule, AuthModule, TypeOrmModule.forFeature([Group])],
+    imports: [
+        FacultiesModule,
+        RolesModule,
+        AuthModule,
+        CoursesModule,
+        TypeOrmModule.forFeature([Group]),
+    ],
 })
 export class GroupsModule {}
