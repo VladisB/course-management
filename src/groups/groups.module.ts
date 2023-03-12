@@ -9,16 +9,18 @@ import { GroupsRepository } from "./groups.repository";
 import { GroupsService } from "./groups.service";
 import { GroupsViewModelFactory } from "./model-factories";
 import { CoursesModule } from "src/courses/courses.module";
+import { GroupCourses } from "./entities/group-to-course.entity";
+import { GroupCoursesRepository } from "./group-courses.repository";
 
 @Module({
     controllers: [GroupsController],
-    providers: [GroupsService, GroupsRepository, GroupsViewModelFactory],
+    providers: [GroupsService, GroupsRepository, GroupCoursesRepository, GroupsViewModelFactory],
     imports: [
         FacultiesModule,
         RolesModule,
         AuthModule,
         CoursesModule,
-        TypeOrmModule.forFeature([Group]),
+        TypeOrmModule.forFeature([Group, GroupCourses]),
     ],
 })
 export class GroupsModule {}

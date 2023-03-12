@@ -12,6 +12,7 @@ import { DataListResponse } from "src/common/db/data-list-response";
 import { UpdateGroupDto } from "./dto/update-group.dto";
 import { CoursesRepository } from "src/courses/courses.repository";
 import { Course } from "src/courses/entities/course.entity";
+import { GroupCoursesRepository } from "./group-courses.repository";
 
 @Injectable()
 export class GroupsService implements IGroupsService {
@@ -19,6 +20,7 @@ export class GroupsService implements IGroupsService {
         private readonly groupsRepository: GroupsRepository,
         private readonly coursesRepository: CoursesRepository,
         private readonly facultiesRepository: FacultiesRepository,
+        private readonly groupCoursesRepository: GroupCoursesRepository,
         private readonly groupsViewModelFactory: GroupsViewModelFactory,
     ) {}
 
@@ -81,15 +83,30 @@ export class GroupsService implements IGroupsService {
     public async updateGroup(id: number, dto: UpdateGroupDto): Promise<GroupViewModel> {
         const courses = await this.validateUpdate(id, dto);
 
-        const group = await this.groupsRepository.update(id, dto, courses);
+        const group = await this.groupsRepository.update(id, dto);
+        await this.updateGroupCourses(group, courses);
 
-        return this.groupsViewModelFactory.initGroupViewModel(group);
+        const newGroup = await this.groupsRepository.getById(id);
+
+        return this.groupsViewModelFactory.initGroupViewModel(newGroup);
     }
 
     public async deleteGroup(id: number): Promise<void> {
         const group = await this.validateDelete(id);
 
         await this.groupsRepository.deleteById(group.id);
+    }
+
+    private async updateGroupCourses(group: Group, courses: Course[]): Promise<void> {
+        if (!courses.length) return;
+
+        const groupCourses = await this.groupCoursesRepository.getAllByGroupId(group.id);
+
+        if (groupCourses.length) {
+            await this.groupCoursesRepository.deleteByGroupId(group.id);
+        }
+
+        await this.groupCoursesRepository.bulkCreate(group, courses);
     }
 
     private async validateCreate(dto: CreateGroupDto): Promise<Faculty> {
@@ -119,6 +136,8 @@ export class GroupsService implements IGroupsService {
     }
 
     private async checkIfCoursesExists(dto: UpdateGroupDto): Promise<Course[]> {
+        if (!dto.courseIdList?.length) return [];
+
         const courses = await this.coursesRepository.getByIdList(dto.courseIdList);
 
         if (courses.length !== dto.courseIdList.length)

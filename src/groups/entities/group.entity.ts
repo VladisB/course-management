@@ -5,8 +5,6 @@ import {
     CreateDateColumn,
     Entity,
     JoinColumn,
-    JoinTable,
-    ManyToMany,
     ManyToOne,
     OneToMany,
     PrimaryGeneratedColumn,
@@ -14,6 +12,7 @@ import {
 } from "typeorm";
 import { Faculty } from "../../faculties/entities/faculty.entity";
 import { User } from "../../users/entities/user.entity";
+import { GroupCourses } from "./group-to-course.entity";
 
 @Entity()
 export class Group extends BaseEntity {
@@ -30,9 +29,8 @@ export class Group extends BaseEntity {
     @OneToMany(() => User, (user) => user.group)
     users: User[];
 
-    @ManyToMany(() => Course, (course) => course.groups)
-    @JoinTable()
-    courses: Course[];
+    @OneToMany(() => GroupCourses, (groupCourses) => groupCourses.group)
+    groupCourses: GroupCourses[];
 
     @CreateDateColumn({
         type: "timestamp",

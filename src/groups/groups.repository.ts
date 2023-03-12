@@ -42,17 +42,18 @@ export class GroupsRepository implements IGroupsRepository {
                 id,
             },
             relations: {
-                courses: true,
+                groupCourses: {
+                    course: true,
+                },
                 faculty: true,
             },
         });
     }
 
-    public async update(id: number, dto: UpdateGroupDto, courses: Course[]): Promise<Group> {
+    public async update(id: number, dto: UpdateGroupDto): Promise<Group> {
         const groupEntity = await this.groupEntityRepository.preload({
             id,
             ...dto,
-            courses,
         });
 
         const { id: groupId } = await this.groupEntityRepository.save(groupEntity);
@@ -73,5 +74,5 @@ interface IGroupsRepository {
     getAllQ(): SelectQueryBuilder<Group>;
     getById(id: number): Promise<Group>;
     getByName(name: string): Promise<Group>;
-    update(id: number, dto: UpdateGroupDto, courses: Course[]): Promise<Group>;
+    update(id: number, dto: UpdateGroupDto): Promise<Group>;
 }

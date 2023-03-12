@@ -1,13 +1,13 @@
+import { GroupCourses } from "src/groups/entities/group-to-course.entity";
 import {
     BaseEntity,
     Column,
     CreateDateColumn,
     Entity,
-    ManyToMany,
+    OneToMany,
     PrimaryGeneratedColumn,
     UpdateDateColumn,
 } from "typeorm";
-import { Group } from "../../groups/entities/group.entity";
 
 @Entity()
 export class Course extends BaseEntity {
@@ -17,8 +17,8 @@ export class Course extends BaseEntity {
     @Column({ unique: true })
     name: string;
 
-    @ManyToMany(() => Group, (group) => group.courses)
-    groups: Group[];
+    @OneToMany(() => GroupCourses, (groupCourses) => groupCourses.course)
+    groupCourses: GroupCourses[];
 
     @CreateDateColumn({
         type: "timestamp",

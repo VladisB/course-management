@@ -47,13 +47,13 @@ export class GroupsViewModelFactory implements IGroupsViewModelFactory {
     }
 
     private populateCourses(group: Group): CourseViewModel[] {
-        if (!group || !group.courses.length) {
+        if (!group || !group.groupCourses?.length) {
             return [];
         }
 
-        const courses = group.courses.map<CourseViewModel>((course) => ({
-            id: course.id,
-            name: course.name,
+        const courses = group.groupCourses.map<CourseViewModel>((item) => ({
+            id: item.course.id,
+            name: item.course.name,
         }));
 
         return courses;
