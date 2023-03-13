@@ -23,9 +23,14 @@ export class UsersRepository implements IUsersRepository {
     }
 
     public async getById(id: number): Promise<User> {
+        if (!id) return null;
+
         return await this.userEntityRepository.findOne({
             where: {
                 id,
+            },
+            relations: {
+                role: true,
             },
         });
     }

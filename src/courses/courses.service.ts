@@ -8,11 +8,15 @@ import { CreateCourseDto } from "./dto/create-course.dto";
 import { UpdateCourseDto } from "./dto/update-course.dto";
 import { Course } from "./entities/course.entity";
 import { CoursesViewModelFactory } from "./model-factories";
+import { UsersRepository } from "src/users/users.repository";
+import { RoleName } from "src/roles/roles.enum";
+import { User } from "src/users/entities/user.entity";
 
 @Injectable()
 export class CoursesService implements ICoursesService {
     constructor(
         private readonly coursesRepository: CoursesRepository,
+        private readonly usersRepository: UsersRepository,
         private readonly coursesViewModelFactory: CoursesViewModelFactory,
     ) {}
 
@@ -71,9 +75,9 @@ export class CoursesService implements ICoursesService {
         id: number,
         updateCourseDto: UpdateCourseDto,
     ): Promise<CourseViewModel> {
-        await this.validateUpdate(id, updateCourseDto);
+        const instructor = await this.validateUpdate(id, updateCourseDto);
 
-        const course = await this.coursesRepository.update(id, updateCourseDto);
+        const course = await this.coursesRepository.update(id, updateCourseDto, instructor);
 
         return this.coursesViewModelFactory.initCourseViewModel(course);
     }
@@ -88,9 +92,11 @@ export class CoursesService implements ICoursesService {
         await this.checkifNotExistByName(dto.name);
     }
 
-    private async validateUpdate(id: number, dto: UpdateCourseDto): Promise<void> {
+    private async validateUpdate(id: number, dto: UpdateCourseDto): Promise<User> {
         await this.checkifExist(id);
         await this.checkifNotExistByName(dto.name, id);
+
+        return await this.checkIfInstructorExists(dto.instructorId);
     }
 
     private async validateDelete(id: number): Promise<Course> {
@@ -111,6 +117,18 @@ export class CoursesService implements ICoursesService {
         if (!course) throw new NotFoundException();
 
         return course;
+    }
+
+    private async checkIfInstructorExists(id: number): Promise<User> {
+        if (!id) return null;
+
+        const instructor = await this.usersRepository.getById(id);
+
+        if (!instructor) throw new NotFoundException();
+        if (instructor?.role.name !== RoleName.Instructor)
+            throw new ConflictException(`Wrong instructor id.`);
+
+        return instructor;
     }
 }
 

@@ -6,6 +6,7 @@ export class CoursesViewModelFactory implements ICoursesViewModelFactory {
         const model: CourseViewModel = {
             id: null,
             name: "",
+            instructor: "",
         };
 
         return this.setCourseViewModel(model, course);
@@ -21,6 +22,7 @@ export class CoursesViewModelFactory implements ICoursesViewModelFactory {
         if (course) {
             model.id = course.id;
             model.name = course.name;
+            model.instructor = course.instructor.firstName + " " + course.instructor.lastName;
         }
 
         return model;
@@ -31,6 +33,7 @@ export class CoursesViewModelFactory implements ICoursesViewModelFactory {
             const courseList = courses.map<CourseViewModel>((course) => ({
                 id: course.id,
                 name: course.name,
+                instructor: course.instructor.firstName + " " + course.instructor.lastName,
             }));
 
             model.push(...courseList);

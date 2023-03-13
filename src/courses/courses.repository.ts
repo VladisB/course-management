@@ -1,5 +1,6 @@
 import { Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
+import { User } from "src/users/entities/user.entity";
 import { In, Repository, SelectQueryBuilder } from "typeorm";
 import { CreateCourseDto } from "./dto/create-course.dto";
 import { UpdateCourseDto } from "./dto/update-course.dto";
@@ -56,10 +57,15 @@ export class CoursesRepository implements ICoursesRepository {
         return this.courseEntityRepository.save(faculty);
     }
 
-    public async update(id: number, dto: UpdateCourseDto): Promise<Course> {
+    public async update(
+        id: number,
+        dto: UpdateCourseDto,
+        instructor: User = null,
+    ): Promise<Course> {
         const role = await this.courseEntityRepository.preload({
             id,
             ...dto,
+            instructor,
         });
 
         return await this.courseEntityRepository.save(role);
