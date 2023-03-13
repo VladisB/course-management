@@ -10,6 +10,7 @@ import { FacultiesModule } from "./faculties/faculties.module";
 import { GroupsModule } from "./groups/groups.module";
 import { DatabaseModule } from "./database/database.module";
 import { CoursesModule } from "./courses/courses.module";
+import { LessonsModule } from "./lessons/lessons.module";
 
 @Module({
     imports: [
@@ -25,6 +26,7 @@ import { CoursesModule } from "./courses/courses.module";
         GroupsModule,
         DatabaseModule,
         CoursesModule,
+        LessonsModule,
     ],
     controllers: [],
     providers: [TypeOrmConfigService],
