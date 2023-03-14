@@ -44,7 +44,7 @@ export class LessonsController {
     }
 
     @Delete(":id")
-    remove(@Param("id", ParseIntPipe) id: string) {
-        return this.lessonsService.deleteLesson(+id);
+    remove(@Param("id", ParseIntPipe) id: number) {
+        return this.lessonsService.deleteLesson(id);
     }
 }

@@ -5,6 +5,7 @@ import { CoursesRepository } from "src/courses/courses.repository";
 import { Course } from "src/courses/entities/course.entity";
 import { CreateLessonDto } from "./dto/create-lesson.dto";
 import { UpdateLessonDto } from "./dto/update-lesson.dto";
+import { Lesson } from "./entities/lesson.entity";
 import { LessonsRepository } from "./lessons.repository";
 import { LessonsViewModelFactory } from "./model-factories";
 import { LessonViewModel } from "./view-models";
@@ -24,8 +25,10 @@ export class LessonsService implements ILessonsService {
 
         return this.lessonsViewModelFactory.initLessonViewModel(lesson);
     }
-    deleteLesson(id: number): Promise<void> {
-        throw new Error("Method not implemented.");
+    public async deleteLesson(id: number): Promise<void> {
+        await this.validateDelete(id);
+
+        await this.lessonsRepository.deleteById(id);
     }
     public async getLesson(id: number): Promise<LessonViewModel> {
         const lesson = await this.lessonsRepository.getById(id);
@@ -48,6 +51,10 @@ export class LessonsService implements ILessonsService {
         return await this.checkIfCourseExists(dto.courseId);
     }
 
+    private async validateDelete(id: number): Promise<void> {
+        await this.checkIfExists(id);
+    }
+
     private async checkIfCourseExists(id: number): Promise<Course> {
         const course = await this.coursesRepository.getById(id);
 
@@ -63,6 +70,14 @@ export class LessonsService implements ILessonsService {
 
         if (lesson) {
             throw new ConflictException("Lesson with this theme already exists");
+        }
+    }
+
+    private async checkIfExists(id: number): Promise<void> {
+        const lesson = await this.lessonsRepository.getById(id);
+
+        if (!lesson) {
+            throw new NotFoundException();
         }
     }
 }
