@@ -27,8 +27,14 @@ export class LessonsService implements ILessonsService {
     deleteLesson(id: number): Promise<void> {
         throw new Error("Method not implemented.");
     }
-    getLesson(id: number): Promise<LessonViewModel> {
-        throw new Error("Method not implemented.");
+    public async getLesson(id: number): Promise<LessonViewModel> {
+        const lesson = await this.lessonsRepository.getById(id);
+
+        if (!lesson) {
+            throw new NotFoundException();
+        }
+
+        return this.lessonsViewModelFactory.initLessonViewModel(lesson);
     }
     getLessons(queryParams: QueryParamsDTO): Promise<DataListResponse<LessonViewModel>> {
         throw new Error("Method not implemented.");
