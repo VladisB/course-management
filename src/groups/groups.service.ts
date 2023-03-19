@@ -118,6 +118,7 @@ export class GroupsService implements IGroupsService {
     private async validateUpdate(id: number, dto: UpdateGroupDto): Promise<Course[]> {
         await this.checkifExist(id);
         await this.checkifNotExistByName(dto.name, id);
+        await this.checkCourseNumber(id);
         const courses = await this.checkIfCoursesExists(dto);
 
         return courses;
@@ -144,6 +145,13 @@ export class GroupsService implements IGroupsService {
             throw new NotFoundException(`Course not found.`);
 
         return courses;
+    }
+
+    private async checkCourseNumber(groupId: number): Promise<void> {
+        const group = await this.groupsRepository.getById(groupId);
+
+        if (group.groupCourses.length >= 5)
+            throw new ConflictException("Course number limit exceeded.");
     }
 
     private async checkIfFacultyExists(facultyId: number): Promise<Faculty> {
