@@ -18,6 +18,7 @@ export class Lesson extends BaseEntity {
     @Column({ unique: true })
     public theme: string;
 
+    @Column()
     public date: Date;
 
     @ManyToOne(() => Course, (course) => course.groupCourses)

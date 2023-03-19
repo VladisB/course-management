@@ -54,7 +54,9 @@ export class GroupsViewModelFactory implements IGroupsViewModelFactory {
         const courses = group.groupCourses.map<CourseViewModel>((item) => ({
             id: item.course.id,
             name: item.course.name,
-            instructor: item.course.instructor.firstName + " " + item.course.instructor.lastName,
+            instructor: item.course?.instructor
+                ? item.course.instructor.firstName + " " + item.course.instructor.lastName
+                : null,
         }));
 
         return courses;

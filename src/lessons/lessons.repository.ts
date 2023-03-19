@@ -16,7 +16,9 @@ export class LessonsRepository implements ILessonsRepository {
     ) {}
 
     public getAllQ(): SelectQueryBuilder<Lesson> {
-        const userQuery = this.lessonEntityRepository.createQueryBuilder(this.tableName);
+        const userQuery = this.lessonEntityRepository
+            .createQueryBuilder(this.tableName)
+            .innerJoinAndSelect("lesson.course", "course");
 
         return userQuery;
     }

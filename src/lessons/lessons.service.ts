@@ -1,6 +1,7 @@
 import { ConflictException, Injectable, NotFoundException } from "@nestjs/common";
 import { DataListResponse } from "src/common/db/data-list-response";
 import { QueryParamsDTO } from "src/common/dto/query-params.dto";
+import { ApplyToQueryExtension } from "src/common/query-extention";
 import { CoursesRepository } from "src/courses/courses.repository";
 import { Course } from "src/courses/entities/course.entity";
 import { CreateLessonDto } from "./dto/create-lesson.dto";
@@ -25,11 +26,13 @@ export class LessonsService implements ILessonsService {
 
         return this.lessonsViewModelFactory.initLessonViewModel(lesson);
     }
+
     public async deleteLesson(id: number): Promise<void> {
         await this.validateDelete(id);
 
         await this.lessonsRepository.deleteById(id);
     }
+
     public async getLesson(id: number): Promise<LessonViewModel> {
         const lesson = await this.lessonsRepository.getById(id);
 
@@ -39,11 +42,53 @@ export class LessonsService implements ILessonsService {
 
         return this.lessonsViewModelFactory.initLessonViewModel(lesson);
     }
-    getLessons(queryParams: QueryParamsDTO): Promise<DataListResponse<LessonViewModel>> {
-        throw new Error("Method not implemented.");
+
+    public async getLessons(
+        queryParams: QueryParamsDTO,
+    ): Promise<DataListResponse<LessonViewModel>> {
+        const groupQuery = this.lessonsRepository.getAllQ();
+
+        const lessonsConfig = {
+            columns: [
+                {
+                    name: "id",
+                    prop: "id",
+                    tableName: "lesson",
+                    isSearchable: true,
+                    isSortable: true,
+                },
+                {
+                    name: "theme",
+                    prop: "theme",
+                    tableName: "lesson",
+                    isSearchable: true,
+                    isSortable: true,
+                },
+                {
+                    name: "date",
+                    prop: "date",
+                    tableName: "lesson",
+                    isSearchable: true,
+                    isSortable: true,
+                },
+            ],
+        };
+
+        const [lessons, count] = await ApplyToQueryExtension.applyToQuery<Lesson>(
+            queryParams,
+            groupQuery,
+            lessonsConfig,
+        );
+
+        const model = this.lessonsViewModelFactory.initLessonListViewModel(lessons);
+
+        return new DataListResponse<LessonViewModel>(model, count);
     }
-    updateLesson(id: number, dto: UpdateLessonDto): Promise<LessonViewModel> {
-        throw new Error("Method not implemented.");
+
+    public async updateLesson(id: number, dto: UpdateLessonDto): Promise<LessonViewModel> {
+        const lesson = await this.lessonsRepository.update(id, dto);
+
+        return this.lessonsViewModelFactory.initLessonViewModel(lesson);
     }
 
     private async validateCreate(dto: CreateLessonDto): Promise<Course> {
