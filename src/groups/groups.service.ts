@@ -116,10 +116,11 @@ export class GroupsService implements IGroupsService {
     }
 
     private async validateUpdate(id: number, dto: UpdateGroupDto): Promise<Course[]> {
-        await this.checkifExist(id);
+        const group = await this.checkifExist(id);
         await this.checkifNotExistByName(dto.name, id);
-        await this.checkCourseNumber(id);
+        await this.checkCourseNumber(group, dto);
         const courses = await this.checkIfCoursesExists(dto);
+        this.checkIfCoursesAvailable(courses);
 
         return courses;
     }
@@ -147,10 +148,20 @@ export class GroupsService implements IGroupsService {
         return courses;
     }
 
-    private async checkCourseNumber(groupId: number): Promise<void> {
-        const group = await this.groupsRepository.getById(groupId);
+    private async checkIfCoursesAvailable(courses: Course[]): Promise<void> {
+        const coursesWithoutInstructors = courses.filter((course) => !course.instructor);
 
-        if (group.groupCourses.length >= 5)
+        if (coursesWithoutInstructors.length)
+            throw new ConflictException(
+                `Course ${coursesWithoutInstructors[0].name} has no instructor.`,
+            );
+    }
+
+    private async checkCourseNumber(group: Group, dto: UpdateGroupDto): Promise<void> {
+        const assignedCourseIds = group.groupCourses.map((item) => item.courseId);
+        const newCourseIds = dto.courseIdList.filter((item) => !assignedCourseIds.includes(item));
+
+        if (group.groupCourses.length >= 5 && newCourseIds.length)
             throw new ConflictException("Course number limit exceeded.");
     }
 
