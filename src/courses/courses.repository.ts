@@ -1,19 +1,23 @@
 import { Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
+import { BaseRepository } from "src/common/db/base.repository";
+import { BaseErrorMessages } from "src/common/db/enum";
 import { User } from "src/users/entities/user.entity";
-import { In, Repository, SelectQueryBuilder } from "typeorm";
+import { In, QueryRunner, Repository, SelectQueryBuilder } from "typeorm";
 import { CreateCourseDto } from "./dto/create-course.dto";
 import { UpdateCourseDto } from "./dto/update-course.dto";
 import { Course } from "./entities/course.entity";
 
 @Injectable()
-export class CoursesRepository implements ICoursesRepository {
+export class CoursesRepository extends BaseRepository implements ICoursesRepository {
     private readonly tableName = "course";
 
     constructor(
         @InjectRepository(Course)
         private readonly courseEntityRepository: Repository<Course>,
-    ) {}
+    ) {
+        super(courseEntityRepository.manager.connection.createQueryRunner());
+    }
 
     public getAllQ(): SelectQueryBuilder<Course> {
         const userQuery = this.courseEntityRepository.createQueryBuilder(this.tableName);
@@ -52,23 +56,65 @@ export class CoursesRepository implements ICoursesRepository {
     }
 
     public async create(dto: CreateCourseDto): Promise<Course> {
-        const faculty = this.courseEntityRepository.create(dto);
+        try {
+            const course = this.courseEntityRepository.create(dto);
 
-        return this.courseEntityRepository.save(faculty);
+            return this.courseEntityRepository.save(course);
+        } catch (err) {
+            console.error("Error: ", err);
+
+            throw new Error(BaseErrorMessages.DB_ERROR);
+        }
     }
 
-    public async update(
+    public async trxCreate(queryRunner: QueryRunner, dto: CreateCourseDto): Promise<Course> {
+        const course = this.courseEntityRepository.create(dto);
+
+        try {
+            const newCourse = await queryRunner.manager.save(course);
+
+            return newCourse;
+        } catch (err) {
+            console.error("Error: ", err);
+
+            throw new Error(BaseErrorMessages.DB_ERROR);
+        }
+    }
+
+    public async update(id: number, dto: UpdateCourseDto): Promise<Course> {
+        try {
+            const course = await this.courseEntityRepository.preload({
+                id,
+                ...dto,
+            });
+
+            return await this.courseEntityRepository.save(course);
+        } catch (err) {
+            console.error("Error: ", err);
+
+            throw new Error(BaseErrorMessages.DB_ERROR);
+        }
+    }
+
+    public async trxUpdate(
+        queryRunner: QueryRunner,
         id: number,
         dto: UpdateCourseDto,
-        instructor: User = null,
     ): Promise<Course> {
-        const role = await this.courseEntityRepository.preload({
-            id,
-            ...dto,
-            instructor,
-        });
+        try {
+            const course = await this.courseEntityRepository.preload({
+                id,
+                ...dto,
+            });
 
-        return await this.courseEntityRepository.save(role);
+            const newCourse = await queryRunner.manager.save(course);
+
+            return newCourse;
+        } catch (err) {
+            console.error("Error: ", err);
+
+            throw new Error(BaseErrorMessages.DB_ERROR);
+        }
     }
 }
 
@@ -79,5 +125,6 @@ interface ICoursesRepository {
     getById(id: number): Promise<Course>;
     getByIdList(idList: number[]): Promise<Course[]>;
     getByName(name: string): Promise<Course>;
+    trxUpdate(queryRunner: QueryRunner, id: number, dto: UpdateCourseDto): Promise<Course>;
     update(id: number, dto: UpdateCourseDto): Promise<Course>;
 }

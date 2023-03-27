@@ -1,5 +1,13 @@
 import { Transform } from "class-transformer";
-import { IsNotEmpty, IsString, MaxLength, MinLength } from "class-validator";
+import {
+    IsArray,
+    IsNotEmpty,
+    IsNumber,
+    IsOptional,
+    IsString,
+    MaxLength,
+    MinLength,
+} from "class-validator";
 
 export class CreateCourseDto {
     @IsString()
@@ -8,4 +16,10 @@ export class CreateCourseDto {
     @IsNotEmpty()
     @Transform(({ value }) => value?.trim())
     readonly name: string;
+
+    @IsNotEmpty()
+    @IsOptional()
+    @IsNumber({}, { each: true })
+    @IsArray()
+    readonly instructorIdList?: number[];
 }

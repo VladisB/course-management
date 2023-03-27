@@ -148,7 +148,7 @@ export class GroupsService implements IGroupsService {
         return courses;
     }
 
-    private async checkIfCoursesAvailable(courses: Course[]): Promise<void> {
+    private checkIfCoursesAvailable(courses: Course[]): void {
         const coursesWithoutInstructors = courses.filter((course) => !course.instructor);
 
         if (coursesWithoutInstructors.length)

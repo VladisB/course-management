@@ -1,7 +1,7 @@
 import { Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Role } from "src/roles/entities/role.entity";
-import { Repository, SelectQueryBuilder } from "typeorm";
+import { In, Repository, SelectQueryBuilder } from "typeorm";
 import { CreateUserDto } from "./dto/create-user.dto";
 import { UpdateUserDto } from "./dto/update-user.dto";
 import { QueryParamsDTO } from "../common/dto/query-params.dto";
@@ -28,6 +28,18 @@ export class UsersRepository implements IUsersRepository {
         return await this.userEntityRepository.findOne({
             where: {
                 id,
+            },
+            relations: {
+                role: true,
+            },
+        });
+    }
+
+    public async getByIdList(idList: number[], role: Role): Promise<User[]> {
+        return await this.userEntityRepository.find({
+            where: {
+                id: In(idList),
+                role: { id: role.id },
             },
             relations: {
                 role: true,
@@ -80,6 +92,7 @@ interface IUsersRepository {
     getAllQ(queryParams: QueryParamsDTO): SelectQueryBuilder<User>;
     getByEmail(email: string): Promise<User>;
     getById(id: number): Promise<User>;
+    getByIdList(idList: number[], role: Role): Promise<User[]>;
     update(id: number, dto: CreateUserDto, role: Role): Promise<User>;
     updateRefreshToken(id: number, refreshToken: string | null): Promise<void>;
 }

@@ -1,16 +1,4 @@
-import { Transform } from "class-transformer";
-import { IsNotEmpty, IsNumber, IsOptional, IsString, MaxLength, MinLength } from "class-validator";
+import { PartialType } from "@nestjs/mapped-types";
+import { CreateCourseDto } from "./create-course.dto";
 
-export class UpdateCourseDto {
-    @IsString()
-    @MinLength(4)
-    @MaxLength(25)
-    @IsNotEmpty()
-    @Transform(({ value }) => value?.trim())
-    readonly name: string;
-
-    @IsNotEmpty()
-    @IsOptional()
-    @IsNumber()
-    readonly instructorId?: number;
-}
+export class UpdateCourseDto extends PartialType(CreateCourseDto) {}

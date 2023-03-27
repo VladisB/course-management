@@ -11,21 +11,28 @@ import {
     PrimaryGeneratedColumn,
     UpdateDateColumn,
 } from "typeorm";
+import { CourseInstructors } from "./course-to-instructor.entity";
 
 @Entity()
 export class Course extends BaseEntity {
     @PrimaryGeneratedColumn()
-    id: number;
+    public id: number;
 
     @Column({ unique: true })
-    name: string;
+    public name: string;
+
+    @Column({ default: false })
+    public available: boolean;
 
     @OneToMany(() => GroupCourses, (groupCourses) => groupCourses.course)
-    groupCourses: GroupCourses[];
+    public groupCourses: GroupCourses[];
+
+    @OneToMany(() => GroupCourses, (courseInstructors) => courseInstructors.course)
+    public courseInstructors: CourseInstructors[];
 
     @ManyToOne(() => User, { eager: true })
     @JoinColumn({ name: "instructor_id" })
-    instructor: User;
+    public instructor: User;
 
     @CreateDateColumn({
         type: "timestamp",

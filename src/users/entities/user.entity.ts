@@ -8,12 +8,14 @@ import {
     Entity,
     JoinColumn,
     ManyToOne,
+    OneToMany,
     PrimaryGeneratedColumn,
     UpdateDateColumn,
 } from "typeorm";
 import { IsEmail } from "class-validator";
 import { Role } from "../../roles/entities/role.entity";
 import { Group } from "../../groups/entities/group.entity";
+import { CourseInstructors } from "src/courses/entities/course-to-instructor.entity";
 
 @Entity()
 export class User extends BaseEntity {
@@ -46,6 +48,9 @@ export class User extends BaseEntity {
     @ManyToOne(() => Group, (group) => group.users, { eager: true })
     @JoinColumn({ name: "group_id" })
     group: Group;
+
+    @OneToMany(() => CourseInstructors, (courseInstructors) => courseInstructors.instructor)
+    courseInstructors: CourseInstructors[];
 
     @CreateDateColumn({
         type: "timestamp",
