@@ -4,7 +4,9 @@ services:
     main:
         container_name: main
         build:
+            dockerfile: Dockerfile
             context: .
+            target: development
         env_file:
             - .development.env
         volumes:
@@ -13,7 +15,8 @@ services:
         ports:
             - 3000:3000
             - 9229:9229
-        command: npm run start:dev
+        # Run in debug mode
+        command: npm run start:debug
         depends_on:
             - postgres
         restart: always
