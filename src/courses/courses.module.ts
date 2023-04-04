@@ -10,6 +10,7 @@ import { CoursesService } from "./courses.service";
 import { CourseInstructors } from "./entities/course-to-instructor.entity";
 import { Course } from "./entities/course.entity";
 import { CoursesViewModelFactory } from "./model-factories";
+import { StudentCourses } from "src/user-courses/entities/student-courses.entity";
 
 @Module({
     controllers: [CoursesController],
@@ -24,6 +25,7 @@ import { CoursesViewModelFactory } from "./model-factories";
         RolesModule,
         AuthModule,
         UsersModule,
+        StudentCourses,
     ],
     exports: [CoursesService, CoursesRepository],
 })

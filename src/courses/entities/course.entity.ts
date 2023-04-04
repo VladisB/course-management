@@ -12,6 +12,7 @@ import {
     UpdateDateColumn,
 } from "typeorm";
 import { CourseInstructors } from "./course-to-instructor.entity";
+import { StudentCourses } from "src/user-courses/entities/student-courses.entity";
 
 @Entity()
 export class Course extends BaseEntity {
@@ -29,6 +30,9 @@ export class Course extends BaseEntity {
 
     @OneToMany(() => GroupCourses, (courseInstructors) => courseInstructors.course)
     public courseInstructors: CourseInstructors[];
+
+    @OneToMany(() => StudentCourses, (studentCourses) => studentCourses.course)
+    public studentCourses: StudentCourses[];
 
     @ManyToOne(() => User, { eager: true })
     @JoinColumn({ name: "instructor_id" })

@@ -35,6 +35,20 @@ export class UsersRepository implements IUsersRepository {
         });
     }
 
+    public async getByIdAndRole(id: number, role: Role): Promise<User> {
+        if (!id) return null;
+
+        return await this.userEntityRepository.findOne({
+            where: {
+                id,
+                role: { id: role.id },
+            },
+            relations: {
+                role: true,
+            },
+        });
+    }
+
     public async getByIdList(idList: number[], role: Role): Promise<User[]> {
         return await this.userEntityRepository.find({
             where: {
@@ -92,6 +106,7 @@ interface IUsersRepository {
     getAllQ(queryParams: QueryParamsDTO): SelectQueryBuilder<User>;
     getByEmail(email: string): Promise<User>;
     getById(id: number): Promise<User>;
+    getByIdAndRole(id: number, role: Role): Promise<User>;
     getByIdList(idList: number[], role: Role): Promise<User[]>;
     update(id: number, dto: CreateUserDto, role: Role): Promise<User>;
     updateRefreshToken(id: number, refreshToken: string | null): Promise<void>;
