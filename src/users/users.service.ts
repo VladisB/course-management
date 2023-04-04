@@ -11,12 +11,15 @@ import { DataListResponse } from "src/common/db/data-list-response";
 import { QueryParamsDTO } from "../common/dto/query-params.dto";
 import { ApplyToQueryExtension } from "../common/query-extention";
 import { RolesRepository } from "src/roles/roles.repository";
+import { GroupsRepository } from "src/groups/groups.repository";
+import { Group } from "src/groups/entities/group.entity";
 
 @Injectable()
 export class UsersService implements IUsersService {
     constructor(
         private rolesRepository: RolesRepository,
         private usersRepository: UsersRepository,
+        private groupsRepository: GroupsRepository,
         private usersViewModelFactory: UsersViewModelFactory,
     ) {}
 
@@ -31,11 +34,29 @@ export class UsersService implements IUsersService {
     }
 
     public async updateUser(id: number, updateUserDto: UpdateUserDto): Promise<UserViewModel> {
-        const role = await this.validateUpdate(id, updateUserDto);
+        const [group, role] = await this.validateUpdate(id, updateUserDto);
 
-        const model = await this.usersRepository.update(id, updateUserDto, role);
+        const transaction = await this.usersRepository.initTrx();
 
-        return this.usersViewModelFactory.initUserViewModel(model);
+        try {
+            const model = await this.usersRepository.trxUpdate(
+                transaction,
+                id,
+                updateUserDto,
+                role,
+            );
+            // TODO: Create student courses records
+
+            await this.usersRepository.commitTrx(transaction);
+
+            return this.usersViewModelFactory.initUserViewModel(model);
+        } catch (err) {
+            console.error(err);
+
+            await this.usersRepository.rollbackTrx(transaction);
+
+            throw err;
+        }
     }
 
     public async getAllUsers(
@@ -104,11 +125,16 @@ export class UsersService implements IUsersService {
         return await this.checkIfRoleExist(updateUserDto.roleId);
     }
 
-    private async validateUpdate(id: number, updateUserDto: UpdateUserDto): Promise<Role> {
+    private async validateUpdate(
+        id: number,
+        updateUserDto: UpdateUserDto,
+    ): Promise<readonly [Group, Role]> {
         await this.checkIfUserExistById(id);
         await this.checkIfUserExistByEmail(updateUserDto.email, id);
+        const group = await this.checkIfGroupNotExist(updateUserDto.groupId);
+        const role = await this.checkIfRoleExist(updateUserDto.roleId);
 
-        return await this.checkIfRoleExist(updateUserDto.roleId);
+        return [group, role];
     }
 
     private async validateDelete(id: number): Promise<User> {
@@ -121,6 +147,16 @@ export class UsersService implements IUsersService {
         if (!user) throw new NotFoundException();
 
         return user;
+    }
+
+    private async checkIfGroupNotExist(id: number): Promise<Group> {
+        if (!id) return;
+
+        const group = await this.groupsRepository.getById(id);
+
+        if (!group) throw new NotFoundException("Group not found");
+
+        return group;
     }
 
     private async checkIfUserExistByEmail(email: string, id?: number): Promise<void> {

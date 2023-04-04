@@ -1,4 +1,4 @@
-import { Module } from "@nestjs/common";
+import { Module, forwardRef } from "@nestjs/common";
 import { TypeOrmModule } from "@nestjs/typeorm";
 import { AuthModule } from "../auth/auth.module";
 import { RolesModule } from "../roles/roles.module";
@@ -18,9 +18,11 @@ import { StudentCoursesViewModelFactory } from "./model-factories/student-course
         TypeOrmModule.forFeature([StudentCourses]),
         RolesModule,
         AuthModule,
-        CoursesModule,
-        UsersModule,
+        forwardRef(() => CoursesModule),
+        forwardRef(() => UsersModule),
+        // CoursesModule,
+        // UsersModule,
     ],
-    exports: [StudentCoursesService],
+    exports: [StudentCoursesService, StudentCoursesRepository],
 })
 export class StudentCoursesModule {}

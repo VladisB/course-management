@@ -1,4 +1,4 @@
-import { Module } from "@nestjs/common";
+import { Module, forwardRef } from "@nestjs/common";
 import { TypeOrmModule } from "@nestjs/typeorm";
 import { UsersModule } from "src/users/users.module";
 import { AuthModule } from "../auth/auth.module";
@@ -10,7 +10,8 @@ import { CoursesService } from "./courses.service";
 import { CourseInstructors } from "./entities/course-to-instructor.entity";
 import { Course } from "./entities/course.entity";
 import { CoursesViewModelFactory } from "./model-factories";
-import { StudentCourses } from "src/user-courses/entities/student-courses.entity";
+import { GroupsModule } from "src/groups/groups.module";
+import { StudentCoursesModule } from "src/user-courses/student-courses.module";
 
 @Module({
     controllers: [CoursesController],
@@ -24,8 +25,10 @@ import { StudentCourses } from "src/user-courses/entities/student-courses.entity
         TypeOrmModule.forFeature([Course, CourseInstructors]),
         RolesModule,
         AuthModule,
-        UsersModule,
-        StudentCourses,
+        forwardRef(() => UsersModule),
+        forwardRef(() => StudentCoursesModule),
+        // UsersModule,
+        // StudentCoursesModule,
     ],
     exports: [CoursesService, CoursesRepository],
 })

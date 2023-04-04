@@ -1,21 +1,27 @@
 import { Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Role } from "src/roles/entities/role.entity";
-import { In, Repository, SelectQueryBuilder } from "typeorm";
+import { In, QueryRunner, Repository, SelectQueryBuilder } from "typeorm";
 import { CreateUserDto } from "./dto/create-user.dto";
 import { UpdateUserDto } from "./dto/update-user.dto";
 import { QueryParamsDTO } from "../common/dto/query-params.dto";
 import { User } from "./entities/user.entity";
+import { BaseRepository } from "src/common/db/base.repository";
+import { BaseErrorMessages } from "src/common/db/enum";
 
 @Injectable()
-export class UsersRepository implements IUsersRepository {
+export class UsersRepository extends BaseRepository implements IUsersRepository {
+    private readonly tableName = "user";
+
     constructor(
         @InjectRepository(User)
-        private readonly userEntityRepository: Repository<User>,
-    ) {}
+        private readonly entityRepository: Repository<User>,
+    ) {
+        super(entityRepository.manager.connection.createQueryRunner());
+    }
 
     public async getByEmail(email: string): Promise<User> {
-        return await this.userEntityRepository.findOne({
+        return await this.entityRepository.findOne({
             where: {
                 email,
             },
@@ -25,7 +31,7 @@ export class UsersRepository implements IUsersRepository {
     public async getById(id: number): Promise<User> {
         if (!id) return null;
 
-        return await this.userEntityRepository.findOne({
+        return await this.entityRepository.findOne({
             where: {
                 id,
             },
@@ -38,7 +44,7 @@ export class UsersRepository implements IUsersRepository {
     public async getByIdAndRole(id: number, role: Role): Promise<User> {
         if (!id) return null;
 
-        return await this.userEntityRepository.findOne({
+        return await this.entityRepository.findOne({
             where: {
                 id,
                 role: { id: role.id },
@@ -50,7 +56,7 @@ export class UsersRepository implements IUsersRepository {
     }
 
     public async getByIdList(idList: number[], role: Role): Promise<User[]> {
-        return await this.userEntityRepository.find({
+        return await this.entityRepository.find({
             where: {
                 id: In(idList),
                 role: { id: role.id },
@@ -62,7 +68,7 @@ export class UsersRepository implements IUsersRepository {
     }
 
     public getAllQ(): SelectQueryBuilder<User> {
-        const userQuery = this.userEntityRepository
+        const userQuery = this.entityRepository
             .createQueryBuilder("user")
             .leftJoinAndSelect("user.role", "role");
 
@@ -70,7 +76,7 @@ export class UsersRepository implements IUsersRepository {
     }
 
     public async create(dto: CreateUserDto, role: Role): Promise<User> {
-        const user = await this.userEntityRepository.create({
+        const user = await this.entityRepository.create({
             ...dto,
             role,
         });
@@ -79,24 +85,47 @@ export class UsersRepository implements IUsersRepository {
     }
 
     public async update(id: number, dto: UpdateUserDto, role: Role): Promise<User> {
-        const user = await this.userEntityRepository.preload({
+        const user = await this.entityRepository.preload({
             id,
             ...dto,
             role,
         });
 
-        return await this.userEntityRepository.save(user);
+        return await this.entityRepository.save(user);
+    }
+
+    public async trxUpdate(
+        queryRunner: QueryRunner,
+        id: number,
+        dto: UpdateUserDto,
+        role: Role,
+    ): Promise<User> {
+        try {
+            const entity = await this.entityRepository.preload({
+                id,
+                ...dto,
+                role,
+            });
+
+            const newEntity = await queryRunner.manager.save(entity);
+
+            return newEntity;
+        } catch (err) {
+            console.error("Error: ", err);
+
+            throw new Error(BaseErrorMessages.DB_ERROR);
+        }
     }
 
     public async deleteById(id: number): Promise<void> {
-        await this.userEntityRepository.delete(id);
+        await this.entityRepository.delete(id);
 
         return;
     }
 
     public async updateRefreshToken(id: number, refreshToken: string | null): Promise<void> {
         // NOTE: update() does not trigger the @beforeUpdate() hook
-        await this.userEntityRepository.update({ id }, { refreshToken });
+        await this.entityRepository.update({ id }, { refreshToken });
     }
 }
 
@@ -108,6 +137,7 @@ interface IUsersRepository {
     getById(id: number): Promise<User>;
     getByIdAndRole(id: number, role: Role): Promise<User>;
     getByIdList(idList: number[], role: Role): Promise<User[]>;
+    trxUpdate(queryRunner: QueryRunner, id: number, dto: UpdateUserDto, role: Role): Promise<User>;
     update(id: number, dto: CreateUserDto, role: Role): Promise<User>;
     updateRefreshToken(id: number, refreshToken: string | null): Promise<void>;
 }

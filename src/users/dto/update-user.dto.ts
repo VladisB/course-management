@@ -26,10 +26,6 @@ export class UpdateUserDto {
     @IsOptional()
     password?: string;
 
-    @IsNumber()
-    @IsOptional()
-    roleId?: number;
-
     @IsString()
     @IsNotEmpty()
     @MinLength(4)
@@ -43,4 +39,12 @@ export class UpdateUserDto {
     @MaxLength(25)
     @IsOptional()
     lastName?: string;
+
+    @IsNumber()
+    @IsOptional()
+    roleId?: number;
+
+    @IsNumber()
+    @IsOptional()
+    groupId?: number;
 }

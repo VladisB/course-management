@@ -22,5 +22,6 @@ import { GroupCoursesRepository } from "./group-courses.repository";
         CoursesModule,
         TypeOrmModule.forFeature([Group, GroupCourses]),
     ],
+    exports: [GroupsRepository, GroupsService],
 })
 export class GroupsModule {}

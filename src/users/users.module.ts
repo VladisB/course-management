@@ -8,11 +8,17 @@ import { AuthModule } from "../auth/auth.module";
 import { UsersViewModelFactory } from "./model-factories/users.vm-factory";
 import { UsersRepository } from "./users.repository";
 import { ApplyToQueryExtension } from "../common/query-extention";
+import { GroupsModule } from "src/groups/groups.module";
 
 @Module({
     controllers: [UsersController],
     providers: [UsersService, UsersViewModelFactory, UsersRepository, ApplyToQueryExtension],
-    imports: [TypeOrmModule.forFeature([User]), forwardRef(() => AuthModule), RolesModule],
+    imports: [
+        TypeOrmModule.forFeature([User]),
+        forwardRef(() => AuthModule),
+        RolesModule,
+        GroupsModule,
+    ],
     exports: [UsersService, UsersViewModelFactory, UsersRepository],
 })
 export class UsersModule {}
