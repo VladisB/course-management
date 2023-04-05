@@ -16,7 +16,7 @@ import { IsEmail } from "class-validator";
 import { Role } from "../../roles/entities/role.entity";
 import { Group } from "../../groups/entities/group.entity";
 import { CourseInstructors } from "src/courses/entities/course-to-instructor.entity";
-import { StudentCourses } from "src/user-courses/entities/student-courses.entity";
+import { StudentCourses } from "src/student-courses/entities/student-courses.entity";
 
 @Entity()
 export class User extends BaseEntity {

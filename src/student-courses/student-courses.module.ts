@@ -17,7 +17,6 @@ import { StudentCoursesViewModelFactory } from "./model-factories/student-course
     imports: [
         TypeOrmModule.forFeature([StudentCourses]),
         RolesModule,
-        AuthModule,
         forwardRef(() => CoursesModule),
         forwardRef(() => UsersModule),
         // CoursesModule,

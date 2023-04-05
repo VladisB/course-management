@@ -18,7 +18,6 @@ import { GroupCoursesRepository } from "./group-courses.repository";
     imports: [
         FacultiesModule,
         RolesModule,
-        AuthModule,
         CoursesModule,
         TypeOrmModule.forFeature([Group, GroupCourses]),
     ],
