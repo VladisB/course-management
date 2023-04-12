@@ -153,7 +153,7 @@ export class CoursesService implements ICoursesService {
         const instructorRole = await this.rolesRepository.getByName(RoleName.Instructor);
         const instructors = await this.usersRepository.getByIdList(
             instructorIdList,
-            instructorRole,
+            instructorRole.id,
         );
 
         if (instructors.length !== instructorIdList.length)

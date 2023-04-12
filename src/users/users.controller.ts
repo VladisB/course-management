@@ -35,7 +35,7 @@ export class UsersController {
     ) {}
 
     @Post()
-    @UsePipes(ValidationPipe)
+    @UsePipes(new ValidationPipe({ transform: true }))
     async create(@Body() userDto: CreateUserDto): Promise<UserViewModel> {
         const model = await this.usersService.createUser(userDto);
 

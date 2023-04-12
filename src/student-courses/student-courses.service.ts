@@ -146,7 +146,7 @@ export class StudentCoursesService implements IStudentCoursesService {
         if (!studentId) return;
 
         const studentRole = await this.rolesRepository.getByName(RoleName.Student);
-        const student = await this.usersRepository.getByIdAndRole(studentId, studentRole);
+        const student = await this.usersRepository.getByIdAndRole(studentId, studentRole.id);
 
         if (!student) throw new NotFoundException(`Student not found.`);
 

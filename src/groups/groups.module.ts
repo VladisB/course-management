@@ -1,7 +1,6 @@
 import { Module } from "@nestjs/common";
 import { TypeOrmModule } from "@nestjs/typeorm";
 import { FacultiesModule } from "../faculties/faculties.module";
-import { AuthModule } from "../auth/auth.module";
 import { RolesModule } from "../roles/roles.module";
 import { Group } from "./entities/group.entity";
 import { GroupsController } from "./groups.controller";

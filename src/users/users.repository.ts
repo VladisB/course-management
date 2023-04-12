@@ -1,6 +1,5 @@
 import { Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
-import { Role } from "src/roles/entities/role.entity";
 import { In, QueryRunner, Repository, SelectQueryBuilder } from "typeorm";
 import { CreateUserDto } from "./dto/create-user.dto";
 import { UpdateUserDto } from "./dto/update-user.dto";
@@ -41,13 +40,13 @@ export class UsersRepository extends BaseRepository implements IUsersRepository 
         });
     }
 
-    public async getByIdAndRole(id: number, role: Role): Promise<User> {
+    public async getByIdAndRole(id: number, roleId: number): Promise<User> {
         if (!id) return null;
 
         return await this.entityRepository.findOne({
             where: {
                 id,
-                role: { id: role.id },
+                role: { id: roleId },
             },
             relations: {
                 role: true,
@@ -55,11 +54,11 @@ export class UsersRepository extends BaseRepository implements IUsersRepository 
         });
     }
 
-    public async getByIdList(idList: number[], role: Role): Promise<User[]> {
+    public async getByIdList(idList: number[], roleId: number): Promise<User[]> {
         return await this.entityRepository.find({
             where: {
                 id: In(idList),
-                role: { id: role.id },
+                role: { id: roleId },
             },
             relations: {
                 role: true,
@@ -75,41 +74,45 @@ export class UsersRepository extends BaseRepository implements IUsersRepository 
         return userQuery;
     }
 
-    public async create(dto: CreateUserDto, role: Role): Promise<User> {
+    public async create(dto: CreateUserDto, roleId: number): Promise<User> {
         const user = await this.entityRepository.create({
             ...dto,
-            role,
+            role: { id: roleId },
         });
 
-        return user.save();
+        const { id } = await user.save();
+
+        return await this.getById(id);
     }
 
-    public async update(id: number, dto: UpdateUserDto, role: Role): Promise<User> {
+    public async update(id: number, dto: UpdateUserDto, roleId: number): Promise<User> {
         const user = await this.entityRepository.preload({
             id,
             ...dto,
-            role,
+            role: { id: roleId },
         });
 
-        return await this.entityRepository.save(user);
+        const { id: entityId } = await this.entityRepository.save(user);
+
+        return await this.getById(entityId);
     }
 
     public async trxUpdate(
         queryRunner: QueryRunner,
         id: number,
         dto: UpdateUserDto,
-        role: Role,
+        roleId: number,
     ): Promise<User> {
         try {
             const entity = await this.entityRepository.preload({
                 id,
                 ...dto,
-                role,
+                role: { id: roleId },
             });
 
-            const newEntity = await queryRunner.manager.save(entity);
+            const { id: entityId } = await queryRunner.manager.save(entity);
 
-            return newEntity;
+            return await this.getById(entityId);
         } catch (err) {
             console.error("Error: ", err);
 
@@ -130,14 +133,19 @@ export class UsersRepository extends BaseRepository implements IUsersRepository 
 }
 
 interface IUsersRepository {
-    create(dto: CreateUserDto, role: Role): Promise<User>;
+    create(dto: CreateUserDto, roleId: number): Promise<User>;
     deleteById(id: number): Promise<void>;
     getAllQ(queryParams: QueryParamsDTO): SelectQueryBuilder<User>;
     getByEmail(email: string): Promise<User>;
     getById(id: number): Promise<User>;
-    getByIdAndRole(id: number, role: Role): Promise<User>;
-    getByIdList(idList: number[], role: Role): Promise<User[]>;
-    trxUpdate(queryRunner: QueryRunner, id: number, dto: UpdateUserDto, role: Role): Promise<User>;
-    update(id: number, dto: CreateUserDto, role: Role): Promise<User>;
+    getByIdAndRole(id: number, roleId: number): Promise<User>;
+    getByIdList(idList: number[], roleId: number): Promise<User[]>;
+    trxUpdate(
+        queryRunner: QueryRunner,
+        id: number,
+        dto: UpdateUserDto,
+        roleId: number,
+    ): Promise<User>;
+    update(id: number, dto: UpdateUserDto, roleId: number): Promise<User>;
     updateRefreshToken(id: number, refreshToken: string | null): Promise<void>;
 }
