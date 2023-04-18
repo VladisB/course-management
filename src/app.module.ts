@@ -12,6 +12,7 @@ import { DatabaseModule } from "./database/database.module";
 import { CoursesModule } from "./courses/courses.module";
 import { LessonsModule } from "./lessons/lessons.module";
 import { StudentCoursesModule } from "./student-courses/student-courses.module";
+// import { CourseInstructorsModule } from "./course-instructors/course-instructors.module";
 
 @Module({
     imports: [
@@ -29,6 +30,7 @@ import { StudentCoursesModule } from "./student-courses/student-courses.module";
         CoursesModule,
         LessonsModule,
         StudentCoursesModule,
+        // CourseInstructorsModule,
     ],
     controllers: [],
     providers: [TypeOrmConfigService],

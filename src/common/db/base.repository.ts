@@ -2,19 +2,19 @@ import { Injectable } from "@nestjs/common";
 import { QueryRunner } from "typeorm";
 
 @Injectable()
-export class BaseRepository {
-    public queryRunner: QueryRunner;
+export class BaseRepository implements IBaseRepository {
+    private queryRunner: QueryRunner;
 
-    constructor(queryRunner: QueryRunner) {
-        this.queryRunner = queryRunner;
+    constructor(private argQueryRunner: QueryRunner) {
+        this.queryRunner = argQueryRunner;
     }
 
-    async commitTrx(queryRunner: QueryRunner): Promise<void> {
-        await queryRunner.commitTransaction();
+    public async commitTrx(argQueryRunner: QueryRunner): Promise<void> {
+        await argQueryRunner.commitTransaction();
     }
 
-    async rollbackTrx(queryRunner: QueryRunner): Promise<void> {
-        await queryRunner.rollbackTransaction();
+    public async rollbackTrx(argQueryRunner: QueryRunner): Promise<void> {
+        await argQueryRunner.rollbackTransaction();
     }
 
     public async initTrx(): Promise<QueryRunner> {
@@ -23,4 +23,10 @@ export class BaseRepository {
 
         return this.queryRunner;
     }
+}
+
+export abstract class IBaseRepository {
+    abstract commitTrx(argQueryRunner: QueryRunner): Promise<void>;
+    abstract rollbackTrx(argQueryRunner: QueryRunner): Promise<void>;
+    abstract initTrx(): Promise<QueryRunner>;
 }

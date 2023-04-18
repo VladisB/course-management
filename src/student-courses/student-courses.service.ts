@@ -7,7 +7,7 @@ import { User } from "src/users/entities/user.entity";
 import { Course } from "src/courses/entities/course.entity";
 import { RolesRepository } from "src/roles/roles.repository";
 import { UsersRepository } from "src/users/users.repository";
-import { CoursesRepository } from "src/courses/courses.repository";
+import { ICoursesRepository } from "src/courses/courses.repository";
 import { CreateStudentCoursesDto } from "./dto/create-student-courses.dto";
 import { UpdateStudentCoursesDto } from "./dto/update-student-courses.dto";
 import { StudentCoursesRepository } from "./student-courses.repository";
@@ -18,7 +18,7 @@ import { StudentCoursesViewModel } from "./view-models";
 @Injectable()
 export class StudentCoursesService implements IStudentCoursesService {
     constructor(
-        private readonly coursesRepository: CoursesRepository,
+        private readonly coursesRepository: ICoursesRepository,
         private readonly rolesRepository: RolesRepository,
         private readonly studentCoursesRepository: StudentCoursesRepository,
         private readonly studentCoursesViewModelFactory: StudentCoursesViewModelFactory,

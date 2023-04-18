@@ -3,7 +3,7 @@ import { CourseViewModel } from "./view-models";
 import { DataListResponse } from "src/common/db/data-list-response";
 import { QueryParamsDTO } from "src/common/dto/query-params.dto";
 import { ApplyToQueryExtension } from "src/common/query-extention";
-import { CoursesRepository } from "./courses.repository";
+import { CoursesRepository, ICoursesRepository } from "./courses.repository";
 import { CreateCourseDto } from "./dto/create-course.dto";
 import { UpdateCourseDto } from "./dto/update-course.dto";
 import { Course } from "./entities/course.entity";
@@ -17,8 +17,7 @@ import { CourseInstructorsRepository } from "./course-instructors.repository";
 @Injectable()
 export class CoursesService implements ICoursesService {
     constructor(
-        private readonly coursesRepository: CoursesRepository,
-        private readonly usersRepository: UsersRepository,
+        private readonly coursesRepository: ICoursesRepository,
         private readonly rolesRepository: RolesRepository,
         private readonly courseInstructorsRepository: CourseInstructorsRepository,
         private readonly coursesViewModelFactory: CoursesViewModelFactory,
@@ -133,34 +132,36 @@ export class CoursesService implements ICoursesService {
     private async validateCreate(dto: CreateCourseDto): Promise<User[]> {
         await this.checkifNotExistByName(dto.name);
 
-        return await this.checkIfInstructorsExists(dto.instructorIdList);
+        // return await this.checkIfInstructorsExists(dto.instructorIdList);
+        return null;
     }
 
     private async validateUpdate(id: number, dto: UpdateCourseDto): Promise<User[]> {
         await this.checkifExist(id);
         await this.checkifNotExistByName(dto.name, id);
 
-        return await this.checkIfInstructorsExists(dto.instructorIdList);
+        // return await this.checkIfInstructorsExists(dto.instructorIdList);
+        return null;
     }
 
     private async validateDelete(id: number): Promise<Course> {
         return await this.checkifExist(id);
     }
 
-    private async checkIfInstructorsExists(instructorIdList: number[]): Promise<User[]> {
-        if (!instructorIdList?.length) return [];
+    // private async checkIfInstructorsExists(instructorIdList: number[]): Promise<User[]> {
+    //     if (!instructorIdList?.length) return [];
 
-        const instructorRole = await this.rolesRepository.getByName(RoleName.Instructor);
-        const instructors = await this.usersRepository.getByIdList(
-            instructorIdList,
-            instructorRole.id,
-        );
+    //     const instructorRole = await this.rolesRepository.getByName(RoleName.Instructor);
+    //     const instructors = await this.usersRepository.getByIdList(
+    //         instructorIdList,
+    //         instructorRole.id,
+    //     );
 
-        if (instructors.length !== instructorIdList.length)
-            throw new NotFoundException(`Some of the instructors not found.`);
+    //     if (instructors.length !== instructorIdList.length)
+    //         throw new NotFoundException(`Some of the instructors not found.`);
 
-        return instructors;
-    }
+    //     return instructors;
+    // }
 
     private async checkifNotExistByName(name: string, id?: number): Promise<void> {
         const course = await this.coursesRepository.getByName(name);

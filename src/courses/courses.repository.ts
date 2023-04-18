@@ -1,8 +1,7 @@
 import { Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
-import { BaseRepository } from "src/common/db/base.repository";
+import { BaseRepository, IBaseRepository } from "src/common/db/base.repository";
 import { BaseErrorMessages } from "src/common/db/enum";
-import { User } from "src/users/entities/user.entity";
 import { In, QueryRunner, Repository, SelectQueryBuilder } from "typeorm";
 import { CreateCourseDto } from "./dto/create-course.dto";
 import { UpdateCourseDto } from "./dto/update-course.dto";
@@ -118,13 +117,15 @@ export class CoursesRepository extends BaseRepository implements ICoursesReposit
     }
 }
 
-interface ICoursesRepository {
-    create(dto: CreateCourseDto): Promise<Course>;
-    deleteById(id: number): Promise<void>;
-    getAllQ(): SelectQueryBuilder<Course>;
-    getById(id: number): Promise<Course>;
-    getByIdList(idList: number[]): Promise<Course[]>;
-    getByName(name: string): Promise<Course>;
-    trxUpdate(queryRunner: QueryRunner, id: number, dto: UpdateCourseDto): Promise<Course>;
-    update(id: number, dto: UpdateCourseDto): Promise<Course>;
+@Injectable()
+export abstract class ICoursesRepository extends IBaseRepository {
+    abstract create(dto: CreateCourseDto): Promise<Course>;
+    abstract deleteById(id: number): Promise<void>;
+    abstract getAllQ(): SelectQueryBuilder<Course>;
+    abstract getById(id: number): Promise<Course>;
+    abstract getByIdList(idList: number[]): Promise<Course[]>;
+    abstract getByName(name: string): Promise<Course>;
+    abstract trxUpdate(queryRunner: QueryRunner, id: number, dto: UpdateCourseDto): Promise<Course>;
+    abstract trxCreate(queryRunner: QueryRunner, dto: CreateCourseDto): Promise<Course>;
+    abstract update(id: number, dto: UpdateCourseDto): Promise<Course>;
 }

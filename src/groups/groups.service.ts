@@ -10,7 +10,7 @@ import { ApplyToQueryExtension } from "src/common/query-extention";
 import { QueryParamsDTO } from "src/common/dto/query-params.dto";
 import { DataListResponse } from "src/common/db/data-list-response";
 import { UpdateGroupDto } from "./dto/update-group.dto";
-import { CoursesRepository } from "src/courses/courses.repository";
+import { ICoursesRepository } from "src/courses/courses.repository";
 import { Course } from "src/courses/entities/course.entity";
 import { GroupCoursesRepository } from "./group-courses.repository";
 
@@ -18,7 +18,7 @@ import { GroupCoursesRepository } from "./group-courses.repository";
 export class GroupsService implements IGroupsService {
     constructor(
         private readonly groupsRepository: GroupsRepository,
-        private readonly coursesRepository: CoursesRepository,
+        private readonly coursesRepository: ICoursesRepository,
         private readonly facultiesRepository: FacultiesRepository,
         private readonly groupCoursesRepository: GroupCoursesRepository,
         private readonly groupsViewModelFactory: GroupsViewModelFactory,
