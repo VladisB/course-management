@@ -3,35 +3,26 @@ import { CourseViewModel } from "./view-models";
 import { DataListResponse } from "src/common/db/data-list-response";
 import { QueryParamsDTO } from "src/common/dto/query-params.dto";
 import { ApplyToQueryExtension } from "src/common/query-extention";
-import { CoursesRepository, ICoursesRepository } from "./courses.repository";
+import { ICoursesRepository } from "./courses.repository";
 import { CreateCourseDto } from "./dto/create-course.dto";
 import { UpdateCourseDto } from "./dto/update-course.dto";
 import { Course } from "./entities/course.entity";
 import { CoursesViewModelFactory } from "./model-factories";
-import { UsersRepository } from "src/users/users.repository";
-import { RoleName } from "src/roles/roles.enum";
-import { User } from "src/users/entities/user.entity";
-import { RolesRepository } from "src/roles/roles.repository";
-import { CourseInstructorsRepository } from "./course-instructors.repository";
 
 @Injectable()
 export class CoursesService implements ICoursesService {
     constructor(
         private readonly coursesRepository: ICoursesRepository,
-        private readonly rolesRepository: RolesRepository,
-        private readonly courseInstructorsRepository: CourseInstructorsRepository,
         private readonly coursesViewModelFactory: CoursesViewModelFactory,
     ) {}
 
     public async createCourse(dto: CreateCourseDto): Promise<CourseViewModel> {
-        const istructors = await this.validateCreate(dto);
+        await this.validateCreate(dto);
 
         const transaction = await this.coursesRepository.initTrx();
 
         try {
             const course = await this.coursesRepository.trxCreate(transaction, dto);
-
-            await this.courseInstructorsRepository.trxBulkCreate(transaction, course, istructors);
 
             await this.coursesRepository.commitTrx(transaction);
 
@@ -88,39 +79,12 @@ export class CoursesService implements ICoursesService {
         return this.coursesViewModelFactory.initCourseViewModel(course);
     }
 
-    public async updateCourse(
-        id: number,
-        updateCourseDto: UpdateCourseDto,
-    ): Promise<CourseViewModel> {
-        const instructors = await this.validateUpdate(id, updateCourseDto);
+    public async updateCourse(id: number, dto: UpdateCourseDto): Promise<CourseViewModel> {
+        await this.validateUpdate(id, dto);
 
-        const transaction = await this.coursesRepository.initTrx();
+        const course = await this.coursesRepository.update(id, dto);
 
-        try {
-            const course = await this.coursesRepository.trxUpdate(transaction, id, updateCourseDto);
-
-            const courseInstructors = await this.courseInstructorsRepository.trxGetAllByCourseId(
-                transaction,
-                course.id,
-            );
-
-            await this.courseInstructorsRepository.trxDeleteByIdList(
-                transaction,
-                courseInstructors.map((ci) => ci.id),
-            );
-
-            await this.courseInstructorsRepository.trxBulkCreate(transaction, course, instructors);
-
-            await this.coursesRepository.commitTrx(transaction);
-
-            return this.coursesViewModelFactory.initCourseViewModel(course);
-        } catch (err) {
-            console.error(err);
-
-            await this.coursesRepository.rollbackTrx(transaction);
-
-            throw err;
-        }
+        return this.coursesViewModelFactory.initCourseViewModel(course);
     }
 
     public async deleteCourse(id: number): Promise<void> {
@@ -129,39 +93,20 @@ export class CoursesService implements ICoursesService {
         await this.coursesRepository.deleteById(Course.id);
     }
 
-    private async validateCreate(dto: CreateCourseDto): Promise<User[]> {
+    private async validateCreate(dto: CreateCourseDto): Promise<void> {
         await this.checkifNotExistByName(dto.name);
-
-        // return await this.checkIfInstructorsExists(dto.instructorIdList);
-        return null;
     }
 
-    private async validateUpdate(id: number, dto: UpdateCourseDto): Promise<User[]> {
+    private async validateUpdate(id: number, dto: UpdateCourseDto): Promise<void> {
         await this.checkifExist(id);
         await this.checkifNotExistByName(dto.name, id);
-
-        // return await this.checkIfInstructorsExists(dto.instructorIdList);
-        return null;
     }
 
     private async validateDelete(id: number): Promise<Course> {
         return await this.checkifExist(id);
+        // TODO: Check if course is not used in any other entity. Check Instructors and Students.
+        // TODO: Check if course has any lessons.
     }
-
-    // private async checkIfInstructorsExists(instructorIdList: number[]): Promise<User[]> {
-    //     if (!instructorIdList?.length) return [];
-
-    //     const instructorRole = await this.rolesRepository.getByName(RoleName.Instructor);
-    //     const instructors = await this.usersRepository.getByIdList(
-    //         instructorIdList,
-    //         instructorRole.id,
-    //     );
-
-    //     if (instructors.length !== instructorIdList.length)
-    //         throw new NotFoundException(`Some of the instructors not found.`);
-
-    //     return instructors;
-    // }
 
     private async checkifNotExistByName(name: string, id?: number): Promise<void> {
         const course = await this.coursesRepository.getByName(name);
