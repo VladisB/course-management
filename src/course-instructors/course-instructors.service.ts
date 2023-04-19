@@ -1,4 +1,4 @@
-import { ConflictException, Inject, Injectable, NotFoundException } from "@nestjs/common";
+import { ConflictException, Injectable, NotFoundException } from "@nestjs/common";
 import { User } from "src/users/entities/user.entity";
 import { RolesRepository } from "src/roles/roles.repository";
 import { CourseInstructorsRepository } from "./course-instructors.repository";
@@ -87,11 +87,29 @@ export class CourseInstructorsService implements ICourseInstructorsService {
     private async validateCreate(dto: CreateCourseInstructorsDto): Promise<void> {
         await this.checkIfInstructorsExists(dto.instructorIdList);
         await this.checkifCourseExist(dto.courseId);
+        await this.checkIfExistsByDetails(dto.instructorIdList, dto.courseId);
     }
 
     // private async validateDelete(id: number): Promise<Course> {
     //     return await this.checkifExist(id);
     // }
+
+    private async checkIfExistsByDetails(
+        instructorIdList: number[],
+        courseId: number,
+    ): Promise<void> {
+        const corseInstructors = await this.courseInstructorsRepository.getByDetails(
+            instructorIdList,
+            courseId,
+        );
+
+        corseInstructors.forEach((assigment) => {
+            if (instructorIdList.includes(assigment.instructorId))
+                throw new ConflictException(
+                    `Instructor ${assigment.instructor.lastName} is already assigned.`,
+                );
+        });
+    }
 
     private async checkIfInstructorsExists(instructorIdList: number[]): Promise<User[]> {
         if (!instructorIdList?.length) return [];

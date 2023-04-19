@@ -10,6 +10,22 @@ export class CourseInstructorsRepository implements ICourseInstructorsRepository
         private readonly courseInstructorsEntityRepository: Repository<CourseInstructors>,
     ) {}
 
+    public async getByDetails(
+        instructorIdList: number[],
+        courseId: number,
+    ): Promise<CourseInstructors[]> {
+        return await this.courseInstructorsEntityRepository.find({
+            where: {
+                instructorId: In(instructorIdList),
+                courseId,
+            },
+            relations: {
+                course: true,
+                instructor: true,
+            },
+        });
+    }
+
     public async create(courseId: number, instructorId: number): Promise<CourseInstructors> {
         const groupCourse = this.courseInstructorsEntityRepository.create({
             course: { id: courseId },
@@ -71,5 +87,7 @@ export class CourseInstructorsRepository implements ICourseInstructorsRepository
 interface ICourseInstructorsRepository {
     bulkCreate(courseId: number, instructorsIds: number[]): Promise<CourseInstructors[]>;
     create(courseId: number, instructorId: number): Promise<CourseInstructors>;
+    getByDetails(instructorIdList: number[], courseId: number): Promise<CourseInstructors[]>;
     getById(id: number): Promise<CourseInstructors>;
+    getByIdList(idList: number[]): Promise<CourseInstructors[]>;
 }
