@@ -29,10 +29,12 @@ export class CoursesController {
         return this.courseInstructorsService.createCourseInstructors(dto);
     }
 
-    // @Get()
-    // findAll(@Query() queryParams: QueryParamsDTO): Promise<DataListResponse<CourseViewModel>> {
-    //     return this.courseInstructorsService.getCourses(queryParams);
-    // }
+    @Get()
+    findAll(
+        @Query() queryParams: QueryParamsDTO,
+    ): Promise<DataListResponse<CourseInstructorsViewModel>> {
+        return this.courseInstructorsService.getCourseInstructors(queryParams);
+    }
 
     // @Get(":id")
     // findOne(@Param("id", ParseIntPipe) id: number): Promise<CourseViewModel> {
@@ -47,8 +49,8 @@ export class CoursesController {
     //     return this.courseInstructorsService.updateCourse(id, updateFacultyDto);
     // }
 
-    // @Delete(":id")
-    // remove(@Param("id", ParseIntPipe) id: number): Promise<void> {
-    //     return this.courseInstructorsService.deleteCourse(id);
-    // }
+    @Delete(":id")
+    remove(@Param("id", ParseIntPipe) id: number): Promise<void> {
+        return this.courseInstructorsService.deleteCourseInstructors(id);
+    }
 }

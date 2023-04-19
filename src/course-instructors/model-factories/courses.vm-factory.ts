@@ -2,6 +2,14 @@ import { CourseInstructors } from "../entities/course-instructors.entity";
 import { CourseInstructorsViewModel, InstructorListItemViewModel } from "../view-models";
 
 export class CourseInstructorsViewModelFactory implements ICoursesViewModelFactory {
+    public initCourseInstructorsListViewModel(
+        courseInstructors: CourseInstructors[],
+    ): CourseInstructorsViewModel[] {
+        const model: CourseInstructorsViewModel[] = [];
+
+        return this.setCourseListViewModel(model, courseInstructors);
+    }
+
     public initCourseInstructorsViewModel(
         courseInstructors: CourseInstructors[],
     ): CourseInstructorsViewModel {
@@ -26,6 +34,24 @@ export class CourseInstructorsViewModelFactory implements ICoursesViewModelFacto
             model.courseName = firstItem.course.name;
             model.courseId = firstItem.course.id;
             model.instructors = this.populateInstructors(courseInstructors);
+        }
+
+        return model;
+    }
+
+    private setCourseListViewModel(
+        model: CourseInstructorsViewModel[],
+        courseInstructors: CourseInstructors[],
+    ): CourseInstructorsViewModel[] {
+        if (courseInstructors.length) {
+            const courseList = courseInstructors.map<CourseInstructorsViewModel>((item) => ({
+                id: item.id,
+                courseId: item.course.id,
+                courseName: item.course.name,
+                instructors: this.populateInstructors(courseInstructors),
+            }));
+
+            model.push(...courseList);
         }
 
         return model;
@@ -56,4 +82,7 @@ interface ICoursesViewModelFactory {
     initCourseInstructorsViewModel(
         courseInstructors: CourseInstructors[],
     ): CourseInstructorsViewModel;
+    initCourseInstructorsListViewModel(
+        courseInstructors: CourseInstructors[],
+    ): CourseInstructorsViewModel[];
 }

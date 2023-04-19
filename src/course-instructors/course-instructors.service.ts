@@ -9,6 +9,10 @@ import { CourseInstructorsViewModel } from "./view-models";
 import { RoleName } from "src/roles/roles.enum";
 import { Course } from "src/courses/entities/course.entity";
 import { ICoursesRepository } from "src/courses/courses.repository";
+import { CourseInstructors } from "src/courses/entities/course-to-instructor.entity";
+import { QueryParamsDTO } from "src/common/dto/query-params.dto";
+import { DataListResponse } from "src/common/db/data-list-response";
+import { ApplyToQueryExtension } from "src/common/query-extention";
 
 @Injectable()
 export class CourseInstructorsService implements ICourseInstructorsService {
@@ -35,40 +39,62 @@ export class CourseInstructorsService implements ICourseInstructorsService {
         );
     }
 
-    // public async getCourses(
-    //     queryParams: QueryParamsDTO,
-    // ): Promise<DataListResponse<CourseViewModel>> {
-    //     const coursesQuery = this.coursesRepository.getAllQ();
+    public async getCourseInstructors(
+        queryParams: QueryParamsDTO,
+    ): Promise<DataListResponse<CourseInstructorsViewModel>> {
+        const query = this.courseInstructorsRepository.getAllQ();
+        // TODO: fix search by id
+        const config = {
+            columns: [
+                {
+                    name: "id",
+                    prop: "id",
+                    tableName: "course_instructors",
+                    isSearchable: true,
+                    isSortable: true,
+                },
+                {
+                    name: "courseName",
+                    prop: "name",
+                    tableName: "course",
+                    isSearchable: true,
+                    isSortable: true,
+                },
+                {
+                    name: "instructorId",
+                    prop: "id",
+                    tableName: "user",
+                    isSearchable: true,
+                    isSortable: true,
+                },
+                {
+                    name: "instructorName",
+                    prop: "first_name",
+                    tableName: "user",
+                    isSearchable: true,
+                    isSortable: true,
+                },
+                {
+                    name: "instructorLastName",
+                    prop: "last_name",
+                    tableName: "user",
+                    isSearchable: true,
+                    isSortable: true,
+                },
+            ],
+        };
 
-    //     const coursesConfig = {
-    //         columns: [
-    //             {
-    //                 name: "id",
-    //                 prop: "id",
-    //                 tableName: "course",
-    //                 isSearchable: true,
-    //                 isSortable: true,
-    //             },
-    //             {
-    //                 name: "name",
-    //                 prop: "name",
-    //                 tableName: "course",
-    //                 isSearchable: true,
-    //                 isSortable: true,
-    //             },
-    //         ],
-    //     };
+        const [courses, count] = await ApplyToQueryExtension.applyToQuery<CourseInstructors>(
+            queryParams,
+            query,
+            config,
+        );
 
-    //     const [courses, count] = await ApplyToQueryExtension.applyToQuery<Course>(
-    //         queryParams,
-    //         coursesQuery,
-    //         coursesConfig,
-    //     );
+        const model =
+            this.courseInstructorsViewModelFactory.initCourseInstructorsListViewModel(courses);
 
-    //     const model = this.coursesViewModelFactory.initCourseListViewModel(courses);
-
-    //     return new DataListResponse<CourseViewModel>(model, count);
-    // }
+        return new DataListResponse<CourseInstructorsViewModel>(model, count);
+    }
 
     // public async getCourse(id: number): Promise<CourseViewModel> {
     //     const course = await this.coursesRepository.getById(id);
@@ -78,11 +104,11 @@ export class CourseInstructorsService implements ICourseInstructorsService {
     //     return this.coursesViewModelFactory.initCourseViewModel(course);
     // }
 
-    // public async deleteCourse(id: number): Promise<void> {
-    //     const Course = await this.validateDelete(id);
+    public async deleteCourseInstructors(id: number): Promise<void> {
+        const courseInstructors = await this.validateDelete(id);
 
-    //     await this.coursesRepository.deleteById(Course.id);
-    // }
+        await this.courseInstructorsRepository.deleteById(courseInstructors.id);
+    }
 
     private async validateCreate(dto: CreateCourseInstructorsDto): Promise<void> {
         await this.checkIfInstructorsExists(dto.instructorIdList);
@@ -90,9 +116,9 @@ export class CourseInstructorsService implements ICourseInstructorsService {
         await this.checkIfExistsByDetails(dto.instructorIdList, dto.courseId);
     }
 
-    // private async validateDelete(id: number): Promise<Course> {
-    //     return await this.checkifExist(id);
-    // }
+    private async validateDelete(id: number): Promise<CourseInstructors> {
+        return await this.checkIfExists(id);
+    }
 
     private async checkIfExistsByDetails(
         instructorIdList: number[],
@@ -109,6 +135,14 @@ export class CourseInstructorsService implements ICourseInstructorsService {
                     `Instructor ${assigment.instructor.lastName} is already assigned.`,
                 );
         });
+    }
+
+    private async checkIfExists(id: number): Promise<CourseInstructors> {
+        const corseInstructors = await this.courseInstructorsRepository.getById(id);
+
+        if (!corseInstructors) throw new NotFoundException();
+
+        return corseInstructors;
     }
 
     private async checkIfInstructorsExists(instructorIdList: number[]): Promise<User[]> {
@@ -145,6 +179,10 @@ export class CourseInstructorsService implements ICourseInstructorsService {
 
 interface ICourseInstructorsService {
     createCourseInstructors(dto: CreateCourseInstructorsDto): Promise<CourseInstructorsViewModel>;
+    deleteCourseInstructors(id: number): Promise<void>;
+    getCourseInstructors(
+        queryParams: QueryParamsDTO,
+    ): Promise<DataListResponse<CourseInstructorsViewModel>>;
     // getCourse(id: number): Promise<CourseViewModel>;
     // getCourses(queryParams: QueryParamsDTO): Promise<DataListResponse<CourseViewModel>>;
     // updateCourse(id: number, updateCourseDto: UpdateCourseDto): Promise<CourseViewModel>;

@@ -1,3 +1,3 @@
-import { CoursesViewModelFactory } from "./courses";
+import { CoursesViewModelFactory } from "./courses.vm-factory";
 
 export { CoursesViewModelFactory };
