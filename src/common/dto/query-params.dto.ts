@@ -7,6 +7,11 @@ export enum SortDirection {
     DESC = "DESC",
 }
 
+export enum ColumnType {
+    Integer = "integer",
+    Text = "text",
+}
+
 export class QueryParamsDTO {
     @Type(() => Number)
     @IsNumber()

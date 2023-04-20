@@ -1,7 +1,7 @@
 import { ConflictException, Injectable, NotFoundException } from "@nestjs/common";
 import { CourseViewModel } from "./view-models";
 import { DataListResponse } from "src/common/db/data-list-response";
-import { QueryParamsDTO } from "src/common/dto/query-params.dto";
+import { ColumnType, QueryParamsDTO } from "src/common/dto/query-params.dto";
 import { ApplyToQueryExtension } from "src/common/query-extention";
 import { ICoursesRepository } from "./courses.repository";
 import { CreateCourseDto } from "./dto/create-course.dto";
@@ -39,9 +39,9 @@ export class CoursesService implements ICoursesService {
     public async getCourses(
         queryParams: QueryParamsDTO,
     ): Promise<DataListResponse<CourseViewModel>> {
-        const coursesQuery = this.coursesRepository.getAllQ();
+        const query = this.coursesRepository.getAllQ();
 
-        const coursesConfig = {
+        const config = {
             columns: [
                 {
                     name: "id",
@@ -49,6 +49,7 @@ export class CoursesService implements ICoursesService {
                     tableName: "course",
                     isSearchable: true,
                     isSortable: true,
+                    type: ColumnType.Integer,
                 },
                 {
                     name: "name",
@@ -56,14 +57,15 @@ export class CoursesService implements ICoursesService {
                     tableName: "course",
                     isSearchable: true,
                     isSortable: true,
+                    type: ColumnType.Text,
                 },
             ],
         };
 
         const [courses, count] = await ApplyToQueryExtension.applyToQuery<Course>(
             queryParams,
-            coursesQuery,
-            coursesConfig,
+            query,
+            config,
         );
 
         const model = this.coursesViewModelFactory.initCourseListViewModel(courses);

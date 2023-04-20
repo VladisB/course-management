@@ -5,17 +5,21 @@ import {
     Get,
     Param,
     ParseIntPipe,
-    Patch,
     Post,
+    Put,
     Query,
     UsePipes,
     ValidationPipe,
 } from "@nestjs/common";
 import { DataListResponse } from "src/common/db/data-list-response";
 import { QueryParamsDTO } from "src/common/dto/query-params.dto";
-import { UpdateCourseDto } from "./dto/update-course-instructors.dto";
+import { PUTUpdateCourseDto } from "./dto/put-update-course-instructors.dto";
 import { CourseInstructorsService } from "./course-instructors.service";
-import { CourseInstructorsViewModel } from "./view-models";
+import {
+    CourseInstructorViewModel,
+    CourseInstructorsListViewModel,
+    CourseInstructorsViewModel,
+} from "./view-models";
 import { CreateCourseInstructorsDto } from "./dto/create-course-instructors.dto";
 
 // @UseGuards(AuthGuard(Strategies.JWT), RolesGuard)
@@ -32,22 +36,22 @@ export class CoursesController {
     @Get()
     findAll(
         @Query() queryParams: QueryParamsDTO,
-    ): Promise<DataListResponse<CourseInstructorsViewModel>> {
+    ): Promise<DataListResponse<CourseInstructorsListViewModel>> {
         return this.courseInstructorsService.getCourseInstructors(queryParams);
     }
 
-    // @Get(":id")
-    // findOne(@Param("id", ParseIntPipe) id: number): Promise<CourseViewModel> {
-    //     return this.courseInstructorsService.getCourse(id);
-    // }
+    @Get(":id")
+    findOne(@Param("id", ParseIntPipe) id: number): Promise<CourseInstructorViewModel> {
+        return this.courseInstructorsService.getCourseInstructor(id);
+    }
 
-    // @Patch(":id")
-    // update(
-    //     @Param("id", ParseIntPipe) id: number,
-    //     @Body() updateFacultyDto: UpdateCourseDto,
-    // ): Promise<CourseViewModel> {
-    //     return this.courseInstructorsService.updateCourse(id, updateFacultyDto);
-    // }
+    @Put(":id")
+    update(
+        @Param("id", ParseIntPipe) id: number,
+        @Body() dto: PUTUpdateCourseDto,
+    ): Promise<CourseInstructorsViewModel> {
+        return this.courseInstructorsService.updateCourseInstructors(id, dto);
+    }
 
     @Delete(":id")
     remove(@Param("id", ParseIntPipe) id: number): Promise<void> {

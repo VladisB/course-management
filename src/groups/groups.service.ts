@@ -7,7 +7,7 @@ import { GroupsRepository } from "./groups.repository";
 import { GroupsViewModelFactory } from "./model-factories";
 import { GroupViewModel } from "./view-models";
 import { ApplyToQueryExtension } from "src/common/query-extention";
-import { QueryParamsDTO } from "src/common/dto/query-params.dto";
+import { ColumnType, QueryParamsDTO } from "src/common/dto/query-params.dto";
 import { DataListResponse } from "src/common/db/data-list-response";
 import { UpdateGroupDto } from "./dto/update-group.dto";
 import { ICoursesRepository } from "src/courses/courses.repository";
@@ -33,9 +33,9 @@ export class GroupsService implements IGroupsService {
     }
 
     public async getGroups(queryParams: QueryParamsDTO): Promise<DataListResponse<GroupViewModel>> {
-        const groupQuery = this.groupsRepository.getAllQ();
+        const query = this.groupsRepository.getAllQ();
 
-        const groupsConfig = {
+        const config = {
             columns: [
                 {
                     name: "id",
@@ -43,6 +43,7 @@ export class GroupsService implements IGroupsService {
                     tableName: "group",
                     isSearchable: true,
                     isSortable: true,
+                    type: ColumnType.Integer,
                 },
                 {
                     name: "groupName",
@@ -50,6 +51,7 @@ export class GroupsService implements IGroupsService {
                     tableName: "group",
                     isSearchable: true,
                     isSortable: true,
+                    type: ColumnType.Text,
                 },
                 {
                     name: "facultyName",
@@ -57,14 +59,15 @@ export class GroupsService implements IGroupsService {
                     tableName: "faculty",
                     isSearchable: true,
                     isSortable: true,
+                    type: ColumnType.Text,
                 },
             ],
         };
 
         const [groups, count] = await ApplyToQueryExtension.applyToQuery<Group>(
             queryParams,
-            groupQuery,
-            groupsConfig,
+            query,
+            config,
         );
 
         const model = this.groupsViewModelFactory.initGroupListViewModel(groups);

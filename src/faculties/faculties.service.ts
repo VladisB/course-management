@@ -5,7 +5,7 @@ import { Faculty } from "./entities/faculty.entity";
 import { FacultyViewModel } from "./view-models";
 import { FacultiesViewModelFactory } from "./model-factories";
 import { DataListResponse } from "src/common/db/data-list-response";
-import { QueryParamsDTO } from "src/common/dto/query-params.dto";
+import { ColumnType, QueryParamsDTO } from "src/common/dto/query-params.dto";
 import { ApplyToQueryExtension } from "src/common/query-extention";
 import { UpdateFacultyDto } from "./dto/update-faculty.dto";
 
@@ -27,9 +27,9 @@ export class FacultiesService implements IFacultiesService {
     public async getFaculties(
         queryParams: QueryParamsDTO,
     ): Promise<DataListResponse<FacultyViewModel>> {
-        const facultiesQuery = this.facultiesRepository.getAllQ();
+        const query = this.facultiesRepository.getAllQ();
 
-        const facultiesConfig = {
+        const config = {
             columns: [
                 {
                     name: "id",
@@ -37,6 +37,7 @@ export class FacultiesService implements IFacultiesService {
                     tableName: "faculty",
                     isSearchable: true,
                     isSortable: true,
+                    type: ColumnType.Integer,
                 },
                 {
                     name: "name",
@@ -44,14 +45,15 @@ export class FacultiesService implements IFacultiesService {
                     tableName: "faculty",
                     isSearchable: true,
                     isSortable: true,
+                    type: ColumnType.Text,
                 },
             ],
         };
 
         const [faculties, count] = await ApplyToQueryExtension.applyToQuery<Faculty>(
             queryParams,
-            facultiesQuery,
-            facultiesConfig,
+            query,
+            config,
         );
 
         const model = this.facultiesViewModelFactory.initFacultyListViewModel(faculties);

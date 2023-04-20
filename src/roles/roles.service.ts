@@ -1,6 +1,6 @@
 import { ConflictException, Injectable, NotFoundException } from "@nestjs/common";
 import { DataListResponse } from "src/common/db/data-list-response";
-import { QueryParamsDTO } from "src/common/dto/query-params.dto";
+import { ColumnType, QueryParamsDTO } from "src/common/dto/query-params.dto";
 import { ApplyToQueryExtension } from "src/common/query-extention";
 import { CreateRoleDto } from "./dto/create-role.dto";
 import { UpdateRoleDto } from "./dto/update-role.dto";
@@ -37,9 +37,9 @@ export class RolesService implements IRolesService {
     }
 
     public async getRoles(queryParams: QueryParamsDTO): Promise<DataListResponse<RoleViewModel>> {
-        const rolesQuery = this.rolesRepository.getAllQ();
+        const query = this.rolesRepository.getAllQ();
 
-        const rolesConfig = {
+        const config = {
             columns: [
                 {
                     name: "id",
@@ -47,6 +47,7 @@ export class RolesService implements IRolesService {
                     tableName: "role",
                     isSearchable: true,
                     isSortable: true,
+                    type: ColumnType.Integer,
                 },
                 {
                     name: "name",
@@ -54,14 +55,15 @@ export class RolesService implements IRolesService {
                     tableName: "role",
                     isSearchable: true,
                     isSortable: true,
+                    type: ColumnType.Text,
                 },
             ],
         };
 
         const [roles, count] = await ApplyToQueryExtension.applyToQuery<Role>(
             queryParams,
-            rolesQuery,
-            rolesConfig,
+            query,
+            config,
         );
 
         const model = this.rolesViewModelFactory.initRoleListViewModel(roles);

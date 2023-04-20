@@ -5,14 +5,19 @@ import { CourseInstructorsRepository } from "./course-instructors.repository";
 import { CreateCourseInstructorsDto } from "./dto/create-course-instructors.dto";
 import { UsersRepository } from "src/users/users.repository";
 import { CourseInstructorsViewModelFactory } from "./model-factories";
-import { CourseInstructorsViewModel } from "./view-models";
+import {
+    CourseInstructorViewModel,
+    CourseInstructorsListViewModel,
+    CourseInstructorsViewModel,
+} from "./view-models";
 import { RoleName } from "src/roles/roles.enum";
 import { Course } from "src/courses/entities/course.entity";
 import { ICoursesRepository } from "src/courses/courses.repository";
 import { CourseInstructors } from "src/courses/entities/course-to-instructor.entity";
-import { QueryParamsDTO } from "src/common/dto/query-params.dto";
+import { ColumnType, QueryParamsDTO } from "src/common/dto/query-params.dto";
 import { DataListResponse } from "src/common/db/data-list-response";
 import { ApplyToQueryExtension } from "src/common/query-extention";
+import { PUTUpdateCourseDto } from "./dto/put-update-course-instructors.dto";
 
 @Injectable()
 export class CourseInstructorsService implements ICourseInstructorsService {
@@ -41,17 +46,26 @@ export class CourseInstructorsService implements ICourseInstructorsService {
 
     public async getCourseInstructors(
         queryParams: QueryParamsDTO,
-    ): Promise<DataListResponse<CourseInstructorsViewModel>> {
+    ): Promise<DataListResponse<CourseInstructorsListViewModel>> {
         const query = this.courseInstructorsRepository.getAllQ();
-        // TODO: fix search by id
+
         const config = {
             columns: [
                 {
-                    name: "id",
+                    name: "courseInstructorId",
                     prop: "id",
                     tableName: "course_instructors",
                     isSearchable: true,
                     isSortable: true,
+                    type: ColumnType.Integer,
+                },
+                {
+                    name: "courseId",
+                    prop: "id",
+                    tableName: "course",
+                    isSearchable: true,
+                    isSortable: true,
+                    type: ColumnType.Integer,
                 },
                 {
                     name: "courseName",
@@ -59,6 +73,7 @@ export class CourseInstructorsService implements ICourseInstructorsService {
                     tableName: "course",
                     isSearchable: true,
                     isSortable: true,
+                    type: ColumnType.Text,
                 },
                 {
                     name: "instructorId",
@@ -66,6 +81,7 @@ export class CourseInstructorsService implements ICourseInstructorsService {
                     tableName: "user",
                     isSearchable: true,
                     isSortable: true,
+                    type: ColumnType.Integer,
                 },
                 {
                     name: "instructorName",
@@ -73,6 +89,7 @@ export class CourseInstructorsService implements ICourseInstructorsService {
                     tableName: "user",
                     isSearchable: true,
                     isSortable: true,
+                    type: ColumnType.Text,
                 },
                 {
                     name: "instructorLastName",
@@ -80,6 +97,7 @@ export class CourseInstructorsService implements ICourseInstructorsService {
                     tableName: "user",
                     isSearchable: true,
                     isSortable: true,
+                    type: ColumnType.Text,
                 },
             ],
         };
@@ -93,16 +111,57 @@ export class CourseInstructorsService implements ICourseInstructorsService {
         const model =
             this.courseInstructorsViewModelFactory.initCourseInstructorsListViewModel(courses);
 
-        return new DataListResponse<CourseInstructorsViewModel>(model, count);
+        return new DataListResponse<CourseInstructorsListViewModel>(model, count);
     }
 
-    // public async getCourse(id: number): Promise<CourseViewModel> {
-    //     const course = await this.coursesRepository.getById(id);
+    public async getCourseInstructor(id: number): Promise<CourseInstructorViewModel> {
+        const courseInstructor = await this.courseInstructorsRepository.getById(id);
 
-    //     if (!course) throw new NotFoundException(`Course not found.`);
+        if (!courseInstructor) throw new NotFoundException();
 
-    //     return this.coursesViewModelFactory.initCourseViewModel(course);
-    // }
+        return this.courseInstructorsViewModelFactory.initCourseInstructorViewModel(
+            courseInstructor,
+        );
+    }
+
+    public async updateCourseInstructors(
+        id: number,
+        dto: PUTUpdateCourseDto,
+    ): Promise<CourseInstructorsViewModel> {
+        await this.validateUpdate(id, dto);
+
+        const transaction = await this.courseInstructorsRepository.initTrx();
+
+        try {
+            const courseInstructors = await this.courseInstructorsRepository.trxGetAllByCourseId(
+                transaction,
+                dto.courseId,
+            );
+
+            await this.courseInstructorsRepository.trxDeleteByIdList(
+                transaction,
+                courseInstructors.map((cInstructor) => cInstructor.id),
+            );
+
+            await this.courseInstructorsRepository.trxBulkCreate(
+                transaction,
+                dto.courseId,
+                dto.instructorIdList,
+            );
+
+            await this.courseInstructorsRepository.commitTrx(transaction);
+
+            return this.courseInstructorsViewModelFactory.initCourseInstructorsViewModel(
+                courseInstructors,
+            );
+        } catch (err) {
+            console.error(err);
+
+            await this.coursesRepository.rollbackTrx(transaction);
+
+            throw err;
+        }
+    }
 
     public async deleteCourseInstructors(id: number): Promise<void> {
         const courseInstructors = await this.validateDelete(id);
@@ -118,6 +177,12 @@ export class CourseInstructorsService implements ICourseInstructorsService {
 
     private async validateDelete(id: number): Promise<CourseInstructors> {
         return await this.checkIfExists(id);
+    }
+
+    private async validateUpdate(id: number, dto: PUTUpdateCourseDto): Promise<void> {
+        await this.checkIfExists(id);
+        await this.checkIfInstructorsExists(dto.instructorIdList);
+        await this.checkifCourseExist(dto.courseId);
     }
 
     private async checkIfExistsByDetails(
@@ -167,14 +232,6 @@ export class CourseInstructorsService implements ICourseInstructorsService {
 
         return course;
     }
-
-    // private async checkifCourseInstructorsExist(id: number): Promise<Course> {
-    //     const courseInstructors = await this.courseInstructorsRepository.getById(id);
-
-    //     if (!course) throw new NotFoundException();
-
-    //     return course;
-    // }
 }
 
 interface ICourseInstructorsService {
@@ -182,8 +239,10 @@ interface ICourseInstructorsService {
     deleteCourseInstructors(id: number): Promise<void>;
     getCourseInstructors(
         queryParams: QueryParamsDTO,
-    ): Promise<DataListResponse<CourseInstructorsViewModel>>;
-    // getCourse(id: number): Promise<CourseViewModel>;
-    // getCourses(queryParams: QueryParamsDTO): Promise<DataListResponse<CourseViewModel>>;
-    // updateCourse(id: number, updateCourseDto: UpdateCourseDto): Promise<CourseViewModel>;
+    ): Promise<DataListResponse<CourseInstructorsListViewModel>>;
+    getCourseInstructor(id: number): Promise<CourseInstructorViewModel>;
+    updateCourseInstructors(
+        id: number,
+        dto: PUTUpdateCourseDto,
+    ): Promise<CourseInstructorsViewModel>;
 }

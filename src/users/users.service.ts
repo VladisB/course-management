@@ -7,7 +7,7 @@ import { UsersRepository } from "./users.repository";
 import { UsersViewModelFactory } from "./model-factories";
 import { UserViewModel } from "./view-models";
 import { DataListResponse } from "src/common/db/data-list-response";
-import { QueryParamsDTO } from "../common/dto/query-params.dto";
+import { ColumnType, QueryParamsDTO } from "../common/dto/query-params.dto";
 import { ApplyToQueryExtension } from "../common/query-extention";
 import { RolesRepository } from "src/roles/roles.repository";
 import { GroupsRepository } from "src/groups/groups.repository";
@@ -58,9 +58,9 @@ export class UsersService implements IUsersService {
     public async getAllUsers(
         queryParams: QueryParamsDTO,
     ): Promise<DataListResponse<UserViewModel>> {
-        const usersQuery = this.usersRepository.getAllQ();
+        const query = this.usersRepository.getAllQ();
 
-        const usersQConfig = {
+        const config = {
             columns: [
                 {
                     name: "id",
@@ -68,6 +68,7 @@ export class UsersService implements IUsersService {
                     tableName: "user",
                     isSearchable: true,
                     isSortable: true,
+                    type: ColumnType.Integer,
                 },
                 {
                     name: "firstName",
@@ -75,6 +76,7 @@ export class UsersService implements IUsersService {
                     tableName: "user",
                     isSearchable: true,
                     isSortable: true,
+                    type: ColumnType.Text,
                 },
                 {
                     name: "lastName",
@@ -82,14 +84,15 @@ export class UsersService implements IUsersService {
                     tableName: "user",
                     isSearchable: true,
                     isSortable: true,
+                    type: ColumnType.Text,
                 },
             ],
         };
 
         const [users, count] = await ApplyToQueryExtension.applyToQuery<User>(
             queryParams,
-            usersQuery,
-            usersQConfig,
+            query,
+            config,
         );
 
         const model = this.usersViewModelFactory.initUserListViewModel(users);

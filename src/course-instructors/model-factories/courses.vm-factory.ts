@@ -1,36 +1,70 @@
 import { CourseInstructors } from "../entities/course-instructors.entity";
-import { CourseInstructorsViewModel, InstructorListItemViewModel } from "../view-models";
+import {
+    CourseInstructorViewModel,
+    CourseInstructorsViewModel,
+    CourseInstructorsListViewModel,
+    InstructorListItemViewModel,
+} from "../view-models";
 
 export class CourseInstructorsViewModelFactory implements ICoursesViewModelFactory {
     public initCourseInstructorsListViewModel(
         courseInstructors: CourseInstructors[],
-    ): CourseInstructorsViewModel[] {
-        const model: CourseInstructorsViewModel[] = [];
+    ): CourseInstructorsListViewModel[] {
+        const model: CourseInstructorsListViewModel[] = [];
 
-        return this.setCourseListViewModel(model, courseInstructors);
+        return this.setCourseInstructorsListViewModel(model, courseInstructors);
     }
 
     public initCourseInstructorsViewModel(
         courseInstructors: CourseInstructors[],
     ): CourseInstructorsViewModel {
         const model: CourseInstructorsViewModel = {
-            id: 0,
-            courseId: null,
+            courseId: 0,
             courseName: "",
             instructors: [],
         };
 
-        return this.setCourseViewModel(model, courseInstructors);
+        return this.setCourseInstructorsViewModel(model, courseInstructors);
     }
 
-    private setCourseViewModel(
+    public initCourseInstructorViewModel(
+        courseInstructor: CourseInstructors,
+    ): CourseInstructorViewModel {
+        const model: CourseInstructorViewModel = {
+            id: 0,
+            courseId: 0,
+            courseName: "",
+            instructorId: null,
+            instructorLastName: "",
+            instructorName: "",
+        };
+
+        return this.setCourseInstructorViewModel(model, courseInstructor);
+    }
+
+    private setCourseInstructorViewModel(
+        model: CourseInstructorViewModel,
+        courseInstructor: CourseInstructors,
+    ): CourseInstructorViewModel {
+        if (courseInstructor) {
+            model.id = courseInstructor.id;
+            model.courseName = courseInstructor.course.name;
+            model.courseId = courseInstructor.course.id;
+            model.instructorId = courseInstructor.instructor.id;
+            model.instructorName = courseInstructor.instructor.firstName;
+            model.instructorLastName = courseInstructor.instructor.lastName;
+        }
+
+        return model;
+    }
+
+    private setCourseInstructorsViewModel(
         model: CourseInstructorsViewModel,
         courseInstructors: CourseInstructors[],
     ): CourseInstructorsViewModel {
         if (courseInstructors) {
             const firstItem = courseInstructors.find((courseInstructors) => courseInstructors.id);
 
-            model.id = firstItem.id;
             model.courseName = firstItem.course.name;
             model.courseId = firstItem.course.id;
             model.instructors = this.populateInstructors(courseInstructors);
@@ -39,19 +73,21 @@ export class CourseInstructorsViewModelFactory implements ICoursesViewModelFacto
         return model;
     }
 
-    private setCourseListViewModel(
-        model: CourseInstructorsViewModel[],
+    private setCourseInstructorsListViewModel(
+        model: CourseInstructorsListViewModel[],
         courseInstructors: CourseInstructors[],
-    ): CourseInstructorsViewModel[] {
+    ): CourseInstructorsListViewModel[] {
         if (courseInstructors.length) {
-            const courseList = courseInstructors.map<CourseInstructorsViewModel>((item) => ({
-                id: item.id,
+            const modelList = courseInstructors.map((item) => ({
                 courseId: item.course.id,
+                courseInstructorId: item.id,
                 courseName: item.course.name,
-                instructors: this.populateInstructors(courseInstructors),
+                instructorId: item.instructor.id,
+                instructorLastName: item.instructor.lastName,
+                instructorName: item.instructor.firstName,
             }));
 
-            model.push(...courseList);
+            model.push(...modelList);
         }
 
         return model;
@@ -68,6 +104,7 @@ export class CourseInstructorsViewModelFactory implements ICoursesViewModelFacto
             const instructor = courseInstructors.instructor;
 
             return {
+                courseInstructorId: courseInstructors.id,
                 instructorId: instructor.id,
                 instructorName: instructor.firstName,
                 instructorLastName: instructor.lastName,
@@ -84,5 +121,6 @@ interface ICoursesViewModelFactory {
     ): CourseInstructorsViewModel;
     initCourseInstructorsListViewModel(
         courseInstructors: CourseInstructors[],
-    ): CourseInstructorsViewModel[];
+    ): CourseInstructorsListViewModel[];
+    initCourseInstructorViewModel(courseInstructor: CourseInstructors): CourseInstructorViewModel;
 }

@@ -1,6 +1,6 @@
 import { HttpException, HttpStatus } from "@nestjs/common";
 import { SelectQueryBuilder } from "typeorm";
-import { QueryParamsDTO, SortDirection } from "./dto/query-params.dto";
+import { ColumnType, QueryParamsDTO, SortDirection } from "./dto/query-params.dto";
 
 export interface Sort {
     apply: boolean;
@@ -15,6 +15,7 @@ export interface Column {
     isSortable: boolean;
     search?: string;
     sort?: Sort;
+    type: ColumnType;
 }
 
 export interface DatatablesConfig {
@@ -84,9 +85,15 @@ export class ApplyToQueryExtension {
                 const columnName = column.prop;
                 const table = column.tableName;
 
-                query.where(`${table}.${columnName} iLike :search`, {
-                    search: `%${column.search}%`,
-                });
+                if (column.type === ColumnType.Text) {
+                    query.where(`${table}.${columnName} iLike :search`, {
+                        search: `%${column.search}%`,
+                    });
+                } else if (column.type === ColumnType.Integer) {
+                    query.where(`${table}.${columnName} = :search`, {
+                        search: column.search,
+                    });
+                }
             }
         });
 

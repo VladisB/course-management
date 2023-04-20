@@ -1,6 +1,6 @@
 import { ConflictException, Injectable, NotFoundException } from "@nestjs/common";
 import { DataListResponse } from "src/common/db/data-list-response";
-import { QueryParamsDTO } from "src/common/dto/query-params.dto";
+import { ColumnType, QueryParamsDTO } from "src/common/dto/query-params.dto";
 import { ApplyToQueryExtension } from "src/common/query-extention";
 import { RoleName } from "src/roles/roles.enum";
 import { User } from "src/users/entities/user.entity";
@@ -54,7 +54,7 @@ export class StudentCoursesService implements IStudentCoursesService {
     ): Promise<DataListResponse<StudentCoursesViewModel>> {
         const query = this.studentCoursesRepository.getAllQ();
 
-        const queryConfig = {
+        const config = {
             columns: [
                 {
                     name: "id",
@@ -62,6 +62,7 @@ export class StudentCoursesService implements IStudentCoursesService {
                     tableName: "student_courses",
                     isSearchable: true,
                     isSortable: true,
+                    type: ColumnType.Integer,
                 },
                 {
                     name: "studentId",
@@ -69,6 +70,7 @@ export class StudentCoursesService implements IStudentCoursesService {
                     tableName: "user",
                     isSearchable: true,
                     isSortable: true,
+                    type: ColumnType.Integer,
                 },
                 {
                     name: "studentName",
@@ -76,6 +78,7 @@ export class StudentCoursesService implements IStudentCoursesService {
                     tableName: "user",
                     isSearchable: true,
                     isSortable: true,
+                    type: ColumnType.Text,
                 },
                 {
                     name: "courseId",
@@ -83,6 +86,7 @@ export class StudentCoursesService implements IStudentCoursesService {
                     tableName: "course",
                     isSearchable: true,
                     isSortable: true,
+                    type: ColumnType.Integer,
                 },
                 {
                     name: "courseName",
@@ -90,17 +94,19 @@ export class StudentCoursesService implements IStudentCoursesService {
                     tableName: "course",
                     isSearchable: true,
                     isSortable: true,
+                    type: ColumnType.Text,
                 },
             ],
         };
 
-        const [lessons, count] = await ApplyToQueryExtension.applyToQuery<StudentCourses>(
+        const [studentCourses, count] = await ApplyToQueryExtension.applyToQuery<StudentCourses>(
             queryParams,
             query,
-            queryConfig,
+            config,
         );
 
-        const model = this.studentCoursesViewModelFactory.initStudentCoursesListViewModel(lessons);
+        const model =
+            this.studentCoursesViewModelFactory.initStudentCoursesListViewModel(studentCourses);
 
         return new DataListResponse<StudentCoursesViewModel>(model, count);
     }

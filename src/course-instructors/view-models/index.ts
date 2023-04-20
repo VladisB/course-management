@@ -1,3 +1,13 @@
-import { CourseInstructorsViewModel, InstructorListItemViewModel } from "./course-instructors.vm";
+import {
+    CourseInstructorViewModel,
+    CourseInstructorsViewModel,
+    CourseInstructorsListViewModel,
+    InstructorListItemViewModel,
+} from "./course-instructors.vm";
 
-export { CourseInstructorsViewModel, InstructorListItemViewModel };
+export {
+    CourseInstructorsViewModel,
+    InstructorListItemViewModel,
+    CourseInstructorViewModel,
+    CourseInstructorsListViewModel,
+};

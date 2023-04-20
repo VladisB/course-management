@@ -25,7 +25,6 @@ export class CourseInstructors {
     @ManyToOne(() => Course, (course) => course.courseInstructors)
     public course: Course;
 
-    // TODO: Many instructors per course
     @ManyToOne(() => User, (user) => user.courseInstructors)
     public instructor: User;
 
