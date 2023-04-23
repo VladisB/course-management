@@ -7,14 +7,14 @@ import { Course } from "src/courses/entities/course.entity";
 import { CreateLessonDto } from "./dto/create-lesson.dto";
 import { UpdateLessonDto } from "./dto/update-lesson.dto";
 import { Lesson } from "./entities/lesson.entity";
-import { LessonsRepository } from "./lessons.repository";
+import { ILessonsRepository } from "./lessons.repository";
 import { LessonsViewModelFactory } from "./model-factories";
 import { LessonViewModel } from "./view-models";
 
 @Injectable()
 export class LessonsService implements ILessonsService {
     constructor(
-        private readonly lessonsRepository: LessonsRepository,
+        private readonly lessonsRepository: ILessonsRepository,
         private readonly coursesRepository: ICoursesRepository,
         private readonly lessonsViewModelFactory: LessonsViewModelFactory,
     ) {}
