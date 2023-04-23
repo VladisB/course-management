@@ -1,7 +1,7 @@
 import { ConflictException, Injectable, NotFoundException } from "@nestjs/common";
 import { User } from "src/users/entities/user.entity";
 import { RolesRepository } from "src/roles/roles.repository";
-import { CourseInstructorsRepository } from "./course-instructors.repository";
+import { ICourseInstructorsRepository } from "./course-instructors.repository";
 import { CreateCourseInstructorsDto } from "./dto/create-course-instructors.dto";
 import { UsersRepository } from "src/users/users.repository";
 import { CourseInstructorsViewModelFactory } from "./model-factories";
@@ -25,7 +25,7 @@ export class CourseInstructorsService implements ICourseInstructorsService {
         private readonly coursesRepository: ICoursesRepository,
         private readonly usersRepository: UsersRepository,
         private readonly rolesRepository: RolesRepository,
-        private readonly courseInstructorsRepository: CourseInstructorsRepository,
+        private readonly courseInstructorsRepository: ICourseInstructorsRepository,
         private readonly courseInstructorsViewModelFactory: CourseInstructorsViewModelFactory,
     ) {}
 

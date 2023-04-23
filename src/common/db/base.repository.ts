@@ -27,6 +27,6 @@ export class BaseRepository implements IBaseRepository {
 
 export abstract class IBaseRepository {
     abstract commitTrx(argQueryRunner: QueryRunner): Promise<void>;
-    abstract rollbackTrx(argQueryRunner: QueryRunner): Promise<void>;
     abstract initTrx(): Promise<QueryRunner>;
+    abstract rollbackTrx(argQueryRunner: QueryRunner): Promise<void>;
 }

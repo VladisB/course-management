@@ -1,8 +1,8 @@
-import { BaseRepository } from "src/common/db/base.repository";
+import { BaseRepository, IBaseRepository } from "src/common/db/base.repository";
 import { CourseInstructors } from "./entities/course-instructors.entity";
 import { In, QueryRunner, Repository, SelectQueryBuilder } from "typeorm";
-import { InjectRepository } from "@nestjs/typeorm";
 import { Injectable } from "@nestjs/common";
+import { InjectRepository } from "@nestjs/typeorm";
 
 @Injectable()
 export class CourseInstructorsRepository
@@ -32,12 +32,12 @@ export class CourseInstructorsRepository
         courseId: number,
     ): Promise<CourseInstructors[]> {
         return await queryRunner.manager.find(CourseInstructors, {
-            where: {
-                courseId,
-            },
             relations: {
                 course: true,
                 instructor: true,
+            },
+            where: {
+                courseId,
             },
         });
     }
@@ -47,13 +47,13 @@ export class CourseInstructorsRepository
         courseId: number,
     ): Promise<CourseInstructors[]> {
         return await this.entityRepository.find({
-            where: {
-                instructorId: In(instructorIdList),
-                courseId,
-            },
             relations: {
                 course: true,
                 instructor: true,
+            },
+            where: {
+                courseId,
+                instructorId: In(instructorIdList),
             },
         });
     }
@@ -75,8 +75,8 @@ export class CourseInstructorsRepository
     ): Promise<CourseInstructors[]> {
         const enteties = instructorsIds.map((id) =>
             this.entityRepository.create({
-                instructor: { id },
                 course: { id: courseId },
+                instructor: { id },
             }),
         );
 
@@ -92,8 +92,8 @@ export class CourseInstructorsRepository
     ): Promise<CourseInstructors[]> {
         const enteties = instructorsIds.map((id) =>
             this.entityRepository.create({
-                instructor: { id },
                 course: { id: courseId },
+                instructor: { id },
             }),
         );
 
@@ -102,24 +102,24 @@ export class CourseInstructorsRepository
 
     public async getById(id: number): Promise<CourseInstructors> {
         return await this.entityRepository.findOne({
-            where: {
-                id,
-            },
             relations: {
                 course: true,
                 instructor: true,
+            },
+            where: {
+                id,
             },
         });
     }
 
     public async getByIdList(idList: number[]): Promise<CourseInstructors[]> {
         return await this.entityRepository.find({
-            where: {
-                id: In(idList),
-            },
             relations: {
                 course: true,
                 instructor: true,
+            },
+            where: {
+                id: In(idList),
             },
         });
     }
@@ -135,18 +135,25 @@ export class CourseInstructorsRepository
     }
 }
 
-interface ICourseInstructorsRepository {
-    bulkCreate(courseId: number, instructorsIds: number[]): Promise<CourseInstructors[]>;
-    create(courseId: number, instructorId: number): Promise<CourseInstructors>;
-    trxGetAllByCourseId(queryRunner: QueryRunner, courseId: number): Promise<CourseInstructors[]>;
-    trxBulkCreate(
+export abstract class ICourseInstructorsRepository extends IBaseRepository {
+    abstract bulkCreate(courseId: number, instructorsIds: number[]): Promise<CourseInstructors[]>;
+    abstract create(courseId: number, instructorId: number): Promise<CourseInstructors>;
+    abstract deleteById(id: number): Promise<void>;
+    abstract getAllQ(): SelectQueryBuilder<CourseInstructors>;
+    abstract getByDetails(
+        instructorIdList: number[],
+        courseId: number,
+    ): Promise<CourseInstructors[]>;
+    abstract getById(id: number): Promise<CourseInstructors>;
+    abstract getByIdList(idList: number[]): Promise<CourseInstructors[]>;
+    abstract trxBulkCreate(
         queryRunner: QueryRunner,
         courseId: number,
         instructorsIds: number[],
     ): Promise<CourseInstructors[]>;
-    trxDeleteByIdList(queryRunner: QueryRunner, idList: number[]): Promise<void>;
-    getByDetails(instructorIdList: number[], courseId: number): Promise<CourseInstructors[]>;
-    getById(id: number): Promise<CourseInstructors>;
-    getByIdList(idList: number[]): Promise<CourseInstructors[]>;
-    getAllQ(): SelectQueryBuilder<CourseInstructors>;
+    abstract trxDeleteByIdList(queryRunner: QueryRunner, idList: number[]): Promise<void>;
+    abstract trxGetAllByCourseId(
+        queryRunner: QueryRunner,
+        courseId: number,
+    ): Promise<CourseInstructors[]>;
 }

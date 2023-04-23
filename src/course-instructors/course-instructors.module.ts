@@ -1,7 +1,10 @@
 import { Module } from "@nestjs/common";
 import { TypeOrmModule } from "@nestjs/typeorm";
 import { RolesModule } from "../roles/roles.module";
-import { CourseInstructorsRepository } from "./course-instructors.repository";
+import {
+    CourseInstructorsRepository,
+    ICourseInstructorsRepository,
+} from "./course-instructors.repository";
 import { CoursesController } from "./course-instructors.controller";
 import { CourseInstructors } from "./entities/course-instructors.entity";
 import { CourseInstructorsViewModelFactory } from "./model-factories";
@@ -12,7 +15,7 @@ import { CoursesModule } from "src/courses/courses.module";
 @Module({
     controllers: [CoursesController],
     providers: [
-        CourseInstructorsRepository,
+        { provide: ICourseInstructorsRepository, useClass: CourseInstructorsRepository },
         CourseInstructorsViewModelFactory,
         CourseInstructorsService,
     ],
@@ -22,6 +25,6 @@ import { CoursesModule } from "src/courses/courses.module";
         UsersModule,
         CoursesModule,
     ],
-    exports: [CourseInstructorsService],
+    exports: [ICourseInstructorsRepository],
 })
 export class CourseInstructorsModule {}

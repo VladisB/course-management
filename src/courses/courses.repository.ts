@@ -125,7 +125,7 @@ export abstract class ICoursesRepository extends IBaseRepository {
     abstract getById(id: number): Promise<Course>;
     abstract getByIdList(idList: number[]): Promise<Course[]>;
     abstract getByName(name: string): Promise<Course>;
-    abstract trxUpdate(queryRunner: QueryRunner, id: number, dto: UpdateCourseDto): Promise<Course>;
     abstract trxCreate(queryRunner: QueryRunner, dto: CreateCourseDto): Promise<Course>;
+    abstract trxUpdate(queryRunner: QueryRunner, id: number, dto: UpdateCourseDto): Promise<Course>;
     abstract update(id: number, dto: UpdateCourseDto): Promise<Course>;
 }
