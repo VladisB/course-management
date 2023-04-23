@@ -8,7 +8,7 @@ import { Course } from "src/courses/entities/course.entity";
 import { RoleName } from "src/roles/roles.enum";
 import { IRolesRepository } from "src/roles/roles.repository";
 import { User } from "src/users/entities/user.entity";
-import { UsersRepository } from "src/users/users.repository";
+import { IUsersRepository } from "src/users/users.repository";
 import { ICourseInstructorsRepository } from "./course-instructors.repository";
 import { CreateCourseInstructorsDto } from "./dto/create-course-instructors.dto";
 import { PUTUpdateCourseDto } from "./dto/put-update-course-instructors.dto";
@@ -23,7 +23,7 @@ import {
 export class CourseInstructorsService implements ICourseInstructorsService {
     constructor(
         private readonly coursesRepository: ICoursesRepository,
-        private readonly usersRepository: UsersRepository,
+        private readonly usersRepository: IUsersRepository,
         private readonly rolesRepository: IRolesRepository,
         private readonly courseInstructorsRepository: ICourseInstructorsRepository,
         private readonly courseInstructorsViewModelFactory: CourseInstructorsViewModelFactory,

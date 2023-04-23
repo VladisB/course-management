@@ -10,14 +10,14 @@ import { CreateUserDto } from "./dto/create-user.dto";
 import { UpdateUserDto } from "./dto/update-user.dto";
 import { User } from "./entities/user.entity";
 import { UsersViewModelFactory } from "./model-factories";
-import { UsersRepository } from "./users.repository";
+import { IUsersRepository } from "./users.repository";
 import { UserViewModel } from "./view-models";
 
 @Injectable()
 export class UsersService implements IUsersService {
     constructor(
         private rolesRepository: IRolesRepository,
-        private usersRepository: UsersRepository,
+        private usersRepository: IUsersRepository,
         private groupsRepository: IGroupsRepository,
         private usersViewModelFactory: UsersViewModelFactory,
     ) {}

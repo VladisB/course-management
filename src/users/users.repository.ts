@@ -3,9 +3,8 @@ import { InjectRepository } from "@nestjs/typeorm";
 import { In, QueryRunner, Repository, SelectQueryBuilder } from "typeorm";
 import { CreateUserDto } from "./dto/create-user.dto";
 import { UpdateUserDto } from "./dto/update-user.dto";
-import { QueryParamsDTO } from "../common/dto/query-params.dto";
 import { User } from "./entities/user.entity";
-import { BaseRepository } from "src/common/db/base.repository";
+import { BaseRepository, IBaseRepository } from "src/common/db/base.repository";
 import { BaseErrorMessages } from "src/common/db/enum";
 
 @Injectable()
@@ -132,20 +131,20 @@ export class UsersRepository extends BaseRepository implements IUsersRepository 
     }
 }
 
-interface IUsersRepository {
-    create(dto: CreateUserDto, roleId: number): Promise<User>;
-    deleteById(id: number): Promise<void>;
-    getAllQ(queryParams: QueryParamsDTO): SelectQueryBuilder<User>;
-    getByEmail(email: string): Promise<User>;
-    getById(id: number): Promise<User>;
-    getByIdAndRole(id: number, roleId: number): Promise<User>;
-    getByIdList(idList: number[], roleId: number): Promise<User[]>;
-    trxUpdate(
+export abstract class IUsersRepository extends IBaseRepository {
+    abstract create(dto: CreateUserDto, roleId: number): Promise<User>;
+    abstract deleteById(id: number): Promise<void>;
+    abstract getAllQ(): SelectQueryBuilder<User>;
+    abstract getByEmail(email: string): Promise<User>;
+    abstract getById(id: number): Promise<User>;
+    abstract getByIdAndRole(id: number, roleId: number): Promise<User>;
+    abstract getByIdList(idList: number[], roleId: number): Promise<User[]>;
+    abstract trxUpdate(
         queryRunner: QueryRunner,
         id: number,
         dto: UpdateUserDto,
         roleId: number,
     ): Promise<User>;
-    update(id: number, dto: UpdateUserDto, roleId: number): Promise<User>;
-    updateRefreshToken(id: number, refreshToken: string | null): Promise<void>;
+    abstract update(id: number, dto: UpdateUserDto, roleId: number): Promise<User>;
+    abstract updateRefreshToken(id: number, refreshToken: string | null): Promise<void>;
 }

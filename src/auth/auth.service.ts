@@ -14,7 +14,7 @@ import { UserViewModel } from "../users/view-models";
 import { AuthViewModel, JwtModel } from "./models";
 import { User } from "../users/entities/user.entity";
 import { ConfigService } from "@nestjs/config";
-import { UsersRepository } from "src/users/users.repository";
+import { IUsersRepository } from "src/users/users.repository";
 import { UsersViewModelFactory } from "src/users/model-factories";
 
 @Injectable()
@@ -23,7 +23,7 @@ export class AuthService implements IAuthService {
         private jwtModelFactory: JwtModelFactory,
         private jwtService: JwtService,
         private readonly configService: ConfigService,
-        private usersRepository: UsersRepository,
+        private usersRepository: IUsersRepository,
         private userService: UsersService,
         private usersViewModelFactory: UsersViewModelFactory,
     ) {}

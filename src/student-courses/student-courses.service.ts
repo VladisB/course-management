@@ -2,17 +2,17 @@ import { ConflictException, Injectable, NotFoundException } from "@nestjs/common
 import { DataListResponse } from "src/common/db/data-list-response";
 import { ColumnType, QueryParamsDTO } from "src/common/dto/query-params.dto";
 import { ApplyToQueryExtension } from "src/common/query-extention";
-import { RoleName } from "src/roles/roles.enum";
-import { User } from "src/users/entities/user.entity";
-import { Course } from "src/courses/entities/course.entity";
-import { IRolesRepository } from "src/roles/roles.repository";
-import { UsersRepository } from "src/users/users.repository";
 import { ICoursesRepository } from "src/courses/courses.repository";
+import { Course } from "src/courses/entities/course.entity";
+import { RoleName } from "src/roles/roles.enum";
+import { IRolesRepository } from "src/roles/roles.repository";
+import { User } from "src/users/entities/user.entity";
+import { IUsersRepository } from "src/users/users.repository";
 import { CreateStudentCoursesDto } from "./dto/create-student-courses.dto";
 import { UpdateStudentCoursesDto } from "./dto/update-student-courses.dto";
-import { StudentCoursesRepository } from "./student-courses.repository";
 import { StudentCourses } from "./entities/student-courses.entity";
 import { StudentCoursesViewModelFactory } from "./model-factories/student-courses";
+import { IStudentCoursesRepository } from "./student-courses.repository";
 import { StudentCoursesViewModel } from "./view-models";
 
 @Injectable()
@@ -20,9 +20,9 @@ export class StudentCoursesService implements IStudentCoursesService {
     constructor(
         private readonly coursesRepository: ICoursesRepository,
         private readonly rolesRepository: IRolesRepository,
-        private readonly studentCoursesRepository: StudentCoursesRepository,
+        private readonly studentCoursesRepository: IStudentCoursesRepository,
         private readonly studentCoursesViewModelFactory: StudentCoursesViewModelFactory,
-        private readonly usersRepository: UsersRepository,
+        private readonly usersRepository: IUsersRepository,
     ) {}
 
     public async createStudentCourse(

@@ -6,7 +6,7 @@ import { User } from "src/users/entities/user.entity";
 import { Repository, SelectQueryBuilder } from "typeorm";
 import { StudentCourses } from "./entities/student-courses.entity";
 import { UpdateStudentCoursesDto } from "./dto/update-student-courses.dto";
-import { BaseRepository } from "src/common/db/base.repository";
+import { BaseRepository, IBaseRepository } from "src/common/db/base.repository";
 
 @Injectable()
 export class StudentCoursesRepository extends BaseRepository implements IStudentCoursesRepository {
@@ -97,9 +97,11 @@ export class StudentCoursesRepository extends BaseRepository implements IStudent
     }
 }
 
-interface IStudentCoursesRepository {
-    create(course: Course, instructor: User): Promise<StudentCourses>;
-    getByCourseAndStudent(course: Course, student: User): Promise<StudentCourses>;
-    getById(id: number): Promise<StudentCourses>;
-    getAllQ(): any;
+export abstract class IStudentCoursesRepository extends IBaseRepository {
+    abstract create(course: Course, instructor: User): Promise<StudentCourses>;
+    abstract deleteById(id: number): Promise<void>;
+    abstract getAllQ(): any;
+    abstract getByCourseAndStudent(course: Course, student: User): Promise<StudentCourses>;
+    abstract getById(id: number): Promise<StudentCourses>;
+    abstract update(id: number, dto: UpdateStudentCoursesDto): Promise<StudentCourses>;
 }
