@@ -50,12 +50,12 @@ export class AuthService implements IAuthService {
         return this.generateTokens(jwtModel);
     }
 
-    public async validateJwt(payload: JwtModel): Promise<UserViewModel> {
+    public async validateJwt(payload: JwtModel): Promise<User> {
         const user = await this.usersRepository.getByEmail(payload.email);
 
         if (!user) throw new UnauthorizedException({ message: "Invalid token" });
 
-        return this.usersViewModelFactory.initUserViewModel(user);
+        return user;
     }
 
     public async validateRefreshToken(
@@ -177,6 +177,6 @@ interface IAuthService {
     logout(tokenUser: User): Promise<void>;
     refreshToken(user: User): Promise<AuthViewModel>;
     signUp(dto: CreateUserDto): Promise<AuthViewModel>;
-    validateJwt(payload: JwtModel): Promise<UserViewModel>;
+    validateJwt(payload: JwtModel): Promise<User>;
     validateRefreshToken(payload: JwtModel, refreshToken: string): Promise<UserViewModel>;
 }
