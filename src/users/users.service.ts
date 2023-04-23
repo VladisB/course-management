@@ -1,22 +1,22 @@
 import { ConflictException, Injectable, NotFoundException } from "@nestjs/common";
-import { User } from "./entities/user.entity";
-import { CreateUserDto } from "./dto/create-user.dto";
-import { UpdateUserDto } from "./dto/update-user.dto";
-import { RoleName } from "../roles/roles.enum";
-import { UsersRepository } from "./users.repository";
-import { UsersViewModelFactory } from "./model-factories";
-import { UserViewModel } from "./view-models";
 import { DataListResponse } from "src/common/db/data-list-response";
+import { Group } from "src/groups/entities/group.entity";
+import { IGroupsRepository } from "src/groups/groups.repository";
+import { IRolesRepository } from "src/roles/roles.repository";
 import { ColumnType, QueryParamsDTO } from "../common/dto/query-params.dto";
 import { ApplyToQueryExtension } from "../common/query-extention";
-import { RolesRepository } from "src/roles/roles.repository";
-import { IGroupsRepository } from "src/groups/groups.repository";
-import { Group } from "src/groups/entities/group.entity";
+import { RoleName } from "../roles/roles.enum";
+import { CreateUserDto } from "./dto/create-user.dto";
+import { UpdateUserDto } from "./dto/update-user.dto";
+import { User } from "./entities/user.entity";
+import { UsersViewModelFactory } from "./model-factories";
+import { UsersRepository } from "./users.repository";
+import { UserViewModel } from "./view-models";
 
 @Injectable()
 export class UsersService implements IUsersService {
     constructor(
-        private rolesRepository: RolesRepository,
+        private rolesRepository: IRolesRepository,
         private usersRepository: UsersRepository,
         private groupsRepository: IGroupsRepository,
         private usersViewModelFactory: UsersViewModelFactory,

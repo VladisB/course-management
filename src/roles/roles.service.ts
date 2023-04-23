@@ -6,13 +6,13 @@ import { CreateRoleDto } from "./dto/create-role.dto";
 import { UpdateRoleDto } from "./dto/update-role.dto";
 import { Role } from "./entities/role.entity";
 import { RolesViewModelFactory } from "./model-factories/roles.vm-factory";
-import { RolesRepository } from "./roles.repository";
+import { IRolesRepository } from "./roles.repository";
 import { RoleViewModel } from "./view-models";
 
 @Injectable()
 export class RolesService implements IRolesService {
     constructor(
-        private readonly rolesRepository: RolesRepository,
+        private readonly rolesRepository: IRolesRepository,
         private readonly rolesViewModelFactory: RolesViewModelFactory,
     ) {}
 

@@ -5,7 +5,7 @@ import { ApplyToQueryExtension } from "src/common/query-extention";
 import { RoleName } from "src/roles/roles.enum";
 import { User } from "src/users/entities/user.entity";
 import { Course } from "src/courses/entities/course.entity";
-import { RolesRepository } from "src/roles/roles.repository";
+import { IRolesRepository } from "src/roles/roles.repository";
 import { UsersRepository } from "src/users/users.repository";
 import { ICoursesRepository } from "src/courses/courses.repository";
 import { CreateStudentCoursesDto } from "./dto/create-student-courses.dto";
@@ -19,7 +19,7 @@ import { StudentCoursesViewModel } from "./view-models";
 export class StudentCoursesService implements IStudentCoursesService {
     constructor(
         private readonly coursesRepository: ICoursesRepository,
-        private readonly rolesRepository: RolesRepository,
+        private readonly rolesRepository: IRolesRepository,
         private readonly studentCoursesRepository: StudentCoursesRepository,
         private readonly studentCoursesViewModelFactory: StudentCoursesViewModelFactory,
         private readonly usersRepository: UsersRepository,
