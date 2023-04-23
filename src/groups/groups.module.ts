@@ -4,7 +4,7 @@ import { FacultiesModule } from "../faculties/faculties.module";
 import { RolesModule } from "../roles/roles.module";
 import { Group } from "./entities/group.entity";
 import { GroupsController } from "./groups.controller";
-import { GroupsRepository } from "./groups.repository";
+import { GroupsRepository, IGroupsRepository } from "./groups.repository";
 import { GroupsService } from "./groups.service";
 import { GroupsViewModelFactory } from "./model-factories";
 import { CoursesModule } from "src/courses/courses.module";
@@ -13,13 +13,18 @@ import { GroupCoursesRepository } from "./group-courses.repository";
 
 @Module({
     controllers: [GroupsController],
-    providers: [GroupsService, GroupsRepository, GroupCoursesRepository, GroupsViewModelFactory],
+    providers: [
+        GroupsService,
+        { provide: IGroupsRepository, useClass: GroupsRepository },
+        GroupCoursesRepository,
+        GroupsViewModelFactory,
+    ],
     imports: [
         FacultiesModule,
         RolesModule,
         CoursesModule,
         TypeOrmModule.forFeature([Group, GroupCourses]),
     ],
-    exports: [GroupsRepository, GroupsService],
+    exports: [IGroupsRepository],
 })
 export class GroupsModule {}

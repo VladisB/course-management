@@ -3,7 +3,7 @@ import { FacultiesRepository } from "src/faculties/faculties.repository";
 import { Faculty } from "src/faculties/entities/faculty.entity";
 import { CreateGroupDto } from "./dto/create-group.dto";
 import { Group } from "./entities/group.entity";
-import { GroupsRepository } from "./groups.repository";
+import { IGroupsRepository } from "./groups.repository";
 import { GroupsViewModelFactory } from "./model-factories";
 import { GroupViewModel } from "./view-models";
 import { ApplyToQueryExtension } from "src/common/query-extention";
@@ -17,7 +17,7 @@ import { GroupCoursesRepository } from "./group-courses.repository";
 @Injectable()
 export class GroupsService implements IGroupsService {
     constructor(
-        private readonly groupsRepository: GroupsRepository,
+        private readonly groupsRepository: IGroupsRepository,
         private readonly coursesRepository: ICoursesRepository,
         private readonly facultiesRepository: FacultiesRepository,
         private readonly groupCoursesRepository: GroupCoursesRepository,

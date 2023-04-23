@@ -10,7 +10,7 @@ import { DataListResponse } from "src/common/db/data-list-response";
 import { ColumnType, QueryParamsDTO } from "../common/dto/query-params.dto";
 import { ApplyToQueryExtension } from "../common/query-extention";
 import { RolesRepository } from "src/roles/roles.repository";
-import { GroupsRepository } from "src/groups/groups.repository";
+import { IGroupsRepository } from "src/groups/groups.repository";
 import { Group } from "src/groups/entities/group.entity";
 
 @Injectable()
@@ -18,7 +18,7 @@ export class UsersService implements IUsersService {
     constructor(
         private rolesRepository: RolesRepository,
         private usersRepository: UsersRepository,
-        private groupsRepository: GroupsRepository,
+        private groupsRepository: IGroupsRepository,
         private usersViewModelFactory: UsersViewModelFactory,
     ) {}
 
