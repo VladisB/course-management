@@ -1,6 +1,6 @@
 import { ConflictException, Injectable, NotFoundException } from "@nestjs/common";
 import { CreateFacultyDto } from "./dto/create-faculty.dto";
-import { FacultiesRepository } from "./faculties.repository";
+import { IFacultiesRepository } from "./faculties.repository";
 import { Faculty } from "./entities/faculty.entity";
 import { FacultyViewModel } from "./view-models";
 import { FacultiesViewModelFactory } from "./model-factories";
@@ -12,7 +12,7 @@ import { UpdateFacultyDto } from "./dto/update-faculty.dto";
 @Injectable()
 export class FacultiesService implements IFacultiesService {
     constructor(
-        private readonly facultiesRepository: FacultiesRepository,
+        private readonly facultiesRepository: IFacultiesRepository,
         private readonly facultiesViewModelFactory: FacultiesViewModelFactory,
     ) {}
 

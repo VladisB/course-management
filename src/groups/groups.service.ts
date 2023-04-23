@@ -1,5 +1,5 @@
 import { ConflictException, Injectable, NotFoundException } from "@nestjs/common";
-import { FacultiesRepository } from "src/faculties/faculties.repository";
+import { IFacultiesRepository } from "src/faculties/faculties.repository";
 import { Faculty } from "src/faculties/entities/faculty.entity";
 import { CreateGroupDto } from "./dto/create-group.dto";
 import { Group } from "./entities/group.entity";
@@ -19,7 +19,7 @@ export class GroupsService implements IGroupsService {
     constructor(
         private readonly groupsRepository: IGroupsRepository,
         private readonly coursesRepository: ICoursesRepository,
-        private readonly facultiesRepository: FacultiesRepository,
+        private readonly facultiesRepository: IFacultiesRepository,
         private readonly groupCoursesRepository: GroupCoursesRepository,
         private readonly groupsViewModelFactory: GroupsViewModelFactory,
     ) {}

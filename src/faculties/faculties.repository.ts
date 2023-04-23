@@ -4,22 +4,25 @@ import { Repository, SelectQueryBuilder } from "typeorm";
 import { CreateFacultyDto } from "./dto/create-faculty.dto";
 import { UpdateFacultyDto } from "./dto/update-faculty.dto";
 import { Faculty } from "./entities/faculty.entity";
+import { BaseRepository, IBaseRepository } from "src/common/db/base.repository";
 
 @Injectable()
-export class FacultiesRepository implements IFacultiesRepository {
+export class FacultiesRepository extends BaseRepository implements IFacultiesRepository {
     constructor(
         @InjectRepository(Faculty)
-        private readonly facultyEntityRepository: Repository<Faculty>,
-    ) {}
+        private readonly entityRepository: Repository<Faculty>,
+    ) {
+        super(entityRepository.manager.queryRunner);
+    }
 
     public getAllQ(): SelectQueryBuilder<Faculty> {
-        const userQuery = this.facultyEntityRepository.createQueryBuilder("faculty");
+        const userQuery = this.entityRepository.createQueryBuilder("faculty");
 
         return userQuery;
     }
 
     public async getById(id: number): Promise<Faculty> {
-        return await this.facultyEntityRepository.findOne({
+        return await this.entityRepository.findOne({
             where: {
                 id,
             },
@@ -27,13 +30,13 @@ export class FacultiesRepository implements IFacultiesRepository {
     }
 
     public async deleteById(id: number): Promise<void> {
-        await this.facultyEntityRepository.delete(id);
+        await this.entityRepository.delete(id);
 
         return;
     }
 
     public async getByName(name: string): Promise<Faculty> {
-        return await this.facultyEntityRepository.findOne({
+        return await this.entityRepository.findOne({
             where: {
                 name,
             },
@@ -41,26 +44,26 @@ export class FacultiesRepository implements IFacultiesRepository {
     }
 
     public async create(dto: CreateFacultyDto): Promise<Faculty> {
-        const faculty = this.facultyEntityRepository.create(dto);
+        const faculty = this.entityRepository.create(dto);
 
-        return this.facultyEntityRepository.save(faculty);
+        return this.entityRepository.save(faculty);
     }
 
     public async update(id: number, dto: UpdateFacultyDto): Promise<Faculty> {
-        const role = await this.facultyEntityRepository.preload({
+        const role = await this.entityRepository.preload({
             id,
             ...dto,
         });
 
-        return await this.facultyEntityRepository.save(role);
+        return await this.entityRepository.save(role);
     }
 }
 
-interface IFacultiesRepository {
-    create(dto: CreateFacultyDto): Promise<Faculty>;
-    deleteById(id: number): Promise<void>;
-    getAllQ(): SelectQueryBuilder<Faculty>;
-    getById(id: number): Promise<Faculty>;
-    getByName(name: string): Promise<Faculty>;
-    update(id: number, dto: UpdateFacultyDto): Promise<Faculty>;
+export abstract class IFacultiesRepository extends IBaseRepository {
+    abstract create(dto: CreateFacultyDto): Promise<Faculty>;
+    abstract deleteById(id: number): Promise<void>;
+    abstract getAllQ(): SelectQueryBuilder<Faculty>;
+    abstract getById(id: number): Promise<Faculty>;
+    abstract getByName(name: string): Promise<Faculty>;
+    abstract update(id: number, dto: UpdateFacultyDto): Promise<Faculty>;
 }
