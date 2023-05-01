@@ -89,6 +89,7 @@ export class UsersRepository extends BaseRepository implements IUsersRepository 
             id,
             ...dto,
             role: { id: roleId },
+            group: { id: dto.groupId },
         });
 
         const { id: entityId } = await this.entityRepository.save(user);

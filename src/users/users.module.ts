@@ -8,6 +8,7 @@ import { UsersViewModelFactory } from "./model-factories/users.vm-factory";
 import { IUsersRepository, UsersRepository } from "./users.repository";
 import { ApplyToQueryExtension } from "../common/query-extention";
 import { GroupsModule } from "src/groups/groups.module";
+import { UserSubscriber } from "./entities/user.subsriber";
 
 @Module({
     controllers: [UsersController],
@@ -19,6 +20,7 @@ import { GroupsModule } from "src/groups/groups.module";
             useClass: UsersRepository,
         },
         ApplyToQueryExtension,
+        UserSubscriber,
     ],
     imports: [TypeOrmModule.forFeature([User]), RolesModule, GroupsModule],
     exports: [UsersService, UsersViewModelFactory, IUsersRepository],

@@ -76,8 +76,11 @@ export class User extends BaseEntity {
         return hash === this.password;
     }
 
+    async validateRawPassword(rawPassword: string): Promise<boolean> {
+        return rawPassword === this.password;
+    }
+
     @BeforeInsert()
-    @BeforeUpdate()
     async setPassword() {
         if (this.password) {
             this.salt = await bcrypt.genSalt();
