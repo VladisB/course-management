@@ -1,3 +1,3 @@
-import { CourseViewModel } from "./course.vm";
+import { CourseInstructorListItemViewModel, CourseViewModel } from "./course.vm";
 
-export { CourseViewModel };
+export { CourseViewModel, CourseInstructorListItemViewModel };

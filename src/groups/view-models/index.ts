@@ -1,3 +1,3 @@
-import { GroupViewModel } from "./group.vm";
+import { GroupViewModel, GroupCoursesViewModel } from "./group.vm";
 
-export { GroupViewModel };
+export { GroupViewModel, GroupCoursesViewModel };

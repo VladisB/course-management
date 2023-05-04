@@ -152,12 +152,12 @@ export class GroupsService implements IGroupsService {
     }
 
     private checkIfCoursesAvailable(courses: Course[]): void {
-        const coursesWithoutInstructors = courses.filter((course) => !course.instructor);
+        const coursesWithoutInstructors = courses.filter(
+            (course) => course.courseInstructors.length === 0,
+        );
 
         if (coursesWithoutInstructors.length)
-            throw new ConflictException(
-                `Course ${coursesWithoutInstructors[0].name} has no instructor.`,
-            );
+            throw new ConflictException(`At least one course has no instructor.`);
     }
 
     private async checkCourseNumber(group: Group, dto: UpdateGroupDto): Promise<void> {

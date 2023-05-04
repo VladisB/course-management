@@ -1,6 +1,5 @@
-import { CourseViewModel } from "src/courses/view-models";
 import { Group } from "../entities/group.entity";
-import { GroupViewModel } from "../view-models";
+import { GroupCoursesViewModel, GroupViewModel } from "../view-models";
 
 export class GroupsViewModelFactory implements IGroupsViewModelFactory {
     public initGroupViewModel(group: Group): GroupViewModel {
@@ -46,17 +45,14 @@ export class GroupsViewModelFactory implements IGroupsViewModelFactory {
         return model;
     }
 
-    private populateCourses(group: Group): CourseViewModel[] {
+    private populateCourses(group: Group): GroupCoursesViewModel[] {
         if (!group || !group.groupCourses?.length) {
             return [];
         }
 
-        const courses = group.groupCourses.map<CourseViewModel>((item) => ({
+        const courses = group.groupCourses.map<GroupCoursesViewModel>((item) => ({
             id: item.course.id,
             name: item.course.name,
-            instructor: item.course?.instructor
-                ? item.course.instructor.firstName + " " + item.course.instructor.lastName
-                : null,
         }));
 
         return courses;

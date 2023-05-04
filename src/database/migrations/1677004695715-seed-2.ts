@@ -28,19 +28,15 @@ export class seed1677004695716 implements MigrationInterface {
         const courses = queryRunner.manager.create(Course, [
             {
                 name: "Introduction to Programming",
-                instructor,
             },
             {
                 name: "Data Structures and Algorithms",
-                instructor,
             },
             {
                 name: "Database Systems and Management",
-                instructor,
             },
             {
                 name: "Web Development and Design",
-                instructor,
             },
         ]);
 

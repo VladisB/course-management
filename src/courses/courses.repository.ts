@@ -29,6 +29,7 @@ export class CoursesRepository extends BaseRepository implements ICoursesReposit
             where: {
                 id,
             },
+            relations: ["courseInstructors", "courseInstructors.instructor"],
         });
     }
 
@@ -37,6 +38,7 @@ export class CoursesRepository extends BaseRepository implements ICoursesReposit
             where: {
                 id: In(idList),
             },
+            relations: ["courseInstructors", "courseInstructors.instructor"],
         });
     }
 

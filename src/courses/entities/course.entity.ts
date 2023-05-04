@@ -28,15 +28,11 @@ export class Course extends BaseEntity {
     @OneToMany(() => GroupCourses, (groupCourses) => groupCourses.course)
     public groupCourses: GroupCourses[];
 
-    @OneToMany(() => GroupCourses, (courseInstructors) => courseInstructors.course)
+    @OneToMany(() => CourseInstructors, (courseInstructors) => courseInstructors.course)
     public courseInstructors: CourseInstructors[];
 
     @OneToMany(() => StudentCourses, (studentCourses) => studentCourses.course)
     public studentCourses: StudentCourses[];
-
-    @ManyToOne(() => User, { eager: true })
-    @JoinColumn({ name: "instructor_id" })
-    public instructor: User;
 
     @CreateDateColumn({
         type: "timestamp",

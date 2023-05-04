@@ -1,12 +1,12 @@
 import { Course } from "../entities/course.entity";
-import { CourseViewModel } from "../view-models";
+import { CourseInstructorListItemViewModel, CourseViewModel } from "../view-models";
 
 export class CoursesViewModelFactory implements ICoursesViewModelFactory {
     public initCourseViewModel(course: Course): CourseViewModel {
         const model: CourseViewModel = {
-            id: null,
+            id: 0,
             name: "",
-            instructor: "",
+            instructorList: [],
         };
 
         return this.setCourseViewModel(model, course);
@@ -22,12 +22,24 @@ export class CoursesViewModelFactory implements ICoursesViewModelFactory {
         if (course) {
             model.id = course.id;
             model.name = course.name;
-            model.instructor = course?.instructor
-                ? course.instructor.firstName + " " + course.instructor.lastName
-                : null;
+            model.instructorList = this.populateInstructorList(course);
         }
 
         return model;
+    }
+
+    private populateInstructorList(course: Course): CourseInstructorListItemViewModel[] {
+        if (course?.courseInstructors?.length) return [];
+
+        const instructorList = course.courseInstructors.map<CourseInstructorListItemViewModel>(
+            (courseInstructor) => ({
+                id: courseInstructor.instructor.id,
+                firstName: courseInstructor.instructor.firstName,
+                lastName: courseInstructor.instructor.lastName,
+            }),
+        );
+
+        return instructorList;
     }
 
     private setCourseListViewModel(model: CourseViewModel[], courses: Course[]): CourseViewModel[] {
@@ -35,9 +47,7 @@ export class CoursesViewModelFactory implements ICoursesViewModelFactory {
             const courseList = courses.map<CourseViewModel>((course) => ({
                 id: course.id,
                 name: course.name,
-                instructor: course?.instructor
-                    ? course.instructor.firstName + " " + course.instructor.lastName
-                    : null,
+                instructorList: this.populateInstructorList(course),
             }));
 
             model.push(...courseList);
