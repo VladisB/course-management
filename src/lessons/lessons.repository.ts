@@ -58,9 +58,11 @@ export class LessonsRepository extends BaseRepository implements ILessonsReposit
             where: {
                 id,
             },
-            relations: {
-                course: true,
-            },
+            relations: [
+                "course",
+                "course.courseInstructors",
+                "course.courseInstructors.instructor",
+            ],
         });
     }
 

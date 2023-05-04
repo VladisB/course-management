@@ -65,17 +65,20 @@ export class LessonsController {
         return result;
     }
 
+    // NOTE: It's not nessaary, but here I may need to add some kind of filter to get only lessons that are related to the user
     @Get(":id")
-    findOne(@Param("id", ParseIntPipe) id: number): Promise<LessonViewModel> {
+    async findOne(@Param("id", ParseIntPipe) id: number): Promise<LessonViewModel> {
         return this.lessonsService.getLesson(id);
     }
 
     @Patch(":id")
+    @Roles(RoleName.Admin, RoleName.Instructor)
     update(@Param("id", ParseIntPipe) id: number, @Body() updateLessonDto: UpdateLessonDto) {
         return this.lessonsService.updateLesson(id, updateLessonDto);
     }
 
     @Delete(":id")
+    @Roles(RoleName.Admin, RoleName.Instructor)
     remove(@Param("id", ParseIntPipe) id: number) {
         return this.lessonsService.deleteLesson(id);
     }

@@ -1,5 +1,6 @@
 export class LessonViewModel {
     id: number;
+    courseId: number;
     course: string;
     date: Date;
     theme: string;

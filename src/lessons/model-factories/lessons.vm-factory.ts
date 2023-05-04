@@ -5,9 +5,10 @@ export class LessonsViewModelFactory implements ILessonsViewModelFactory {
     public initLessonViewModel(lesson: Lesson): LessonViewModel {
         const model: LessonViewModel = {
             id: 0,
+            courseId: 0,
+            course: "",
             theme: "",
             date: null,
-            course: "",
             instructorList: [],
         };
 
@@ -23,6 +24,7 @@ export class LessonsViewModelFactory implements ILessonsViewModelFactory {
     private setLessonViewModel(model: LessonViewModel, lesson: Lesson): LessonViewModel {
         if (lesson) {
             model.id = lesson.id;
+            model.courseId = lesson.course.id;
             model.theme = lesson.theme;
             model.date = lesson.date;
             model.course = lesson.course.name;
@@ -38,6 +40,7 @@ export class LessonsViewModelFactory implements ILessonsViewModelFactory {
                 id: lesson.id,
                 theme: lesson.theme,
                 date: lesson.date,
+                courseId: lesson.course.id,
                 course: lesson.course.name,
                 instructorList: this.populateInstructorList(lesson),
             }));
