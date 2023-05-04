@@ -1,3 +1,3 @@
-import { LessonViewModel } from "./lesson.vm";
+import { LessonInstructorViewModel, LessonViewModel } from "./lesson.vm";
 
-export { LessonViewModel };
+export { LessonViewModel, LessonInstructorViewModel };

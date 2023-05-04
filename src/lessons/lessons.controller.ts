@@ -10,6 +10,8 @@ import {
     UsePipes,
     Query,
     ParseIntPipe,
+    UseGuards,
+    ForbiddenException,
 } from "@nestjs/common";
 import { LessonsService } from "./lessons.service";
 import { CreateLessonDto } from "./dto/create-lesson.dto";
@@ -17,20 +19,50 @@ import { UpdateLessonDto } from "./dto/update-lesson.dto";
 import { LessonViewModel } from "./view-models";
 import { DataListResponse } from "src/common/db/data-list-response";
 import { QueryParamsDTO } from "src/common/dto/query-params.dto";
+import { RoleName } from "src/roles/roles.enum";
+import { Strategies } from "src/auth/strategies.enum";
+import { RolesGuard } from "src/roles/roles.guard";
+import { Roles } from "src/roles/roles-auth.decorator";
+import { AuthGuard } from "@nestjs/passport";
+import { User } from "src/users/entities/user.entity";
+import { GetUser } from "src/auth/get-user.decorator";
 
 @UsePipes(new ValidationPipe({ transform: true }))
+@UseGuards(AuthGuard(Strategies.JWT))
 @Controller("lessons")
 export class LessonsController {
     constructor(private readonly lessonsService: LessonsService) {}
 
     @Post()
+    @Roles(RoleName.Admin, RoleName.Instructor)
+    @UseGuards(AuthGuard(Strategies.JWT), RolesGuard)
     create(@Body() createLessonDto: CreateLessonDto) {
         return this.lessonsService.createLesson(createLessonDto);
     }
 
     @Get()
-    findAll(@Query() queryParams: QueryParamsDTO): Promise<DataListResponse<LessonViewModel>> {
-        return this.lessonsService.getLessons(queryParams);
+    async findAll(
+        @GetUser() user: User,
+        @Query() queryParams: QueryParamsDTO,
+    ): Promise<DataListResponse<LessonViewModel>> {
+        const { role } = user;
+        let result: DataListResponse<LessonViewModel> = null;
+
+        switch (role.name) {
+            case RoleName.Admin:
+                result = await this.lessonsService.getLessons(queryParams);
+                break;
+            case RoleName.Instructor:
+                result = await this.lessonsService.getInstructorLessons(queryParams, user.id);
+                break;
+            case RoleName.Student:
+                result = await this.lessonsService.getStudentLessons(queryParams, user.id);
+                break;
+            default:
+                throw new ForbiddenException();
+        }
+
+        return result;
     }
 
     @Get(":id")

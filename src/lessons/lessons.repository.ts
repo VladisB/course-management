@@ -18,6 +18,33 @@ export class LessonsRepository extends BaseRepository implements ILessonsReposit
         super(entityRepository.manager.queryRunner);
     }
 
+    getAllQByStudent(studentId: number): SelectQueryBuilder<Lesson> {
+        const userQuery = this.entityRepository
+            .createQueryBuilder(this.tableName)
+            .innerJoinAndSelect("lesson.course", "course")
+            .innerJoinAndSelect("course.studentCourses", "studentCourses")
+            .where("studentCourses.studentId = :studentId", { studentId });
+
+        return userQuery;
+    }
+
+    getAllQByInstructor(instructorId: number): SelectQueryBuilder<Lesson> {
+        const userQuery = this.entityRepository
+            .createQueryBuilder(this.tableName)
+            .innerJoinAndSelect("lesson.course", "course")
+            .innerJoin("course.courseInstructors", "filteredCourseInstructors")
+            .where("filteredCourseInstructors.instructorId = :instructorId", { instructorId })
+            .innerJoinAndMapMany(
+                "course.courseInstructors",
+                "course_instructors",
+                "courseInstructors",
+                "courseInstructors.courseId = course.id",
+            )
+            .innerJoinAndSelect("courseInstructors.instructor", "user");
+
+        return userQuery;
+    }
+
     public getAllQ(): SelectQueryBuilder<Lesson> {
         const userQuery = this.entityRepository
             .createQueryBuilder(this.tableName)
@@ -76,6 +103,8 @@ export abstract class ILessonsRepository extends IBaseRepository {
     abstract create(dto: CreateLessonDto, course: Course): Promise<Lesson>;
     abstract deleteById(id: number): Promise<void>;
     abstract getAllQ(): SelectQueryBuilder<Lesson>;
+    abstract getAllQByStudent(studentId: number): SelectQueryBuilder<Lesson>;
+    abstract getAllQByInstructor(instructorId: number): SelectQueryBuilder<Lesson>;
     abstract getById(id: number): Promise<Lesson>;
     abstract getByTheme(theme: string): Promise<Lesson>;
     abstract update(id: number, dto: UpdateLessonDto): Promise<Lesson>;

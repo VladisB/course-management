@@ -37,19 +37,20 @@ export class UsersService implements IUsersService {
     public async updateUser(id: number, dto: UpdateUserDto): Promise<UserViewModel> {
         await this.validateUpdate(id, dto);
 
-        const transaction = await this.usersRepository.initTrx();
+        // const transaction = await this.usersRepository.initTrx();
 
         try {
-            const model = await this.usersRepository.trxUpdate(transaction, id, dto, dto.roleId);
+            // const model = await this.usersRepository.trxUpdate(transaction, id, dto, dto.roleId);
+            const model = await this.usersRepository.update(id, dto, dto.roleId);
             // TODO: Create student courses records
 
-            await this.usersRepository.commitTrx(transaction);
+            // await this.usersRepository.commitTrx(transaction);
 
             return this.usersViewModelFactory.initUserViewModel(model);
         } catch (err) {
             console.error(err);
 
-            await this.usersRepository.rollbackTrx(transaction);
+            // await this.usersRepository.rollbackTrx(transaction);
 
             throw err;
         }
