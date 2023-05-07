@@ -61,6 +61,7 @@ export class UsersController {
         return this.usersService.updateUser(id, updateUserDto);
     }
 
+    // TODO: Update validation rules. Check if user has related entities.
     @Delete(":id")
     remove(@Param("id", ParseIntPipe) id: number): Promise<void> {
         return this.usersService.deleteUser(id);
