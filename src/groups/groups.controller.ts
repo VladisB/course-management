@@ -24,7 +24,6 @@ import { DataListResponse } from "src/common/db/data-list-response";
 import { UpdateGroupDto } from "./dto/update-group.dto";
 import { Strategies } from "src/auth/strategies.enum";
 
-@Roles(RoleName.Admin)
 @UseGuards(AuthGuard(Strategies.JWT), RolesGuard)
 @UsePipes(new ValidationPipe({ transform: true }))
 @Controller("groups")
@@ -32,21 +31,25 @@ export class GroupsController {
     constructor(private groupsService: GroupsService) {}
 
     @Post()
+    @Roles(RoleName.Admin)
     create(@Body() dto: CreateGroupDto): Promise<GroupViewModel> {
         return this.groupsService.createGroup(dto);
     }
 
     @Get()
+    @Roles(RoleName.Admin, RoleName.Student, RoleName.Instructor)
     findAll(@Query() queryParams: QueryParamsDTO): Promise<DataListResponse<GroupViewModel>> {
         return this.groupsService.getGroups(queryParams);
     }
 
     @Get(":id")
+    @Roles(RoleName.Admin, RoleName.Student, RoleName.Instructor)
     findOne(@Param("id", ParseIntPipe) id: number): Promise<GroupViewModel> {
         return this.groupsService.getGroup(id);
     }
 
     @Patch(":id")
+    @Roles(RoleName.Admin)
     update(
         @Param("id", ParseIntPipe) id: number,
         @Body() updateGroupDto: UpdateGroupDto,
@@ -55,6 +58,7 @@ export class GroupsController {
     }
 
     @Delete(":id")
+    @Roles(RoleName.Admin)
     remove(@Param("id") id: number) {
         return this.groupsService.deleteGroup(id);
     }

@@ -24,7 +24,6 @@ import { QueryParamsDTO } from "src/common/dto/query-params.dto";
 import { UpdateFacultyDto } from "./dto/update-faculty.dto";
 import { Strategies } from "src/auth/strategies.enum";
 
-@Roles(RoleName.Admin)
 @UseGuards(AuthGuard(Strategies.JWT), RolesGuard)
 @UsePipes(new ValidationPipe({ transform: true }))
 @Controller("faculties")
@@ -32,21 +31,25 @@ export class FacultiesController {
     constructor(private facultyService: FacultiesService) {}
 
     @Post()
+    @Roles(RoleName.Admin)
     create(@Body() dto: CreateFacultyDto): Promise<FacultyViewModel> {
         return this.facultyService.createFaculty(dto);
     }
 
     @Get()
+    @Roles(RoleName.Admin, RoleName.Student, RoleName.Instructor)
     findAll(@Query() queryParams: QueryParamsDTO): Promise<DataListResponse<FacultyViewModel>> {
         return this.facultyService.getFaculties(queryParams);
     }
 
     @Get(":id")
+    @Roles(RoleName.Admin, RoleName.Student, RoleName.Instructor)
     findOne(@Param("id", ParseIntPipe) id: number): Promise<FacultyViewModel> {
         return this.facultyService.getFaculty(id);
     }
 
     @Patch(":id")
+    @Roles(RoleName.Admin)
     update(
         @Param("id", ParseIntPipe) id: number,
         @Body() updateFacultyDto: UpdateFacultyDto,
@@ -55,6 +58,7 @@ export class FacultiesController {
     }
 
     @Delete(":id")
+    @Roles(RoleName.Admin)
     remove(@Param("id") id: number): Promise<void> {
         return this.facultyService.deleteFaculty(id);
     }

@@ -28,19 +28,19 @@ import { User } from "src/users/entities/user.entity";
 import { GetUser } from "src/auth/get-user.decorator";
 
 @UsePipes(new ValidationPipe({ transform: true }))
-@UseGuards(AuthGuard(Strategies.JWT))
+@UseGuards(AuthGuard(Strategies.JWT), RolesGuard)
 @Controller("lessons")
 export class LessonsController {
     constructor(private readonly lessonsService: LessonsService) {}
 
     @Post()
     @Roles(RoleName.Admin, RoleName.Instructor)
-    @UseGuards(AuthGuard(Strategies.JWT), RolesGuard)
-    create(@Body() createLessonDto: CreateLessonDto) {
+    create(@Body() createLessonDto: CreateLessonDto): Promise<LessonViewModel> {
         return this.lessonsService.createLesson(createLessonDto);
     }
 
     @Get()
+    @Roles(RoleName.Admin, RoleName.Instructor, RoleName.Student)
     async findAll(
         @GetUser() user: User,
         @Query() queryParams: QueryParamsDTO,
@@ -67,13 +67,17 @@ export class LessonsController {
 
     // NOTE: It's not nessaary, but here I may need to add some kind of filter to get only lessons that are related to the user
     @Get(":id")
+    @Roles(RoleName.Admin, RoleName.Instructor, RoleName.Student)
     async findOne(@Param("id", ParseIntPipe) id: number): Promise<LessonViewModel> {
         return this.lessonsService.getLesson(id);
     }
 
     @Patch(":id")
     @Roles(RoleName.Admin, RoleName.Instructor)
-    update(@Param("id", ParseIntPipe) id: number, @Body() updateLessonDto: UpdateLessonDto) {
+    update(
+        @Param("id", ParseIntPipe) id: number,
+        @Body() updateLessonDto: UpdateLessonDto,
+    ): Promise<LessonViewModel> {
         return this.lessonsService.updateLesson(id, updateLessonDto);
     }
 
