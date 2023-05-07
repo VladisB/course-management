@@ -60,7 +60,9 @@ export class CoursesRepository extends BaseRepository implements ICoursesReposit
         try {
             const course = this.courseEntityRepository.create(dto);
 
-            return this.courseEntityRepository.save(course);
+            const { id } = await this.courseEntityRepository.save(course);
+
+            return await this.getById(id);
         } catch (err) {
             console.error("Error: ", err);
 

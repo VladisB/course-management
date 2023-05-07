@@ -19,21 +19,9 @@ export class CoursesService implements ICoursesService {
     public async createCourse(dto: CreateCourseDto): Promise<CourseViewModel> {
         await this.validateCreate(dto);
 
-        const transaction = await this.coursesRepository.initTrx();
+        const course = await this.coursesRepository.create(dto);
 
-        try {
-            const course = await this.coursesRepository.trxCreate(transaction, dto);
-
-            await this.coursesRepository.commitTrx(transaction);
-
-            return this.coursesViewModelFactory.initCourseViewModel(course);
-        } catch (err) {
-            console.error(err);
-
-            await this.coursesRepository.rollbackTrx(transaction);
-
-            throw err;
-        }
+        return this.coursesViewModelFactory.initCourseViewModel(course);
     }
 
     public async getCourses(
