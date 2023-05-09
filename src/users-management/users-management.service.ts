@@ -28,13 +28,29 @@ export class UsersManagementService implements IUsersManagementService {
     //#region Public methods
 
     public async createUser(dto: CreateUserDto): Promise<User> {
-        await this.validateCreate(dto);
+        const [group] = await this.validateCreate(dto);
 
-        const roleId = dto.roleId
-            ? dto.roleId
-            : (await this.rolesRepository.getByName(RoleName.Student)).id;
+        const transaction = await this.usersRepository.initTrx();
 
-        return await this.usersRepository.create(dto, roleId);
+        try {
+            const roleId = dto.roleId
+                ? dto.roleId
+                : (await this.rolesRepository.getByName(RoleName.Student)).id;
+
+            const user = await this.usersRepository.create(dto, roleId);
+
+            await this.trxAddStudentCourses(transaction, user.id, group);
+
+            await this.usersRepository.commitTrx(transaction);
+
+            return user;
+        } catch (err) {
+            console.error(err);
+
+            await this.usersRepository.rollbackTrx(transaction);
+
+            throw err;
+        }
     }
 
     public async updateUser(id: number, dto: UpdateUserDto): Promise<UserViewModel> {
@@ -193,19 +209,20 @@ export class UsersManagementService implements IUsersManagementService {
 
     //#region Private methods
 
-    private async validateCreate(updateUserDto: UpdateUserDto): Promise<void> {
-        await this.checkIfUserExistByEmail(updateUserDto.email);
-        await this.checkIfRoleExist(updateUserDto.roleId);
+    private async validateCreate(dto: CreateUserDto): Promise<readonly [Group]> {
+        await this.checkIfUserExistByEmail(dto.email);
+        await this.checkIfRoleExist(dto.roleId);
+
+        const group = dto.groupId && (await this.checkIfGroupNotExist(dto.groupId));
+
+        return [group];
     }
 
-    private async validateUpdate(
-        id: number,
-        updateUserDto: UpdateUserDto,
-    ): Promise<readonly [Group, User]> {
+    private async validateUpdate(id: number, dto: UpdateUserDto): Promise<readonly [Group, User]> {
         const user = await this.checkIfUserExistById(id);
-        await this.checkIfUserExistByEmail(updateUserDto.email, id);
-        const group = await this.checkIfGroupNotExist(updateUserDto.groupId);
-        await this.checkIfRoleExist(updateUserDto.roleId);
+        await this.checkIfUserExistByEmail(dto.email, id);
+        await this.checkIfRoleExist(dto.roleId);
+        const group = dto.groupId && (await this.checkIfGroupNotExist(dto.groupId));
 
         return [group, user];
     }
@@ -223,8 +240,6 @@ export class UsersManagementService implements IUsersManagementService {
     }
 
     private async checkIfGroupNotExist(id: number): Promise<Group> {
-        if (!id) return;
-
         const group = await this.groupsRepository.getById(id);
 
         if (!group) throw new NotFoundException("Group not found");
