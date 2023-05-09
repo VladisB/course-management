@@ -19,11 +19,11 @@ export class StudentCoursesRepository extends BaseRepository implements IStudent
         super(entityRepository.manager.queryRunner);
     }
 
-    public async create(course: Course, student: User): Promise<StudentCourses> {
+    public async create(courseId: number, studentId: number): Promise<StudentCourses> {
         try {
             const feedBack = this.entityRepository.create({
-                course,
-                student,
+                course: { id: courseId },
+                student: { id: studentId },
             });
 
             const { id } = await this.entityRepository.save(feedBack);
@@ -98,7 +98,7 @@ export class StudentCoursesRepository extends BaseRepository implements IStudent
 }
 
 export abstract class IStudentCoursesRepository extends IBaseRepository {
-    abstract create(course: Course, instructor: User): Promise<StudentCourses>;
+    abstract create(courseId: number, instructorId: number): Promise<StudentCourses>;
     abstract deleteById(id: number): Promise<void>;
     abstract getAllQ(): any;
     abstract getByCourseAndStudent(course: Course, student: User): Promise<StudentCourses>;

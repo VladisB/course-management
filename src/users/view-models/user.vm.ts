@@ -3,5 +3,6 @@ export class UserViewModel {
     email: string;
     firstName: string;
     lastName: string;
-    role: string | null;
+    role: string;
+    group: string | null;
 }

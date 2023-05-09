@@ -9,6 +9,7 @@ import { IUsersRepository, UsersRepository } from "./users.repository";
 import { ApplyToQueryExtension } from "../common/query-extention";
 import { GroupsModule } from "src/groups/groups.module";
 import { UserSubscriber } from "./entities/user.subsriber";
+import { StudentCoursesModule } from "src/student-courses/student-courses.module";
 
 @Module({
     controllers: [UsersController],
@@ -22,7 +23,7 @@ import { UserSubscriber } from "./entities/user.subsriber";
         ApplyToQueryExtension,
         UserSubscriber,
     ],
-    imports: [TypeOrmModule.forFeature([User]), RolesModule, GroupsModule],
-    exports: [UsersService, UsersViewModelFactory, IUsersRepository],
+    imports: [TypeOrmModule.forFeature([User]), RolesModule, GroupsModule, StudentCoursesModule],
+    exports: [IUsersRepository],
 })
 export class UsersModule {}

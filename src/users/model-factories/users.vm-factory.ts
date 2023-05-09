@@ -9,6 +9,7 @@ export class UsersViewModelFactory implements IUsersViewModelFactory {
             firstName: "",
             lastName: "",
             role: "",
+            group: null,
         };
 
         return this.setUserViewModel(model, user);
@@ -26,7 +27,8 @@ export class UsersViewModelFactory implements IUsersViewModelFactory {
             model.email = user.email;
             model.firstName = user.firstName;
             model.lastName = user.lastName;
-            model.role = user?.role?.name ?? null;
+            model.role = user.role.name;
+            model.group = user.group ? user.group.name : null;
         }
 
         return model;
@@ -40,6 +42,7 @@ export class UsersViewModelFactory implements IUsersViewModelFactory {
                 firstName: user.firstName,
                 lastName: user.lastName,
                 role: user.role.name,
+                group: user.group ? user.group.name : null,
             }));
 
             model.push(...userList);

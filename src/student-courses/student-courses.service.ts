@@ -31,7 +31,10 @@ export class StudentCoursesService implements IStudentCoursesService {
         const [strudent, course] = await this.validateCreate(dto);
 
         try {
-            const studentCourse = await this.studentCoursesRepository.create(course, strudent);
+            const studentCourse = await this.studentCoursesRepository.create(
+                course.id,
+                strudent.id,
+            );
 
             return this.studentCoursesViewModelFactory.initStudentCoursesViewModel(studentCourse);
         } catch (err) {

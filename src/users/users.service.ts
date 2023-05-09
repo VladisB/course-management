@@ -12,11 +12,13 @@ import { User } from "./entities/user.entity";
 import { UsersViewModelFactory } from "./model-factories";
 import { IUsersRepository } from "./users.repository";
 import { UserViewModel } from "./view-models";
+import { IStudentCoursesRepository } from "src/student-courses/student-courses.repository";
 
 @Injectable()
 export class UsersService implements IUsersService {
     constructor(
         private rolesRepository: IRolesRepository,
+        private studentCoursesRepository: IStudentCoursesRepository,
         private usersRepository: IUsersRepository,
         private groupsRepository: IGroupsRepository,
         private usersViewModelFactory: UsersViewModelFactory,
@@ -35,13 +37,17 @@ export class UsersService implements IUsersService {
     }
 
     public async updateUser(id: number, dto: UpdateUserDto): Promise<UserViewModel> {
-        await this.validateUpdate(id, dto);
+        const group = await this.validateUpdate(id, dto);
 
         // const transaction = await this.usersRepository.initTrx();
 
         try {
+            if (dto.groupId && group.groupCourses.length > 0) {
+                await this.studentCoursesRepository.create(group.groupCourses[0].courseId, id);
+            }
+
             // const model = await this.usersRepository.trxUpdate(transaction, id, dto, dto.roleId);
-            const model = await this.usersRepository.update(id, dto, dto.roleId);
+            const model = await this.usersRepository.update(id, dto);
             // TODO: Create student courses records
 
             // await this.usersRepository.commitTrx(transaction);
@@ -140,11 +146,13 @@ export class UsersService implements IUsersService {
         await this.checkIfRoleExist(updateUserDto.roleId);
     }
 
-    private async validateUpdate(id: number, updateUserDto: UpdateUserDto): Promise<void> {
+    private async validateUpdate(id: number, updateUserDto: UpdateUserDto): Promise<Group> {
         await this.checkIfUserExistById(id);
         await this.checkIfUserExistByEmail(updateUserDto.email, id);
-        await this.checkIfGroupNotExist(updateUserDto.groupId);
+        const group = await this.checkIfGroupNotExist(updateUserDto.groupId);
         await this.checkIfRoleExist(updateUserDto.roleId);
+
+        return group;
     }
 
     private async validateDelete(id: number): Promise<User> {

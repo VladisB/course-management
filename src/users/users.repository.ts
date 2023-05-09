@@ -35,6 +35,7 @@ export class UsersRepository extends BaseRepository implements IUsersRepository 
             },
             relations: {
                 role: true,
+                group: true,
             },
         });
     }
@@ -84,11 +85,11 @@ export class UsersRepository extends BaseRepository implements IUsersRepository 
         return await this.getById(id);
     }
 
-    public async update(id: number, dto: UpdateUserDto, roleId: number): Promise<User> {
+    public async update(id: number, dto: UpdateUserDto): Promise<User> {
         const user = await this.entityRepository.preload({
             id,
             ...dto,
-            role: { id: roleId },
+            role: { id: dto.roleId },
             group: { id: dto.groupId },
         });
 
@@ -146,6 +147,6 @@ export abstract class IUsersRepository extends IBaseRepository {
         dto: UpdateUserDto,
         roleId: number,
     ): Promise<User>;
-    abstract update(id: number, dto: UpdateUserDto, roleId: number): Promise<User>;
+    abstract update(id: number, dto: UpdateUserDto): Promise<User>;
     abstract updateRefreshToken(id: number, refreshToken: string | null): Promise<void>;
 }
