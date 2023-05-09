@@ -2,11 +2,11 @@ import { Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { BaseErrorMessages } from "src/common/db/enum";
 import { Course } from "src/courses/entities/course.entity";
-import { User } from "src/users/entities/user.entity";
 import { Repository, SelectQueryBuilder } from "typeorm";
 import { StudentCourses } from "./entities/student-courses.entity";
 import { UpdateStudentCoursesDto } from "./dto/update-student-courses.dto";
 import { BaseRepository, IBaseRepository } from "src/common/db/base.repository";
+import { User } from "src/users/entities/user.entity";
 
 @Injectable()
 export class StudentCoursesRepository extends BaseRepository implements IStudentCoursesRepository {

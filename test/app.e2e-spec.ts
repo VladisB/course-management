@@ -6,7 +6,7 @@ import { AuthService } from "../src/auth/auth.service";
 import { RolesService } from "../src/roles/roles.service";
 import { CreateRoleDto } from "../src/roles/dto/create-role.dto";
 import { Role } from "../src/roles/entities/role.entity";
-import { UserViewModel } from "../src/users/view-models";
+import { UserViewModel } from "src/users/view-models";
 
 const mockAdminCredentials: UserViewModel = {
     id: 333331,
@@ -14,6 +14,7 @@ const mockAdminCredentials: UserViewModel = {
     firstName: "John",
     lastName: "Doe",
     role: "admin",
+    group: null,
 };
 
 const mockStudentCredentials: UserViewModel = {
@@ -22,6 +23,7 @@ const mockStudentCredentials: UserViewModel = {
     firstName: "John",
     lastName: "Doe",
     role: "student",
+    group: null,
 };
 
 const mockInstructorCredentials: UserViewModel = {
@@ -30,6 +32,7 @@ const mockInstructorCredentials: UserViewModel = {
     firstName: "John",
     lastName: "Doe",
     role: "instructor",
+    group: null,
 };
 
 const mockNewRole = {

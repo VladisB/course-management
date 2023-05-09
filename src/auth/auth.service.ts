@@ -5,17 +5,15 @@ import {
     UnauthorizedException,
 } from "@nestjs/common";
 import { CreateUserDto } from "../users/dto/create-user.dto";
-import { UsersService } from "../users/users.service";
 import { JwtService } from "@nestjs/jwt";
 import * as bcrypt from "bcryptjs";
 import { AuthCredentialsDto } from "./dto/auth-credentials.dto";
 import { JwtModelFactory } from "./model-factories/jwt.m-factory";
-import { UserViewModel } from "../users/view-models";
 import { AuthViewModel, JwtModel } from "./models";
 import { User } from "../users/entities/user.entity";
 import { ConfigService } from "@nestjs/config";
 import { IUsersRepository } from "src/users/users.repository";
-import { UsersViewModelFactory } from "src/users/model-factories";
+import { IUsersManagementService } from "src/users-management/users-management.service";
 
 @Injectable()
 export class AuthService implements IAuthService {
@@ -24,8 +22,7 @@ export class AuthService implements IAuthService {
         private jwtService: JwtService,
         private readonly configService: ConfigService,
         private usersRepository: IUsersRepository,
-        private userService: UsersService,
-        private usersViewModelFactory: UsersViewModelFactory,
+        private usersManagementService: IUsersManagementService,
     ) {}
 
     //#region Public methods
@@ -44,7 +41,7 @@ export class AuthService implements IAuthService {
     public async signUp(dto: CreateUserDto): Promise<AuthViewModel> {
         await this.validateCreate(dto);
 
-        const user = await this.userService.createUser(dto);
+        const user = await this.usersManagementService.createUser(dto);
         const jwtModel = this.jwtModelFactory.initJwtModel(user);
 
         return this.generateTokens(jwtModel);
@@ -58,10 +55,7 @@ export class AuthService implements IAuthService {
         return user;
     }
 
-    public async validateRefreshToken(
-        payload: JwtModel,
-        refreshToken: string,
-    ): Promise<UserViewModel> {
+    public async validateRefreshToken(payload: JwtModel, refreshToken: string): Promise<User> {
         const user = await this.usersRepository.getByEmail(payload.email);
 
         if (!user || !user.refreshToken)
@@ -71,7 +65,7 @@ export class AuthService implements IAuthService {
 
         if (!result) throw new UnauthorizedException({ message: "Invalid token" });
 
-        return this.usersViewModelFactory.initUserViewModel(user);
+        return user;
     }
 
     public async generateTokens(payload: JwtModel): Promise<AuthViewModel> {
@@ -178,5 +172,5 @@ interface IAuthService {
     refreshToken(user: User): Promise<AuthViewModel>;
     signUp(dto: CreateUserDto): Promise<AuthViewModel>;
     validateJwt(payload: JwtModel): Promise<User>;
-    validateRefreshToken(payload: JwtModel, refreshToken: string): Promise<UserViewModel>;
+    validateRefreshToken(payload: JwtModel, refreshToken: string): Promise<User>;
 }

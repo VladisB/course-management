@@ -6,22 +6,22 @@ import { IRolesRepository } from "src/roles/roles.repository";
 import { ColumnType, QueryParamsDTO } from "../common/dto/query-params.dto";
 import { ApplyToQueryExtension } from "../common/query-extention";
 import { RoleName } from "../roles/roles.enum";
-import { CreateUserDto } from "./dto/create-user.dto";
-import { UpdateUserDto } from "./dto/update-user.dto";
-import { User } from "./entities/user.entity";
-import { UsersViewModelFactory } from "./model-factories";
-import { IUsersRepository } from "./users.repository";
-import { UserViewModel } from "./view-models";
+import { IUsersRepository } from "src/users/users.repository";
+import { CreateUserDto } from "src/users/dto/create-user.dto";
+import { UpdateUserDto } from "src/users/dto/update-user.dto";
+import { User } from "src/users/entities/user.entity";
+import { IUsersViewModelFactory } from "src/users/model-factories";
+import { UserViewModel } from "src/users/view-models";
 import { IStudentCoursesRepository } from "src/student-courses/student-courses.repository";
 
 @Injectable()
-export class UsersService implements IUsersService {
+export class UsersManagementService implements IUsersManagementService {
     constructor(
         private rolesRepository: IRolesRepository,
         private studentCoursesRepository: IStudentCoursesRepository,
         private usersRepository: IUsersRepository,
         private groupsRepository: IGroupsRepository,
-        private usersViewModelFactory: UsersViewModelFactory,
+        private usersViewModelFactory: IUsersViewModelFactory,
     ) {}
 
     //#region Public methods
@@ -42,9 +42,9 @@ export class UsersService implements IUsersService {
         // const transaction = await this.usersRepository.initTrx();
 
         try {
-            if (dto.groupId && group.groupCourses.length > 0) {
-                await this.studentCoursesRepository.create(group.groupCourses[0].courseId, id);
-            }
+            // if (dto.groupId && group.groupCourses.length > 0) {
+            //     await this.studentCoursesRepository.create(group.groupCourses[0].courseId, id);
+            // }
 
             // const model = await this.usersRepository.trxUpdate(transaction, id, dto, dto.roleId);
             const model = await this.usersRepository.update(id, dto);
@@ -198,10 +198,10 @@ export class UsersService implements IUsersService {
     //#endregion
 }
 
-interface IUsersService {
-    createUser(dto: CreateUserDto): Promise<User>;
-    deleteUser(id: number): Promise<void>;
-    getAllUsers(queryParams: QueryParamsDTO): Promise<DataListResponse<UserViewModel>>;
-    getUser(id: number): Promise<UserViewModel>;
-    updateUser(id: number, updateUserDto: UpdateUserDto): Promise<UserViewModel>;
+export abstract class IUsersManagementService {
+    abstract createUser(dto: CreateUserDto): Promise<User>;
+    abstract deleteUser(id: number): Promise<void>;
+    abstract getAllUsers(queryParams: QueryParamsDTO): Promise<DataListResponse<UserViewModel>>;
+    abstract getUser(id: number): Promise<UserViewModel>;
+    abstract updateUser(id: number, updateUserDto: UpdateUserDto): Promise<UserViewModel>;
 }

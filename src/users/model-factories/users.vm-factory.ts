@@ -52,7 +52,7 @@ export class UsersViewModelFactory implements IUsersViewModelFactory {
     }
 }
 
-interface IUsersViewModelFactory {
-    initUserViewModel(user: User): UserViewModel;
-    initUserListViewModel(users: User[]): UserViewModel[];
+export abstract class IUsersViewModelFactory {
+    abstract initUserViewModel(user: User): UserViewModel;
+    abstract initUserListViewModel(users: User[]): UserViewModel[];
 }
