@@ -36,6 +36,7 @@ export class UsersRepository extends BaseRepository implements IUsersRepository 
             relations: {
                 role: true,
                 group: true,
+                studentCourses: true,
             },
         });
     }

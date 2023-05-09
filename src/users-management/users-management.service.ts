@@ -13,6 +13,7 @@ import { User } from "src/users/entities/user.entity";
 import { IUsersViewModelFactory } from "src/users/model-factories";
 import { UserViewModel } from "src/users/view-models";
 import { IStudentCoursesRepository } from "src/student-courses/student-courses.repository";
+import { QueryRunner } from "typeorm";
 
 @Injectable()
 export class UsersManagementService implements IUsersManagementService {
@@ -37,28 +38,79 @@ export class UsersManagementService implements IUsersManagementService {
     }
 
     public async updateUser(id: number, dto: UpdateUserDto): Promise<UserViewModel> {
-        const group = await this.validateUpdate(id, dto);
+        const [group, user] = await this.validateUpdate(id, dto);
 
-        // const transaction = await this.usersRepository.initTrx();
+        const transaction = await this.usersRepository.initTrx();
 
         try {
-            // if (dto.groupId && group.groupCourses.length > 0) {
-            //     await this.studentCoursesRepository.create(group.groupCourses[0].courseId, id);
-            // }
+            await this.trxUpdateStudentCourses(transaction, id, group, user);
+            const model = await this.usersRepository.trxUpdate(transaction, id, dto, dto.roleId);
 
-            // const model = await this.usersRepository.trxUpdate(transaction, id, dto, dto.roleId);
-            const model = await this.usersRepository.update(id, dto);
-            // TODO: Create student courses records
-
-            // await this.usersRepository.commitTrx(transaction);
+            await this.usersRepository.commitTrx(transaction);
 
             return this.usersViewModelFactory.initUserViewModel(model);
         } catch (err) {
             console.error(err);
 
-            // await this.usersRepository.rollbackTrx(transaction);
+            await this.usersRepository.rollbackTrx(transaction);
 
             throw err;
+        }
+    }
+
+    private async trxAddStudentCourses(transaction: QueryRunner, studentId: number, group: Group) {
+        if (group.groupCourses.length > 0) {
+            const courseIdList = group.groupCourses.map((gc) => gc.courseId);
+
+            await this.studentCoursesRepository.trxBulkCreate(transaction, studentId, courseIdList);
+        }
+    }
+
+    private async trxUpdateStudentCourses(
+        transaction: QueryRunner,
+        studentId: number,
+        group: Group,
+        user: User,
+    ) {
+        if (group === undefined || group.groupCourses.length === 0) return;
+
+        const currentStudentCourses = user.studentCourses;
+        const newCourseIdList = group.groupCourses.map((gc) => gc.courseId);
+
+        if (currentStudentCourses.length === 0) {
+            await this.studentCoursesRepository.trxBulkCreate(
+                transaction,
+                studentId,
+                newCourseIdList,
+            );
+        } else {
+            // Compare with new courses
+            const oldCourseIdList = currentStudentCourses.map((sc) => sc.courseId);
+
+            const coursesIdListToAdd = newCourseIdList.filter(
+                (id) => !oldCourseIdList.includes(id),
+            );
+
+            const entetiesToDelete = currentStudentCourses.filter(
+                (sc) => !newCourseIdList.includes(sc.courseId),
+            );
+
+            // Remove courses that are not in new courses
+            if (entetiesToDelete.length > 0) {
+                await this.studentCoursesRepository.trxBulkDelete(
+                    transaction,
+                    entetiesToDelete.map((sc) => sc.id),
+                );
+            }
+
+            // Add courses that are not in current courses
+            if (coursesIdListToAdd.length > 0) {
+                await this.studentCoursesRepository.trxBulkCreate(
+                    transaction,
+                    studentId,
+                    coursesIdListToAdd,
+                );
+            }
         }
     }
 
@@ -146,13 +198,16 @@ export class UsersManagementService implements IUsersManagementService {
         await this.checkIfRoleExist(updateUserDto.roleId);
     }
 
-    private async validateUpdate(id: number, updateUserDto: UpdateUserDto): Promise<Group> {
-        await this.checkIfUserExistById(id);
+    private async validateUpdate(
+        id: number,
+        updateUserDto: UpdateUserDto,
+    ): Promise<readonly [Group, User]> {
+        const user = await this.checkIfUserExistById(id);
         await this.checkIfUserExistByEmail(updateUserDto.email, id);
         const group = await this.checkIfGroupNotExist(updateUserDto.groupId);
         await this.checkIfRoleExist(updateUserDto.roleId);
 
-        return group;
+        return [group, user];
     }
 
     private async validateDelete(id: number): Promise<User> {
