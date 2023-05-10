@@ -1,4 +1,4 @@
-import { User } from "../../users/entities/user.entity";
+import { User } from "src/users/entities/user.entity";
 import { JwtModel } from "../models";
 
 export class JwtModelFactory implements IJwtModelFactory {

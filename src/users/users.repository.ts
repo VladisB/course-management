@@ -36,6 +36,7 @@ export class UsersRepository extends BaseRepository implements IUsersRepository 
             relations: {
                 role: true,
                 group: true,
+                studentCourses: true,
             },
         });
     }
@@ -78,6 +79,7 @@ export class UsersRepository extends BaseRepository implements IUsersRepository 
         const user = await this.entityRepository.create({
             ...dto,
             role: { id: roleId },
+            group: { id: dto.groupId },
         });
 
         const { id } = await user.save();

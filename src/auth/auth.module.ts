@@ -2,13 +2,14 @@ import { Module } from "@nestjs/common";
 import { ConfigModule, ConfigService } from "@nestjs/config";
 import { JwtModule } from "@nestjs/jwt";
 import { PassportModule } from "@nestjs/passport";
-import { UsersModule } from "../users/users.module";
 import { AuthController } from "./auth.controller";
 import { AuthService } from "./auth.service";
 import { JwtStrategy } from "./strategies/jwt.strategy";
 import { JwtModelFactory } from "./model-factories";
 import { RefreshStrategy } from "./strategies/jwt-refresh.strategy";
 import { Strategies } from "./strategies.enum";
+import { UsersModule } from "src/users/users.module";
+import { UsersManagementModule } from "src/users-management/users-management.module";
 
 @Module({
     imports: [
@@ -26,6 +27,7 @@ import { Strategies } from "./strategies.enum";
             inject: [ConfigService],
         }),
         UsersModule,
+        UsersManagementModule,
     ],
     controllers: [AuthController],
     providers: [AuthService, JwtStrategy, RefreshStrategy, JwtModelFactory, ConfigService],
