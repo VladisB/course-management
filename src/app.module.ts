@@ -1,6 +1,6 @@
 import { Module } from "@nestjs/common";
 import { ConfigModule } from "@nestjs/config";
-import { UsersModule } from "./users/users.module";
+import { UsersManagementModule } from "./users-management/users-management.module";
 import { AuthModule } from "./auth/auth.module";
 import { RolesModule } from "./roles/roles.module";
 import databaseConfig from "./config/database.config";
@@ -13,6 +13,7 @@ import { CoursesModule } from "./courses/courses.module";
 import { LessonsModule } from "./lessons/lessons.module";
 import { StudentCoursesModule } from "./student-courses/student-courses.module";
 import { CourseInstructorsModule } from "./course-instructors/course-instructors.module";
+import { UsersModule } from "./users/users.module";
 
 @Module({
     imports: [
@@ -21,7 +22,6 @@ import { CourseInstructorsModule } from "./course-instructors/course-instructors
             load: [databaseConfig, appConfig],
             envFilePath: `.${process.env.NODE_ENV}.env`,
         }),
-        UsersModule,
         RolesModule,
         AuthModule,
         FacultiesModule,
@@ -31,6 +31,8 @@ import { CourseInstructorsModule } from "./course-instructors/course-instructors
         LessonsModule,
         StudentCoursesModule,
         CourseInstructorsModule,
+        UsersManagementModule,
+        UsersModule,
     ],
     controllers: [],
     providers: [TypeOrmConfigService],

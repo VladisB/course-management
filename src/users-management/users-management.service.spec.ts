@@ -2,8 +2,8 @@ import { Test } from "@nestjs/testing";
 import { getRepositoryToken } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
 import { RolesService } from "../roles/roles.service";
-import { User } from "./entities/user.entity";
-import { UsersService } from "./users.service";
+import { User } from "../users/entities/user.entity";
+import { UsersManagementService } from "./users-management.service";
 
 const mockTaskRepository = () => ({
     getAllUsers: jest.fn(),
@@ -11,14 +11,14 @@ const mockTaskRepository = () => ({
 
 const USER_REPOSITORY_TOKEN = getRepositoryToken(User);
 
-describe("UsersService", () => {
-    let usersService: UsersService;
+describe("UsersManagementService", () => {
+    let usersService: UsersManagementService;
     let usersRepository: Repository<User>;
 
     beforeEach(async () => {
         const module = await Test.createTestingModule({
             providers: [
-                UsersService,
+                UsersManagementService,
                 { provide: USER_REPOSITORY_TOKEN, useFactory: mockTaskRepository },
                 {
                     provide: RolesService,
@@ -30,7 +30,7 @@ describe("UsersService", () => {
             ],
         }).compile();
 
-        usersService = await module.get<UsersService>(UsersService);
+        usersService = await module.get<UsersManagementService>(UsersManagementService);
         usersRepository = module.get(USER_REPOSITORY_TOKEN);
     });
 

@@ -6,14 +6,14 @@ import { ICoursesRepository } from "src/courses/courses.repository";
 import { Course } from "src/courses/entities/course.entity";
 import { RoleName } from "src/roles/roles.enum";
 import { IRolesRepository } from "src/roles/roles.repository";
-import { User } from "src/users/entities/user.entity";
-import { IUsersRepository } from "src/users/users.repository";
 import { CreateStudentCoursesDto } from "./dto/create-student-courses.dto";
 import { UpdateStudentCoursesDto } from "./dto/update-student-courses.dto";
 import { StudentCourses } from "./entities/student-courses.entity";
 import { StudentCoursesViewModelFactory } from "./model-factories/student-courses";
 import { IStudentCoursesRepository } from "./student-courses.repository";
 import { StudentCoursesViewModel } from "./view-models";
+import { IUsersRepository } from "src/users/users.repository";
+import { User } from "src/users/entities/user.entity";
 
 @Injectable()
 export class StudentCoursesService implements IStudentCoursesService {
@@ -31,7 +31,10 @@ export class StudentCoursesService implements IStudentCoursesService {
         const [strudent, course] = await this.validateCreate(dto);
 
         try {
-            const studentCourse = await this.studentCoursesRepository.create(course, strudent);
+            const studentCourse = await this.studentCoursesRepository.create(
+                course.id,
+                strudent.id,
+            );
 
             return this.studentCoursesViewModelFactory.initStudentCoursesViewModel(studentCourse);
         } catch (err) {

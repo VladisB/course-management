@@ -12,32 +12,32 @@ import {
     UsePipes,
     ValidationPipe,
 } from "@nestjs/common";
-import { UsersService } from "./users.service";
-import { CreateUserDto } from "./dto/create-user.dto";
 import { AuthGuard } from "@nestjs/passport";
-import { UpdateUserDto } from "./dto/update-user.dto";
 import { Roles } from "../roles/roles-auth.decorator";
 import { RolesGuard } from "../roles/roles.guard";
 import { RoleName } from "../roles/roles.enum";
-import { UserViewModel } from "./view-models";
 import { DataListResponse } from "src/common/db/data-list-response";
 import { QueryParamsDTO } from "src/common/dto/query-params.dto";
-import { UsersViewModelFactory } from "./model-factories";
 import { Strategies } from "src/auth/strategies.enum";
+import { CreateUserDto } from "src/users/dto/create-user.dto";
+import { UpdateUserDto } from "src/users/dto/update-user.dto";
+import { IUsersViewModelFactory } from "src/users/model-factories/users.vm-factory";
+import { UserViewModel } from "src/users/view-models";
+import { IUsersManagementService } from "./users-management.service";
 
-@Controller("users")
+@Controller("users-management")
 @Roles(RoleName.Admin)
 @UseGuards(AuthGuard(Strategies.JWT), RolesGuard)
 export class UsersController {
     constructor(
-        private usersService: UsersService,
-        private usersViewModelFactory: UsersViewModelFactory,
+        private usersManagementService: IUsersManagementService,
+        private usersViewModelFactory: IUsersViewModelFactory,
     ) {}
 
     @Post()
     @UsePipes(new ValidationPipe({ transform: true }))
     async create(@Body() userDto: CreateUserDto): Promise<UserViewModel> {
-        const model = await this.usersService.createUser(userDto);
+        const model = await this.usersManagementService.createUser(userDto);
 
         return this.usersViewModelFactory.initUserViewModel(model);
     }
@@ -45,12 +45,12 @@ export class UsersController {
     @Get()
     @UsePipes(new ValidationPipe({ transform: true }))
     findAll(@Query() queryParams: QueryParamsDTO): Promise<DataListResponse<UserViewModel>> {
-        return this.usersService.getAllUsers(queryParams);
+        return this.usersManagementService.getAllUsers(queryParams);
     }
 
     @Get(":id")
     findOne(@Param("id", ParseIntPipe) id: number): Promise<UserViewModel> {
-        return this.usersService.getUser(id);
+        return this.usersManagementService.getUser(id);
     }
 
     @Patch(":id")
@@ -58,12 +58,12 @@ export class UsersController {
         @Param("id", ParseIntPipe) id: number,
         @Body() updateUserDto: UpdateUserDto,
     ): Promise<UserViewModel> {
-        return this.usersService.updateUser(id, updateUserDto);
+        return this.usersManagementService.updateUser(id, updateUserDto);
     }
 
     // TODO: Update validation rules. Check if user has related entities.
     @Delete(":id")
     remove(@Param("id", ParseIntPipe) id: number): Promise<void> {
-        return this.usersService.deleteUser(id);
+        return this.usersManagementService.deleteUser(id);
     }
 }

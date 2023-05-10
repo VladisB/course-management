@@ -10,13 +10,13 @@ import {
 } from "@nestjs/common";
 import { AuthGuard } from "@nestjs/passport";
 import { Response } from "express";
-import { CreateUserDto } from "../users/dto/create-user.dto";
-import { User } from "../users/entities/user.entity";
 import { AuthService } from "./auth.service";
 import { AuthCredentialsDto } from "./dto";
 import { GetUser } from "./get-user.decorator";
 import { AuthViewModel } from "./models";
 import { Strategies } from "./strategies.enum";
+import { CreateUserDto } from "src/users/dto/create-user.dto";
+import { User } from "src/users/entities/user.entity";
 
 @Controller("auth")
 export class AuthController {

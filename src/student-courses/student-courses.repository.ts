@@ -2,11 +2,11 @@ import { Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { BaseErrorMessages } from "src/common/db/enum";
 import { Course } from "src/courses/entities/course.entity";
-import { User } from "src/users/entities/user.entity";
-import { Repository, SelectQueryBuilder } from "typeorm";
+import { In, QueryRunner, Repository, SelectQueryBuilder } from "typeorm";
 import { StudentCourses } from "./entities/student-courses.entity";
 import { UpdateStudentCoursesDto } from "./dto/update-student-courses.dto";
 import { BaseRepository, IBaseRepository } from "src/common/db/base.repository";
+import { User } from "src/users/entities/user.entity";
 
 @Injectable()
 export class StudentCoursesRepository extends BaseRepository implements IStudentCoursesRepository {
@@ -19,11 +19,17 @@ export class StudentCoursesRepository extends BaseRepository implements IStudent
         super(entityRepository.manager.queryRunner);
     }
 
-    public async create(course: Course, student: User): Promise<StudentCourses> {
+    public async trxBulkDelete(queryRunner: QueryRunner, idList: number[]): Promise<void> {
+        await queryRunner.manager.delete(StudentCourses, {
+            id: In(idList),
+        });
+    }
+
+    public async create(courseId: number, studentId: number): Promise<StudentCourses> {
         try {
             const feedBack = this.entityRepository.create({
-                course,
-                student,
+                course: { id: courseId },
+                student: { id: studentId },
             });
 
             const { id } = await this.entityRepository.save(feedBack);
@@ -64,6 +70,18 @@ export class StudentCoursesRepository extends BaseRepository implements IStudent
         });
     }
 
+    public async getByIdList(idList: number[]): Promise<StudentCourses[]> {
+        return await this.entityRepository.find({
+            relations: {
+                course: true,
+                student: true,
+            },
+            where: {
+                id: In(idList),
+            },
+        });
+    }
+
     public getAllQ(): SelectQueryBuilder<StudentCourses> {
         const userQuery = this.entityRepository
             .createQueryBuilder(this.tableName)
@@ -86,6 +104,36 @@ export class StudentCoursesRepository extends BaseRepository implements IStudent
         });
     }
 
+    public async bulkCreate(studentId: number, courseIdList: number[]): Promise<StudentCourses[]> {
+        const enteties = courseIdList.map((id) =>
+            this.entityRepository.create({
+                course: { id },
+                student: { id: studentId },
+            }),
+        );
+
+        const entityList = await this.entityRepository.save(enteties);
+
+        return await this.getByIdList(entityList.map((entity) => entity.id));
+    }
+
+    public async trxBulkCreate(
+        queryRunner: QueryRunner,
+        studentId: number,
+        courseIdList: number[],
+    ): Promise<StudentCourses[]> {
+        const enteties = courseIdList.map((id) =>
+            this.entityRepository.create({
+                course: { id },
+                student: { id: studentId },
+            }),
+        );
+
+        const entityList = await queryRunner.manager.save(enteties);
+
+        return await this.getByIdList(entityList.map((entity) => entity.id));
+    }
+
     public async deleteById(id: number): Promise<void> {
         try {
             await this.entityRepository.delete(id);
@@ -98,10 +146,18 @@ export class StudentCoursesRepository extends BaseRepository implements IStudent
 }
 
 export abstract class IStudentCoursesRepository extends IBaseRepository {
-    abstract create(course: Course, instructor: User): Promise<StudentCourses>;
+    abstract bulkCreate(studentId: number, courseIdList: number[]): Promise<StudentCourses[]>;
+    abstract trxBulkCreate(
+        queryRunner: QueryRunner,
+        studentId: number,
+        courseIdList: number[],
+    ): Promise<StudentCourses[]>;
+    abstract trxBulkDelete(queryRunner: QueryRunner, idList: number[]): Promise<void>;
+    abstract create(courseId: number, instructorId: number): Promise<StudentCourses>;
     abstract deleteById(id: number): Promise<void>;
     abstract getAllQ(): any;
     abstract getByCourseAndStudent(course: Course, student: User): Promise<StudentCourses>;
     abstract getById(id: number): Promise<StudentCourses>;
+    abstract getByIdList(idList: number[]): Promise<StudentCourses[]>;
     abstract update(id: number, dto: UpdateStudentCoursesDto): Promise<StudentCourses>;
 }
