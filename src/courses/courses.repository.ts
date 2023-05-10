@@ -1,7 +1,7 @@
 import { Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { BaseRepository, IBaseRepository } from "src/common/db/base.repository";
-import { BaseErrorMessages } from "src/common/db/enum";
+import { BaseErrorMessage } from "src/common/enum";
 import { In, QueryRunner, Repository, SelectQueryBuilder } from "typeorm";
 import { CreateCourseDto } from "./dto/create-course.dto";
 import { UpdateCourseDto } from "./dto/update-course.dto";
@@ -66,7 +66,7 @@ export class CoursesRepository extends BaseRepository implements ICoursesReposit
         } catch (err) {
             console.error("Error: ", err);
 
-            throw new Error(BaseErrorMessages.DB_ERROR);
+            throw new Error(BaseErrorMessage.DB_ERROR);
         }
     }
 
@@ -80,7 +80,7 @@ export class CoursesRepository extends BaseRepository implements ICoursesReposit
         } catch (err) {
             console.error("Error: ", err);
 
-            throw new Error(BaseErrorMessages.DB_ERROR);
+            throw new Error(BaseErrorMessage.DB_ERROR);
         }
     }
 
@@ -95,7 +95,7 @@ export class CoursesRepository extends BaseRepository implements ICoursesReposit
         } catch (err) {
             console.error("Error: ", err);
 
-            throw new Error(BaseErrorMessages.DB_ERROR);
+            throw new Error(BaseErrorMessage.DB_ERROR);
         }
     }
 
@@ -116,7 +116,7 @@ export class CoursesRepository extends BaseRepository implements ICoursesReposit
         } catch (err) {
             console.error("Error: ", err);
 
-            throw new Error(BaseErrorMessages.DB_ERROR);
+            throw new Error(BaseErrorMessage.DB_ERROR);
         }
     }
 }

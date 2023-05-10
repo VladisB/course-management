@@ -8,6 +8,7 @@ import { Role } from "./entities/role.entity";
 import { RolesViewModelFactory } from "./model-factories/roles.vm-factory";
 import { IRolesRepository } from "./roles.repository";
 import { RoleViewModel } from "./view-models";
+import { BaseErrorMessage } from "src/common/enum";
 
 @Injectable()
 export class RolesService implements IRolesService {
@@ -31,7 +32,7 @@ export class RolesService implements IRolesService {
     public async getRole(id: number): Promise<RoleViewModel> {
         const role = await this.rolesRepository.getById(id);
 
-        if (!role) throw new NotFoundException(`Role not found.`);
+        if (!role) throw new NotFoundException(BaseErrorMessage.NOT_FOUND);
 
         return this.rolesViewModelFactory.initRoleViewModel(role);
     }
@@ -111,7 +112,7 @@ export class RolesService implements IRolesService {
     private async checkifExist(id: number): Promise<Role> {
         const role = await this.rolesRepository.getById(id);
 
-        if (!role) throw new NotFoundException();
+        if (!role) throw new NotFoundException(BaseErrorMessage.NOT_FOUND);
 
         return role;
     }

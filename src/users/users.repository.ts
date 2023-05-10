@@ -5,7 +5,7 @@ import { CreateUserDto } from "./dto/create-user.dto";
 import { UpdateUserDto } from "./dto/update-user.dto";
 import { User } from "./entities/user.entity";
 import { BaseRepository, IBaseRepository } from "src/common/db/base.repository";
-import { BaseErrorMessages } from "src/common/db/enum";
+import { BaseErrorMessage } from "src/common/enum";
 
 @Injectable()
 export class UsersRepository extends BaseRepository implements IUsersRepository {
@@ -119,7 +119,7 @@ export class UsersRepository extends BaseRepository implements IUsersRepository 
         } catch (err) {
             console.error("Error: ", err);
 
-            throw new Error(BaseErrorMessages.DB_ERROR);
+            throw new Error(BaseErrorMessage.DB_ERROR);
         }
     }
 

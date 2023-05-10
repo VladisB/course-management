@@ -1,4 +1,9 @@
-import { ConflictException, Injectable, NotFoundException } from "@nestjs/common";
+import {
+    BadRequestException,
+    ConflictException,
+    Injectable,
+    NotFoundException,
+} from "@nestjs/common";
 import { DataListResponse } from "src/common/db/data-list-response";
 import { Group } from "src/groups/entities/group.entity";
 import { IGroupsRepository } from "src/groups/groups.repository";
@@ -14,6 +19,7 @@ import { IUsersViewModelFactory } from "src/users/model-factories";
 import { UserViewModel } from "src/users/view-models";
 import { IStudentCoursesRepository } from "src/student-courses/student-courses.repository";
 import { QueryRunner } from "typeorm";
+import { BaseErrorMessage } from "src/common/enum";
 
 @Injectable()
 export class UsersManagementService implements IUsersManagementService {
@@ -211,7 +217,10 @@ export class UsersManagementService implements IUsersManagementService {
 
     private async validateCreate(dto: CreateUserDto): Promise<readonly [Group]> {
         await this.checkIfUserExistByEmail(dto.email);
-        await this.checkIfRoleExist(dto.roleId);
+
+        if (dto.roleId) {
+            await this.checkIfRoleExist(dto.roleId);
+        }
 
         const group = dto.groupId && (await this.checkIfGroupNotExist(dto.groupId));
 
@@ -220,8 +229,15 @@ export class UsersManagementService implements IUsersManagementService {
 
     private async validateUpdate(id: number, dto: UpdateUserDto): Promise<readonly [Group, User]> {
         const user = await this.checkIfUserExistById(id);
-        await this.checkIfUserExistByEmail(dto.email, id);
-        await this.checkIfRoleExist(dto.roleId);
+
+        if (dto.email) {
+            await this.checkIfUserExistByEmail(dto.email, id);
+        }
+
+        if (dto.roleId) {
+            await this.checkIfRoleExist(dto.roleId);
+        }
+
         const group = dto.groupId && (await this.checkIfGroupNotExist(dto.groupId));
 
         return [group, user];
@@ -234,7 +250,7 @@ export class UsersManagementService implements IUsersManagementService {
     private async checkIfUserExistById(id: number): Promise<User> {
         const user = await this.usersRepository.getById(id);
 
-        if (!user) throw new NotFoundException();
+        if (!user) throw new NotFoundException(BaseErrorMessage.NOT_FOUND);
 
         return user;
     }
@@ -242,14 +258,12 @@ export class UsersManagementService implements IUsersManagementService {
     private async checkIfGroupNotExist(id: number): Promise<Group> {
         const group = await this.groupsRepository.getById(id);
 
-        if (!group) throw new NotFoundException("Group not found");
+        if (!group) throw new BadRequestException("Group not found");
 
         return group;
     }
 
     private async checkIfUserExistByEmail(email: string, id?: number): Promise<void> {
-        if (!email) return;
-
         const user = await this.usersRepository.getByEmail(email);
 
         if (id && user && user.id === id) return;
@@ -258,11 +272,9 @@ export class UsersManagementService implements IUsersManagementService {
     }
 
     private async checkIfRoleExist(roleId: number): Promise<void> {
-        if (!roleId) return;
-
         const role = await this.rolesRepository.getById(roleId);
 
-        if (!role) throw new NotFoundException("Role not found");
+        if (!role) throw new BadRequestException("Role not found");
     }
 
     //#endregion

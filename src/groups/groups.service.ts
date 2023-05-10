@@ -13,6 +13,7 @@ import { UpdateGroupDto } from "./dto/update-group.dto";
 import { ICoursesRepository } from "src/courses/courses.repository";
 import { Course } from "src/courses/entities/course.entity";
 import { GroupCoursesRepository } from "./group-courses.repository";
+import { BaseErrorMessage } from "src/common/enum";
 
 @Injectable()
 export class GroupsService implements IGroupsService {
@@ -135,7 +136,7 @@ export class GroupsService implements IGroupsService {
     private async checkifExist(id: number): Promise<Group> {
         const group = await this.groupsRepository.getById(id);
 
-        if (!group) throw new NotFoundException();
+        if (!group) throw new NotFoundException(BaseErrorMessage.NOT_FOUND);
 
         return group;
     }
@@ -157,7 +158,7 @@ export class GroupsService implements IGroupsService {
         );
 
         if (coursesWithoutInstructors.length)
-            throw new ConflictException(`At least one course has no instructor.`);
+            throw new ConflictException(`At least one course unavailable`);
     }
 
     private async checkCourseNumber(group: Group, dto: UpdateGroupDto): Promise<void> {
@@ -171,7 +172,7 @@ export class GroupsService implements IGroupsService {
     private async checkIfFacultyExists(facultyId: number): Promise<Faculty> {
         const faculty = await this.facultiesRepository.getById(facultyId);
 
-        if (!faculty) throw new ConflictException("Faculty does not exist");
+        if (!faculty) throw new ConflictException("Provided faculty does not exist");
 
         return faculty;
     }

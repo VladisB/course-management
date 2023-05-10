@@ -8,6 +8,7 @@ import { CreateCourseDto } from "./dto/create-course.dto";
 import { UpdateCourseDto } from "./dto/update-course.dto";
 import { Course } from "./entities/course.entity";
 import { CoursesViewModelFactory } from "./model-factories";
+import { BaseErrorMessage } from "src/common/enum";
 
 @Injectable()
 export class CoursesService implements ICoursesService {
@@ -64,7 +65,7 @@ export class CoursesService implements ICoursesService {
     public async getCourse(id: number): Promise<CourseViewModel> {
         const course = await this.coursesRepository.getById(id);
 
-        if (!course) throw new NotFoundException(`Course not found.`);
+        if (!course) throw new NotFoundException(BaseErrorMessage.NOT_FOUND);
 
         return this.coursesViewModelFactory.initCourseViewModel(course);
     }
@@ -109,7 +110,7 @@ export class CoursesService implements ICoursesService {
     private async checkifExist(id: number): Promise<Course> {
         const course = await this.coursesRepository.getById(id);
 
-        if (!course) throw new NotFoundException();
+        if (!course) throw new NotFoundException(BaseErrorMessage.NOT_FOUND);
 
         return course;
     }

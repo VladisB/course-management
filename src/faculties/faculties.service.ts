@@ -8,6 +8,7 @@ import { DataListResponse } from "src/common/db/data-list-response";
 import { ColumnType, QueryParamsDTO } from "src/common/dto/query-params.dto";
 import { ApplyToQueryExtension } from "src/common/query-extention";
 import { UpdateFacultyDto } from "./dto/update-faculty.dto";
+import { BaseErrorMessage } from "src/common/enum";
 
 @Injectable()
 export class FacultiesService implements IFacultiesService {
@@ -110,7 +111,7 @@ export class FacultiesService implements IFacultiesService {
     private async checkifExist(id: number): Promise<Faculty> {
         const faculty = await this.facultiesRepository.getById(id);
 
-        if (!faculty) throw new NotFoundException();
+        if (!faculty) throw new NotFoundException(BaseErrorMessage.NOT_FOUND);
 
         return faculty;
     }

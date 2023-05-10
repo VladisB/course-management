@@ -1,4 +1,9 @@
-import { ConflictException, Injectable, NotFoundException } from "@nestjs/common";
+import {
+    BadRequestException,
+    ConflictException,
+    Injectable,
+    NotFoundException,
+} from "@nestjs/common";
 import { DataListResponse } from "src/common/db/data-list-response";
 import { ColumnType, QueryParamsDTO } from "src/common/dto/query-params.dto";
 import { ApplyToQueryExtension } from "src/common/query-extention";
@@ -18,6 +23,7 @@ import {
     CourseInstructorsListViewModel,
     CourseInstructorsViewModel,
 } from "./view-models";
+import { BaseErrorMessage } from "src/common/enum";
 
 @Injectable()
 export class CourseInstructorsService implements ICourseInstructorsService {
@@ -117,7 +123,7 @@ export class CourseInstructorsService implements ICourseInstructorsService {
     public async getCourseInstructor(id: number): Promise<CourseInstructorViewModel> {
         const courseInstructor = await this.courseInstructorsRepository.getById(id);
 
-        if (!courseInstructor) throw new NotFoundException();
+        if (!courseInstructor) throw new NotFoundException(BaseErrorMessage.NOT_FOUND);
 
         return this.courseInstructorsViewModelFactory.initCourseInstructorViewModel(
             courseInstructor,
@@ -205,7 +211,7 @@ export class CourseInstructorsService implements ICourseInstructorsService {
     private async checkIfExists(id: number): Promise<CourseInstructors> {
         const corseInstructors = await this.courseInstructorsRepository.getById(id);
 
-        if (!corseInstructors) throw new NotFoundException();
+        if (!corseInstructors) throw new NotFoundException(BaseErrorMessage.NOT_FOUND);
 
         return corseInstructors;
     }
@@ -220,7 +226,7 @@ export class CourseInstructorsService implements ICourseInstructorsService {
         );
 
         if (instructors.length !== instructorIdList.length)
-            throw new ConflictException(`Some of the instructors not found.`);
+            throw new BadRequestException(`Some of the instructors not found.`);
 
         return instructors;
     }
@@ -228,7 +234,7 @@ export class CourseInstructorsService implements ICourseInstructorsService {
     private async checkifCourseExist(id: number): Promise<Course> {
         const course = await this.coursesRepository.getById(id);
 
-        if (!course) throw new NotFoundException();
+        if (!course) throw new BadRequestException(`Provided course not found.`);
 
         return course;
     }

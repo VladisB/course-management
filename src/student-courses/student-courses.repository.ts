@@ -1,6 +1,6 @@
 import { Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
-import { BaseErrorMessages } from "src/common/db/enum";
+import { BaseErrorMessage } from "src/common/enum";
 import { Course } from "src/courses/entities/course.entity";
 import { In, QueryRunner, Repository, SelectQueryBuilder } from "typeorm";
 import { StudentCourses } from "./entities/student-courses.entity";
@@ -38,7 +38,7 @@ export class StudentCoursesRepository extends BaseRepository implements IStudent
         } catch (err) {
             console.error("Error: ", err);
 
-            throw new Error(BaseErrorMessages.DB_ERROR);
+            throw new Error(BaseErrorMessage.DB_ERROR);
         }
     }
 
@@ -54,7 +54,7 @@ export class StudentCoursesRepository extends BaseRepository implements IStudent
         } catch (err) {
             console.error("Error: ", err);
 
-            throw new Error(BaseErrorMessages.DB_ERROR);
+            throw new Error(BaseErrorMessage.DB_ERROR);
         }
     }
 
@@ -140,7 +140,7 @@ export class StudentCoursesRepository extends BaseRepository implements IStudent
         } catch (err) {
             console.error("Error: ", err);
 
-            throw new Error(BaseErrorMessages.DB_ERROR);
+            throw new Error(BaseErrorMessage.DB_ERROR);
         }
     }
 }

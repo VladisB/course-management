@@ -1,4 +1,9 @@
-import { ConflictException, Injectable, NotFoundException } from "@nestjs/common";
+import {
+    BadRequestException,
+    ConflictException,
+    Injectable,
+    NotFoundException,
+} from "@nestjs/common";
 import { DataListResponse } from "src/common/db/data-list-response";
 import { ColumnType, QueryParamsDTO } from "src/common/dto/query-params.dto";
 import { ApplyToQueryExtension } from "src/common/query-extention";
@@ -14,6 +19,7 @@ import { IStudentCoursesRepository } from "./student-courses.repository";
 import { StudentCoursesViewModel } from "./view-models";
 import { IUsersRepository } from "src/users/users.repository";
 import { User } from "src/users/entities/user.entity";
+import { BaseErrorMessage } from "src/common/enum";
 
 @Injectable()
 export class StudentCoursesService implements IStudentCoursesService {
@@ -120,14 +126,9 @@ export class StudentCoursesService implements IStudentCoursesService {
     ): Promise<StudentCoursesViewModel> {
         await this.validateUpdate(id);
 
-        try {
-            const studentCourse = await this.studentCoursesRepository.update(id, dto);
+        const studentCourse = await this.studentCoursesRepository.update(id, dto);
 
-            return this.studentCoursesViewModelFactory.initStudentCoursesViewModel(studentCourse);
-        } catch (err) {
-            console.error(err);
-            throw err;
-        }
+        return this.studentCoursesViewModelFactory.initStudentCoursesViewModel(studentCourse);
     }
 
     public async deleteUpdateStudentCourse(id: number): Promise<void> {
@@ -157,7 +158,7 @@ export class StudentCoursesService implements IStudentCoursesService {
         const studentRole = await this.rolesRepository.getByName(RoleName.Student);
         const student = await this.usersRepository.getByIdAndRole(studentId, studentRole.id);
 
-        if (!student) throw new NotFoundException(`Student not found.`);
+        if (!student) throw new BadRequestException(`Student not found.`);
 
         return student;
     }
@@ -165,7 +166,7 @@ export class StudentCoursesService implements IStudentCoursesService {
     private async checkifCourseExist(id: number): Promise<Course> {
         const course = await this.coursesRepository.getById(id);
 
-        if (!course) throw new NotFoundException(`Course not found.`);
+        if (!course) throw new BadRequestException(`Provided course not found.`);
 
         return course;
     }
@@ -182,7 +183,7 @@ export class StudentCoursesService implements IStudentCoursesService {
     private async checkifNotExist(id: number): Promise<StudentCourses> {
         const studentCourse = await this.studentCoursesRepository.getById(id);
 
-        if (!studentCourse) throw new ConflictException(`Student course not found.`);
+        if (!studentCourse) throw new NotFoundException(BaseErrorMessage.NOT_FOUND);
 
         return studentCourse;
     }

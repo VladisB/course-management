@@ -1,4 +1,9 @@
-import { ConflictException, Injectable, NotFoundException } from "@nestjs/common";
+import {
+    BadRequestException,
+    ConflictException,
+    Injectable,
+    NotFoundException,
+} from "@nestjs/common";
 import { DataListResponse } from "src/common/db/data-list-response";
 import { ColumnType, QueryParamsDTO } from "src/common/dto/query-params.dto";
 import { ApplyToQueryExtension, DatatablesConfig } from "src/common/query-extention";
@@ -10,6 +15,7 @@ import { Lesson } from "./entities/lesson.entity";
 import { ILessonsRepository } from "./lessons.repository";
 import { LessonsViewModelFactory } from "./model-factories";
 import { LessonViewModel } from "./view-models";
+import { BaseErrorMessage } from "src/common/enum";
 
 @Injectable()
 export class LessonsService implements ILessonsService {
@@ -37,7 +43,7 @@ export class LessonsService implements ILessonsService {
         const lesson = await this.lessonsRepository.getById(id);
 
         if (!lesson) {
-            throw new NotFoundException();
+            throw new NotFoundException(BaseErrorMessage.NOT_FOUND);
         }
 
         return this.lessonsViewModelFactory.initLessonViewModel(lesson);
@@ -98,6 +104,8 @@ export class LessonsService implements ILessonsService {
     }
 
     public async updateLesson(id: number, dto: UpdateLessonDto): Promise<LessonViewModel> {
+        await this.validateUpdate(id);
+
         const lesson = await this.lessonsRepository.update(id, dto);
 
         return this.lessonsViewModelFactory.initLessonViewModel(lesson);
@@ -112,11 +120,15 @@ export class LessonsService implements ILessonsService {
         await this.checkIfExists(id);
     }
 
+    private async validateUpdate(id: number): Promise<void> {
+        await this.checkIfExists(id);
+    }
+
     private async checkIfCourseExists(id: number): Promise<Course> {
         const course = await this.coursesRepository.getById(id);
 
         if (!course) {
-            throw new NotFoundException();
+            throw new BadRequestException("Provided course does not exist");
         }
 
         return course;
@@ -134,7 +146,7 @@ export class LessonsService implements ILessonsService {
         const lesson = await this.lessonsRepository.getById(id);
 
         if (!lesson) {
-            throw new NotFoundException();
+            throw new NotFoundException(BaseErrorMessage.NOT_FOUND);
         }
     }
 
