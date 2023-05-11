@@ -29,8 +29,6 @@ export class CoursesViewModelFactory implements ICoursesViewModelFactory {
     }
 
     private populateInstructorList(course: Course): CourseInstructorListItemViewModel[] {
-        if (course?.courseInstructors?.length) return [];
-
         const instructorList = course.courseInstructors.map<CourseInstructorListItemViewModel>(
             (courseInstructor) => ({
                 id: courseInstructor.instructor.id,

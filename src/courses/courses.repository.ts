@@ -18,8 +18,22 @@ export class CoursesRepository extends BaseRepository implements ICoursesReposit
         super(courseEntityRepository.manager.connection.createQueryRunner());
     }
 
+    public async isAssignedToGroup(id: number): Promise<boolean> {
+        const course = await this.courseEntityRepository.findOne({
+            where: {
+                id,
+            },
+            relations: ["groupCourses"],
+        });
+
+        return course.groupCourses.length > 0;
+    }
+
     public getAllQ(): SelectQueryBuilder<Course> {
-        const userQuery = this.courseEntityRepository.createQueryBuilder(this.tableName);
+        const userQuery = this.courseEntityRepository
+            .createQueryBuilder(this.tableName)
+            .leftJoinAndSelect("course.courseInstructors", "courseInstructors")
+            .leftJoinAndSelect("courseInstructors.instructor", "users");
 
         return userQuery;
     }
@@ -132,4 +146,5 @@ export abstract class ICoursesRepository extends IBaseRepository {
     abstract trxCreate(queryRunner: QueryRunner, dto: CreateCourseDto): Promise<Course>;
     abstract trxUpdate(queryRunner: QueryRunner, id: number, dto: UpdateCourseDto): Promise<Course>;
     abstract update(id: number, dto: UpdateCourseDto): Promise<Course>;
+    abstract isAssignedToGroup(id: number): Promise<boolean>;
 }

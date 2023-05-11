@@ -182,13 +182,27 @@ export class CourseInstructorsService implements ICourseInstructorsService {
     }
 
     private async validateDelete(id: number): Promise<CourseInstructors> {
-        return await this.checkIfExists(id);
+        const courseInstructors = await this.checkIfExists(id);
+        await this.checkIfCoursesHaveInstructors(courseInstructors);
+
+        return courseInstructors;
     }
 
     private async validateUpdate(id: number, dto: PUTUpdateCourseDto): Promise<void> {
         await this.checkIfExists(id);
         await this.checkIfInstructorsExists(dto.instructorIdList);
         await this.checkifCourseExist(dto.courseId);
+    }
+
+    private async checkIfCoursesHaveInstructors(
+        courseInstructors: CourseInstructors,
+    ): Promise<void> {
+        const isCourseAssigned = await this.coursesRepository.isAssignedToGroup(
+            courseInstructors.courseId,
+        );
+
+        if (courseInstructors.course.courseInstructors.length === 1 && isCourseAssigned)
+            throw new ConflictException(`Assigned course should have at least one instructor.`);
     }
 
     private async checkIfExistsByDetails(
@@ -209,7 +223,7 @@ export class CourseInstructorsService implements ICourseInstructorsService {
     }
 
     private async checkIfExists(id: number): Promise<CourseInstructors> {
-        const corseInstructors = await this.courseInstructorsRepository.getById(id);
+        const corseInstructors = await this.courseInstructorsRepository.getByIdWithFullDetails(id);
 
         if (!corseInstructors) throw new NotFoundException(BaseErrorMessage.NOT_FOUND);
 

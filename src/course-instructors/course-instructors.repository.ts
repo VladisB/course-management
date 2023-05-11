@@ -112,6 +112,23 @@ export class CourseInstructorsRepository
         });
     }
 
+    async getByIdWithFullDetails(id: number): Promise<CourseInstructors> {
+        const result = await this.entityRepository
+            .createQueryBuilder(this.tableName)
+            .innerJoinAndSelect("course_instructors.course", "course")
+            .where("course_instructors.id = :id", { id })
+            .innerJoinAndMapMany(
+                "course.courseInstructors",
+                "course_instructors",
+                "courseInstructors",
+                "courseInstructors.courseId = course.id",
+            )
+            .innerJoinAndSelect("courseInstructors.instructor", "user")
+            .getOne();
+
+        return result;
+    }
+
     public async getByIdList(idList: number[]): Promise<CourseInstructors[]> {
         return await this.entityRepository.find({
             relations: {
@@ -146,6 +163,7 @@ export abstract class ICourseInstructorsRepository extends IBaseRepository {
     ): Promise<CourseInstructors[]>;
     abstract getById(id: number): Promise<CourseInstructors>;
     abstract getByIdList(idList: number[]): Promise<CourseInstructors[]>;
+    abstract getByIdWithFullDetails(id: number): Promise<CourseInstructors>;
     abstract trxBulkCreate(
         queryRunner: QueryRunner,
         courseId: number,

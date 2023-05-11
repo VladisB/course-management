@@ -46,10 +46,6 @@ export class GroupsViewModelFactory implements IGroupsViewModelFactory {
     }
 
     private populateCourses(group: Group): GroupCoursesViewModel[] {
-        if (!group || !group.groupCourses?.length) {
-            return [];
-        }
-
         const courses = group.groupCourses.map<GroupCoursesViewModel>((item) => ({
             id: item.course.id,
             name: item.course.name,

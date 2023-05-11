@@ -121,9 +121,14 @@ export class GroupsService implements IGroupsService {
 
     private async validateUpdate(id: number, dto: UpdateGroupDto): Promise<Course[]> {
         const group = await this.checkifExist(id);
-        await this.checkifNotExistByName(dto.name, id);
+
+        if (dto.name) await this.checkifNotExistByName(dto.name, id);
+
         await this.checkCourseNumber(group, dto);
-        const courses = await this.checkIfCoursesExists(dto);
+
+        const courses = dto.courseIdList && (await this.checkIfCoursesExists(dto));
+        if (courses) await this.checkIfCoursesHaveInstructors(courses);
+
         this.checkIfCoursesAvailable(courses);
 
         return courses;
@@ -142,14 +147,19 @@ export class GroupsService implements IGroupsService {
     }
 
     private async checkIfCoursesExists(dto: UpdateGroupDto): Promise<Course[]> {
-        if (!dto.courseIdList?.length) return [];
-
         const courses = await this.coursesRepository.getByIdList(dto.courseIdList);
 
         if (courses.length !== dto.courseIdList.length)
             throw new NotFoundException(`Course not found.`);
 
         return courses;
+    }
+
+    private async checkIfCoursesHaveInstructors(courseList: Course[]): Promise<void> {
+        courseList.forEach((course) => {
+            if (!course.courseInstructors.length)
+                throw new ConflictException(`Course ${course.name} has no instructors.`);
+        });
     }
 
     private checkIfCoursesAvailable(courses: Course[]): void {

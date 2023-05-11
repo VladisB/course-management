@@ -19,7 +19,9 @@ export class GroupsRepository extends BaseRepository implements IGroupsRepositor
     public getAllQ(): SelectQueryBuilder<Group> {
         const groupQuery = this.entityRepository
             .createQueryBuilder("group")
-            .innerJoinAndSelect("group.faculty", "faculty");
+            .innerJoinAndSelect("group.faculty", "faculty")
+            .leftJoinAndSelect("group.groupCourses", "groupCourses")
+            .leftJoinAndSelect("groupCourses.course", "course");
 
         return groupQuery;
     }
