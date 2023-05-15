@@ -10,6 +10,7 @@ export enum SortDirection {
 export enum ColumnType {
     Integer = "integer",
     Text = "text",
+    Date = "date",
 }
 
 export class QueryParamsDTO {

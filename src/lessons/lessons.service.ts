@@ -54,7 +54,7 @@ export class LessonsService implements ILessonsService {
     ): Promise<DataListResponse<LessonViewModel>> {
         const query = this.lessonsRepository.getAllQ();
 
-        const config = this.getDataListConfig();
+        const config = this.getDatatablesConfig();
 
         const [lessons, count] = await ApplyToQueryExtension.applyToQuery<Lesson>(
             queryParams,
@@ -73,7 +73,7 @@ export class LessonsService implements ILessonsService {
     ): Promise<DataListResponse<LessonViewModel>> {
         const query = this.lessonsRepository.getAllQByStudent(studentId);
 
-        const config = this.getDataListConfig();
+        const config = this.getDatatablesConfig();
 
         const [lessons, count] = await ApplyToQueryExtension.applyToQuery<Lesson>(
             queryParams,
@@ -90,7 +90,7 @@ export class LessonsService implements ILessonsService {
     ): Promise<DataListResponse<LessonViewModel>> {
         const query = this.lessonsRepository.getAllQByInstructor(instructorId);
 
-        const config = this.getDataListConfig();
+        const config = this.getDatatablesConfig();
 
         const [lessons, count] = await ApplyToQueryExtension.applyToQuery<Lesson>(
             queryParams,
@@ -150,8 +150,7 @@ export class LessonsService implements ILessonsService {
         }
     }
 
-    private getDataListConfig(): DatatablesConfig {
-        // TODO: Maybe rename DatatablesConfig to DataListConfig
+    private getDatatablesConfig(): DatatablesConfig {
         return {
             columns: [
                 {
@@ -176,7 +175,7 @@ export class LessonsService implements ILessonsService {
                     tableName: "lesson",
                     isSearchable: true,
                     isSortable: true,
-                    type: ColumnType.Text, // TODO: change to Date if needed
+                    type: ColumnType.Date,
                 },
             ],
         };

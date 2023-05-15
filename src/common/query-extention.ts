@@ -89,7 +89,7 @@ export class ApplyToQueryExtension {
                     query.where(`${table}.${columnName} iLike :search`, {
                         search: `%${column.search}%`,
                     });
-                } else if (column.type === ColumnType.Integer) {
+                } else if (column.type === ColumnType.Integer || column.type === ColumnType.Date) {
                     query.where(`${table}.${columnName} = :search`, {
                         search: column.search,
                     });
