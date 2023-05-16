@@ -5,7 +5,7 @@ export class CourseViewModel {
 }
 
 export class CourseInstructorListItemViewModel {
-    id: number;
+    instructorId: number;
     firstName: string;
     lastName: string;
 }

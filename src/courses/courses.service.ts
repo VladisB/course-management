@@ -48,6 +48,14 @@ export class CoursesService implements ICoursesService {
                     isSortable: true,
                     type: ColumnType.Text,
                 },
+                {
+                    name: "instructorId",
+                    prop: "instructorId",
+                    tableName: "courseInstructors",
+                    isSearchable: true,
+                    isSortable: true,
+                    type: ColumnType.Integer,
+                },
             ],
         };
 
