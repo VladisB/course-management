@@ -6,6 +6,7 @@ import { UpdateUserDto } from "./dto/update-user.dto";
 import { User } from "./entities/user.entity";
 import { BaseRepository, IBaseRepository } from "src/common/db/base.repository";
 import { BaseErrorMessage } from "src/common/enum";
+import { RoleName } from "src/roles/roles.enum";
 
 @Injectable()
 export class UsersRepository extends BaseRepository implements IUsersRepository {
@@ -75,6 +76,15 @@ export class UsersRepository extends BaseRepository implements IUsersRepository 
         return userQuery;
     }
 
+    public getAllStudentsQ(): SelectQueryBuilder<User> {
+        const userQuery = this.entityRepository
+            .createQueryBuilder("user")
+            .leftJoinAndSelect("user.role", "role")
+            .where("role.name = :roleName", { roleName: RoleName.Student });
+
+        return userQuery;
+    }
+
     public async create(dto: CreateUserDto, roleId: number): Promise<User> {
         const user = await this.entityRepository.create({
             ...dto,
@@ -139,8 +149,9 @@ export abstract class IUsersRepository extends IBaseRepository {
     abstract create(dto: CreateUserDto, roleId: number): Promise<User>;
     abstract deleteById(id: number): Promise<void>;
     abstract getAllQ(): SelectQueryBuilder<User>;
+    abstract getAllStudentsQ(): SelectQueryBuilder<User>;
     abstract getByEmail(email: string): Promise<User>;
-    abstract getById(id: number): Promise<User>;
+    abstract getById(id: number, roleName?: RoleName): Promise<User>;
     abstract getByIdAndRole(id: number, roleId: number): Promise<User>;
     abstract getByIdList(idList: number[], roleId: number): Promise<User[]>;
     abstract trxUpdate(
