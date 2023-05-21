@@ -114,13 +114,13 @@ export class UsersRepository extends BaseRepository implements IUsersRepository 
         queryRunner: QueryRunner,
         id: number,
         dto: UpdateUserDto,
-        roleId: number,
     ): Promise<User> {
         try {
             const entity = await this.entityRepository.preload({
                 id,
                 ...dto,
-                role: { id: roleId },
+                role: { id: dto.roleId },
+                group: { id: dto.groupId },
             });
 
             const { id: entityId } = await queryRunner.manager.save(entity);
@@ -154,12 +154,7 @@ export abstract class IUsersRepository extends IBaseRepository {
     abstract getById(id: number, roleName?: RoleName): Promise<User>;
     abstract getByIdAndRole(id: number, roleId: number): Promise<User>;
     abstract getByIdList(idList: number[], roleId: number): Promise<User[]>;
-    abstract trxUpdate(
-        queryRunner: QueryRunner,
-        id: number,
-        dto: UpdateUserDto,
-        roleId: number,
-    ): Promise<User>;
+    abstract trxUpdate(queryRunner: QueryRunner, id: number, dto: UpdateUserDto): Promise<User>;
     abstract update(id: number, dto: UpdateUserDto): Promise<User>;
     abstract updateRefreshToken(id: number, refreshToken: string | null): Promise<void>;
 }

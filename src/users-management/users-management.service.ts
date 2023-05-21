@@ -66,7 +66,7 @@ export class UsersManagementService implements IUsersManagementService {
 
         try {
             await this.trxUpdateStudentCourses(transaction, id, group, user);
-            const model = await this.usersRepository.trxUpdate(transaction, id, dto, dto.roleId);
+            const model = await this.usersRepository.trxUpdate(transaction, id, dto);
 
             await this.usersRepository.commitTrx(transaction);
 
