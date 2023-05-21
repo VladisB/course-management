@@ -71,7 +71,8 @@ export class UsersRepository extends BaseRepository implements IUsersRepository 
     public getAllQ(): SelectQueryBuilder<User> {
         const userQuery = this.entityRepository
             .createQueryBuilder("user")
-            .leftJoinAndSelect("user.role", "role");
+            .leftJoinAndSelect("user.role", "role")
+            .leftJoinAndSelect("user.group", "group");
 
         return userQuery;
     }
