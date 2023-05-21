@@ -4,8 +4,15 @@ import {
     StudentDetailsViewModel,
     StudentListViewModel,
 } from "../view-models";
+import { Course } from "src/courses/entities/course.entity";
 
 export class StudentsViewModelFactory implements IStudentsViewModelFactory {
+    public initStudentCourseViewModel(courses: Course[]): StudentCourseViewModel[] {
+        const model: StudentCourseViewModel[] = [];
+
+        return this.setStudentCourseViewModel(model, courses);
+    }
+
     public initStudentDetailsViewModel(student: User): StudentDetailsViewModel {
         const model: StudentDetailsViewModel = {
             id: null,
@@ -23,6 +30,22 @@ export class StudentsViewModelFactory implements IStudentsViewModelFactory {
         const model: StudentListViewModel[] = [];
 
         return this.setUserListViewModel(model, students);
+    }
+
+    private setStudentCourseViewModel(
+        model: StudentCourseViewModel[],
+        courses: Course[],
+    ): StudentCourseViewModel[] {
+        if (courses.length) {
+            const courseList: StudentCourseViewModel[] = courses.map((course) => ({
+                id: course.id,
+                name: course.name,
+            }));
+
+            model.push(...courseList);
+        }
+
+        return model;
     }
 
     private setStudentDetailsViewModel(
@@ -78,4 +101,5 @@ export class StudentsViewModelFactory implements IStudentsViewModelFactory {
 export abstract class IStudentsViewModelFactory {
     abstract initStudentDetailsViewModel(student: User): StudentDetailsViewModel;
     abstract initStudentListViewModel(students: User[]): StudentListViewModel[];
+    abstract initStudentCourseViewModel(courses: Course[]): StudentCourseViewModel[];
 }

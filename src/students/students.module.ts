@@ -4,9 +4,10 @@ import { StudentsController } from "./students.controller";
 import { UsersModule } from "src/users/users.module";
 import { RolesModule } from "src/roles/roles.module";
 import { StudentsViewModelFactory } from "./model-factories";
+import { CoursesModule } from "src/courses/courses.module";
 
 @Module({
-    imports: [UsersModule, RolesModule],
+    imports: [UsersModule, RolesModule, CoursesModule],
     controllers: [StudentsController],
     providers: [
         StudentsViewModelFactory,

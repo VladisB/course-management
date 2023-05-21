@@ -1,19 +1,23 @@
 import { Injectable, NotFoundException } from "@nestjs/common";
 import { DataListResponse } from "src/common/db/data-list-response";
-import { StudentDetailsViewModel, StudentListViewModel } from "./view-models";
+import {
+    StudentCourseViewModel,
+    StudentDetailsViewModel,
+    StudentListViewModel,
+} from "./view-models";
 import { ColumnType, QueryParamsDTO } from "src/common/dto/query-params.dto";
 import { IUsersRepository } from "src/users/users.repository";
 import { User } from "src/users/entities/user.entity";
-import { IRolesRepository } from "src/roles/roles.repository";
 import { BaseErrorMessage } from "src/common/enum";
 import { StudentsViewModelFactory } from "./model-factories";
 import { ApplyToQueryExtension } from "src/common/query-extention";
+import { ICoursesRepository } from "src/courses/courses.repository";
 
 @Injectable()
 export class StudentsService implements IStudentsService {
     constructor(
         private readonly usersRepository: IUsersRepository,
-        private readonly rolesRepository: IRolesRepository,
+        private readonly coursesRepository: ICoursesRepository,
         private readonly studentsViewModelFactory: StudentsViewModelFactory,
     ) {}
 
@@ -93,6 +97,16 @@ export class StudentsService implements IStudentsService {
 
         return this.studentsViewModelFactory.initStudentDetailsViewModel(student);
     }
+
+    public async getStudentCourses(id: number): Promise<StudentCourseViewModel[]> {
+        const student = await this.usersRepository.getStudentById(id);
+
+        if (!student) throw new NotFoundException(BaseErrorMessage.NOT_FOUND);
+
+        const courses = await this.coursesRepository.getAllByStudentId(id);
+
+        return this.studentsViewModelFactory.initStudentCourseViewModel(courses);
+    }
 }
 
 export abstract class IStudentsService {
@@ -100,4 +114,5 @@ export abstract class IStudentsService {
         queryParams: QueryParamsDTO,
     ): Promise<DataListResponse<StudentListViewModel>>;
     abstract getStudent(id: number): Promise<StudentDetailsViewModel>;
+    abstract getStudentCourses(id: number): Promise<StudentCourseViewModel[]>;
 }

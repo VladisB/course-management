@@ -18,6 +18,15 @@ export class CoursesRepository extends BaseRepository implements ICoursesReposit
         super(courseEntityRepository.manager.connection.createQueryRunner());
     }
 
+    public async getAllByStudentId(studentId: number): Promise<Course[]> {
+        return await this.courseEntityRepository.find({
+            where: {
+                studentCourses: { studentId },
+            },
+            relations: ["studentCourses"],
+        });
+    }
+
     public async isAssignedToGroup(id: number): Promise<boolean> {
         const course = await this.courseEntityRepository.findOne({
             where: {
@@ -140,6 +149,7 @@ export abstract class ICoursesRepository extends IBaseRepository {
     abstract create(dto: CreateCourseDto): Promise<Course>;
     abstract deleteById(id: number): Promise<void>;
     abstract getAllQ(): SelectQueryBuilder<Course>;
+    abstract getAllByStudentId(studentId: number): Promise<Course[]>;
     abstract getById(id: number): Promise<Course>;
     abstract getByIdList(idList: number[]): Promise<Course[]>;
     abstract getByName(name: string): Promise<Course>;
