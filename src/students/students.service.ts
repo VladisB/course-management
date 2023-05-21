@@ -1,10 +1,9 @@
 import { Injectable, NotFoundException } from "@nestjs/common";
 import { DataListResponse } from "src/common/db/data-list-response";
-import { StudentViewModel } from "./view-models";
+import { StudentDetailsViewModel, StudentListViewModel } from "./view-models";
 import { ColumnType, QueryParamsDTO } from "src/common/dto/query-params.dto";
 import { IUsersRepository } from "src/users/users.repository";
 import { User } from "src/users/entities/user.entity";
-import { RoleName } from "src/roles/roles.enum";
 import { IRolesRepository } from "src/roles/roles.repository";
 import { BaseErrorMessage } from "src/common/enum";
 import { StudentsViewModelFactory } from "./model-factories";
@@ -20,7 +19,7 @@ export class StudentsService implements IStudentsService {
 
     public async getAllStudents(
         queryParams: QueryParamsDTO,
-    ): Promise<DataListResponse<StudentViewModel>> {
+    ): Promise<DataListResponse<StudentListViewModel>> {
         const query = this.usersRepository.getAllStudentsQ();
 
         const config = {
@@ -57,6 +56,22 @@ export class StudentsService implements IStudentsService {
                     isSortable: true,
                     type: ColumnType.Text,
                 },
+                {
+                    name: "courseId",
+                    prop: "id",
+                    tableName: "course",
+                    isSearchable: true,
+                    isSortable: true,
+                    type: ColumnType.Integer,
+                },
+                {
+                    name: "courseName",
+                    prop: "name",
+                    tableName: "course",
+                    isSearchable: true,
+                    isSortable: true,
+                    type: ColumnType.Text,
+                },
             ],
         };
 
@@ -68,27 +83,21 @@ export class StudentsService implements IStudentsService {
 
         const model = this.studentsViewModelFactory.initStudentListViewModel(users);
 
-        return new DataListResponse<StudentViewModel>(model, count);
+        return new DataListResponse<StudentListViewModel>(model, count);
     }
 
-    public async getStudent(id: number): Promise<StudentViewModel> {
-        const student = await this.getStudentEntity(id);
+    public async getStudent(id: number): Promise<StudentDetailsViewModel> {
+        const student = await this.usersRepository.getStudentById(id);
 
         if (!student) throw new NotFoundException(BaseErrorMessage.NOT_FOUND);
 
-        return this.studentsViewModelFactory.initStudentViewModel(student);
-    }
-
-    private async getStudentEntity(id: number): Promise<User> {
-        const role = await this.rolesRepository.getByName(RoleName.Student);
-
-        return await this.usersRepository.getByIdAndRole(id, role.id);
+        return this.studentsViewModelFactory.initStudentDetailsViewModel(student);
     }
 }
 
 export abstract class IStudentsService {
     abstract getAllStudents(
         queryParams: QueryParamsDTO,
-    ): Promise<DataListResponse<StudentViewModel>>;
-    abstract getStudent(id: number): Promise<StudentViewModel>;
+    ): Promise<DataListResponse<StudentListViewModel>>;
+    abstract getStudent(id: number): Promise<StudentDetailsViewModel>;
 }

@@ -1,4 +1,4 @@
-export class StudentViewModel {
+export class StudentListViewModel {
     id: number;
     email: string;
     firstName: string;

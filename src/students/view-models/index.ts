@@ -1,3 +1,4 @@
-import { StudentViewModel } from "./student.vm";
+import { StudentCourseViewModel, StudentDetailsViewModel } from "./student-details.vm";
+import { StudentListViewModel } from "./student.vm";
 
-export { StudentViewModel };
+export { StudentCourseViewModel, StudentDetailsViewModel, StudentListViewModel };

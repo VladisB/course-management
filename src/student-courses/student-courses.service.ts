@@ -9,8 +9,6 @@ import { ColumnType, QueryParamsDTO } from "src/common/dto/query-params.dto";
 import { ApplyToQueryExtension } from "src/common/query-extention";
 import { ICoursesRepository } from "src/courses/courses.repository";
 import { Course } from "src/courses/entities/course.entity";
-import { RoleName } from "src/roles/roles.enum";
-import { IRolesRepository } from "src/roles/roles.repository";
 import { CreateStudentCoursesDto } from "./dto/create-student-courses.dto";
 import { UpdateStudentCoursesDto } from "./dto/update-student-courses.dto";
 import { StudentCourses } from "./entities/student-courses.entity";
@@ -25,7 +23,6 @@ import { BaseErrorMessage } from "src/common/enum";
 export class StudentCoursesService implements IStudentCoursesService {
     constructor(
         private readonly coursesRepository: ICoursesRepository,
-        private readonly rolesRepository: IRolesRepository,
         private readonly studentCoursesRepository: IStudentCoursesRepository,
         private readonly studentCoursesViewModelFactory: StudentCoursesViewModelFactory,
         private readonly usersRepository: IUsersRepository,
@@ -155,8 +152,7 @@ export class StudentCoursesService implements IStudentCoursesService {
     private async checkIfStudentExist(studentId: number): Promise<User> {
         if (!studentId) return;
 
-        const studentRole = await this.rolesRepository.getByName(RoleName.Student);
-        const student = await this.usersRepository.getByIdAndRole(studentId, studentRole.id);
+        const student = await this.usersRepository.getStudentById(studentId);
 
         if (!student) throw new BadRequestException(`Student not found.`);
 

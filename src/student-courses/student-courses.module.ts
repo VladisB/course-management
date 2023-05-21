@@ -1,6 +1,5 @@
 import { Module } from "@nestjs/common";
 import { TypeOrmModule } from "@nestjs/typeorm";
-import { RolesModule } from "../roles/roles.module";
 import { StudentCoursesController } from "./student-courses.controller";
 import { StudentCoursesService } from "./student-courses.service";
 
@@ -17,7 +16,7 @@ import { UsersModule } from "src/users/users.module";
         { provide: IStudentCoursesRepository, useClass: StudentCoursesRepository },
         StudentCoursesViewModelFactory,
     ],
-    imports: [TypeOrmModule.forFeature([StudentCourses]), RolesModule, CoursesModule, UsersModule],
+    imports: [TypeOrmModule.forFeature([StudentCourses]), CoursesModule, UsersModule],
     exports: [IStudentCoursesRepository],
 })
 export class StudentCoursesModule {}

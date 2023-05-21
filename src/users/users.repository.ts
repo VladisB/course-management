@@ -42,17 +42,15 @@ export class UsersRepository extends BaseRepository implements IUsersRepository 
         });
     }
 
-    public async getByIdAndRole(id: number, roleId: number): Promise<User> {
+    public async getStudentById(id: number): Promise<User> {
         if (!id) return null;
 
         return await this.entityRepository.findOne({
             where: {
                 id,
-                role: { id: roleId },
+                role: { name: RoleName.Student },
             },
-            relations: {
-                role: true,
-            },
+            relations: ["role", "group", "studentCourses", "studentCourses.course"],
         });
     }
 
@@ -79,8 +77,11 @@ export class UsersRepository extends BaseRepository implements IUsersRepository 
 
     public getAllStudentsQ(): SelectQueryBuilder<User> {
         const userQuery = this.entityRepository
-            .createQueryBuilder("user")
+            .createQueryBuilder(this.tableName)
             .leftJoinAndSelect("user.role", "role")
+            .leftJoinAndSelect("user.group", "group")
+            .leftJoinAndSelect("user.studentCourses", "studentCourses")
+            .leftJoinAndSelect("studentCourses.course", "course")
             .where("role.name = :roleName", { roleName: RoleName.Student });
 
         return userQuery;
@@ -153,7 +154,7 @@ export abstract class IUsersRepository extends IBaseRepository {
     abstract getAllStudentsQ(): SelectQueryBuilder<User>;
     abstract getByEmail(email: string): Promise<User>;
     abstract getById(id: number, roleName?: RoleName): Promise<User>;
-    abstract getByIdAndRole(id: number, roleId: number): Promise<User>;
+    abstract getStudentById(id: number): Promise<User>;
     abstract getByIdList(idList: number[], roleId: number): Promise<User[]>;
     abstract trxUpdate(queryRunner: QueryRunner, id: number, dto: UpdateUserDto): Promise<User>;
     abstract update(id: number, dto: UpdateUserDto): Promise<User>;
