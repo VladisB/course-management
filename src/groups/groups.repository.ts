@@ -29,7 +29,9 @@ export class GroupsRepository extends BaseRepository implements IGroupsRepositor
     public async create(dto: CreateGroupDto, faculty: Faculty): Promise<Group> {
         const group = this.entityRepository.create({ ...dto, faculty });
 
-        return this.entityRepository.save(group);
+        const { id } = await this.entityRepository.save(group);
+
+        return await this.getById(id);
     }
 
     public async getByName(name: string): Promise<Group> {
