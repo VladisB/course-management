@@ -1,0 +1,107 @@
+import { BadRequestException, ConflictException, HttpException, Injectable } from "@nestjs/common";
+import { CreateLessonGradeDto } from "./dto/create-lesson-grade.dto";
+import { UpdateLessonGradeDto } from "./dto/update-lesson-grade.dto";
+import { LessonGrades } from "./entities/lesson-grade.entity";
+import { QueryParamsDTO } from "src/common/dto/query-params.dto";
+import { DataListResponse } from "src/common/db/data-list-response";
+import { ILessonGradesRepository } from "./lesson-grades.repository";
+import { User } from "src/users/entities/user.entity";
+import { ILessonsRepository } from "src/lessons/lessons.repository";
+import { IUsersRepository } from "src/users/users.repository";
+import { LessonGradesViewModelFactory } from "./model-factories";
+import { LessonGradeViewModel } from "./view-models";
+import { Lesson } from "src/lessons/entities/lesson.entity";
+
+@Injectable()
+export class LessonGradesService implements ILessonGradesService {
+    constructor(
+        private readonly lessonGradesRepository: ILessonGradesRepository,
+        private readonly lessonsRepository: ILessonsRepository,
+        private readonly usersRepository: IUsersRepository,
+        private readonly lessonGradesViewModelFactory: LessonGradesViewModelFactory,
+    ) {}
+
+    //#region Public methods
+    public async createGrade(
+        dto: CreateLessonGradeDto,
+        creator: User,
+    ): Promise<LessonGradeViewModel> {
+        await this.validateCreate(dto);
+
+        const grade = await this.lessonGradesRepository.create(dto, creator.id);
+
+        return this.lessonGradesViewModelFactory.initLessonGradesViewModel(grade);
+    }
+    public async deleteGrade(id: number): Promise<void> {
+        throw new Error("Method not implemented.");
+    }
+    public async getAllGrades(
+        queryParams: QueryParamsDTO,
+    ): Promise<DataListResponse<LessonGrades>> {
+        throw new Error("Method not implemented.");
+    }
+    public async getGrade(id: number): Promise<LessonGrades> {
+        throw new Error("Method not implemented.");
+    }
+    public async updateGrade(id: number, dto: UpdateLessonGradeDto): Promise<LessonGrades> {
+        throw new Error("Method not implemented.");
+    }
+    //#endregion
+
+    //#region Private methods
+    private async validateCreate(dto: CreateLessonGradeDto): Promise<void> {
+        await this.checkIfGradeNotExists(dto);
+        const lesson = await this.checkIfLessonExists(dto.lessonId);
+        const student = await this.checkIfStudentExists(dto.studentId);
+        await this.checkIfStudentAssignedToLessonsCourse(student, lesson);
+    }
+
+    private async checkIfGradeNotExists(dto: CreateLessonGradeDto): Promise<void> {
+        const grade = await this.lessonGradesRepository.getByLesson(dto.lessonId, dto.studentId);
+
+        if (grade) {
+            throw new ConflictException("Grade already exists");
+        }
+    }
+
+    private async checkIfLessonExists(id: number): Promise<Lesson> {
+        const lesson = await this.lessonsRepository.getById(id);
+
+        if (!lesson) {
+            throw new BadRequestException("Provided lesson not found");
+        }
+
+        return lesson;
+    }
+
+    private async checkIfStudentExists(id: number): Promise<User> {
+        const student = await this.usersRepository.getStudentById(id);
+
+        if (!student) {
+            throw new BadRequestException("Provided student not found");
+        }
+
+        return student;
+    }
+
+    private async checkIfStudentAssignedToLessonsCourse(
+        student: User,
+        lesson: Lesson,
+    ): Promise<void> {
+        if (
+            lesson.course.id &&
+            !student.studentCourses.find((sCourses) => sCourses.courseId === lesson.course.id)
+        ) {
+            throw new BadRequestException("Provided student is not assigned to the lessons course");
+        }
+    }
+    //#endregion
+}
+
+export abstract class ILessonGradesService {
+    abstract createGrade(dto: CreateLessonGradeDto, creator: User): Promise<LessonGradeViewModel>;
+    abstract deleteGrade(id: number): Promise<void>;
+    abstract getAllGrades(queryParams: QueryParamsDTO): Promise<DataListResponse<LessonGrades>>;
+    abstract getGrade(id: number): Promise<LessonGrades>;
+    abstract updateGrade(id: number, dto: UpdateLessonGradeDto): Promise<LessonGrades>;
+}

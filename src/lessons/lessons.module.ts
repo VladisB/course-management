@@ -15,5 +15,6 @@ import { CoursesModule } from "src/courses/courses.module";
         LessonsService,
         LessonsViewModelFactory,
     ],
+    exports: [ILessonsRepository],
 })
 export class LessonsModule {}

@@ -1,4 +1,5 @@
 import { Course } from "src/courses/entities/course.entity";
+import { LessonGrades } from "src/lesson-grades/entities/lesson-grade.entity";
 import {
     BaseEntity,
     Column,
@@ -6,6 +7,7 @@ import {
     Entity,
     JoinColumn,
     ManyToOne,
+    OneToMany,
     PrimaryGeneratedColumn,
     UpdateDateColumn,
 } from "typeorm";
@@ -24,6 +26,9 @@ export class Lesson extends BaseEntity {
     @ManyToOne(() => Course, (course) => course.groupCourses)
     @JoinColumn({ name: "course_id" })
     public course: Course;
+
+    @OneToMany(() => LessonGrades, (LessonGrade) => LessonGrade.lesson)
+    public grades: LessonGrades[];
 
     @CreateDateColumn({
         type: "timestamp",

@@ -15,6 +15,7 @@ import { StudentCoursesModule } from "./student-courses/student-courses.module";
 import { CourseInstructorsModule } from "./course-instructors/course-instructors.module";
 import { UsersModule } from "./users/users.module";
 import { StudentsModule } from "./students/students.module";
+import { LessonGradesModule } from "./lesson-grades/lesson-grades.module";
 
 @Module({
     imports: [
@@ -35,6 +36,7 @@ import { StudentsModule } from "./students/students.module";
         UsersManagementModule,
         UsersModule,
         StudentsModule,
+        LessonGradesModule,
     ],
     controllers: [],
     providers: [TypeOrmConfigService],
