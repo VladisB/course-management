@@ -51,9 +51,9 @@ export class LessonGradesRepository extends BaseRepository implements ILessonGra
         });
     }
 
-    // public async deleteById(id: number): Promise<void> {
-    //     await this.entityRepository.delete(id);
-    // }
+    public async deleteById(id: number): Promise<void> {
+        await this.entityRepository.delete(id);
+    }
 
     public async create(dto: CreateLessonGradeDto, createdBy: number): Promise<LessonGrades> {
         const lessonEntity = this.entityRepository.create({
@@ -82,7 +82,7 @@ export class LessonGradesRepository extends BaseRepository implements ILessonGra
 
 export abstract class ILessonGradesRepository extends IBaseRepository {
     abstract create(dto: CreateLessonGradeDto, createdBy: number): Promise<LessonGrades>;
-    // abstract deleteById(id: number): Promise<void>;
+    abstract deleteById(id: number): Promise<void>;
     abstract getAllQ(): SelectQueryBuilder<LessonGrades>;
     abstract getById(id: number): Promise<LessonGrades>;
     abstract getByLesson(lessonId: number, studentId: number): Promise<LessonGrades>;

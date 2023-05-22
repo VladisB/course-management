@@ -50,8 +50,8 @@ export class LessonGradesController {
     //     return this.lessonGradesService.updateGrade(+id, updateLessonGradeDto);
     // }
 
-    // @Delete(":id")
-    // remove(@Param("id") id: string) {
-    //     return this.lessonGradesService.deleteGrade(+id);
-    // }
+    @Delete(":id")
+    remove(@Param("id", ParseIntPipe) id: number) {
+        return this.lessonGradesService.deleteGrade(id);
+    }
 }

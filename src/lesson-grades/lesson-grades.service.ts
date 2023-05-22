@@ -42,7 +42,13 @@ export class LessonGradesService implements ILessonGradesService {
     }
 
     public async deleteGrade(id: number): Promise<void> {
-        throw new Error("Method not implemented.");
+        const grade = await this.lessonGradesRepository.getById(id);
+
+        if (!grade) {
+            throw new NotFoundException(BaseErrorMessage.NOT_FOUND);
+        }
+
+        await this.lessonGradesRepository.deleteById(id);
     }
 
     public async getAllGrades(
