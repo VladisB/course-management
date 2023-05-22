@@ -29,13 +29,15 @@ export class LessonGradesRepository extends BaseRepository implements ILessonGra
         });
     }
 
-    // public getAllQ(): SelectQueryBuilder<Lesson> {
-    //     const userQuery = this.entityRepository
-    //         .createQueryBuilder(this.tableName)
-    //         .innerJoinAndSelect("lesson.course", "course");
+    public getAllQ(): SelectQueryBuilder<LessonGrades> {
+        const userQuery = this.entityRepository
+            .createQueryBuilder(this.tableName)
+            .leftJoinAndSelect(`${this.tableName}.student`, "student")
+            .leftJoinAndSelect(`${this.tableName}.lesson`, "lesson")
+            .leftJoinAndSelect(`${this.tableName}.createdBy`, "instructor");
 
-    //     return userQuery;
-    // }
+        return userQuery;
+    }
 
     public async getById(id: number): Promise<LessonGrades> {
         return await this.entityRepository.findOne({
@@ -81,7 +83,7 @@ export class LessonGradesRepository extends BaseRepository implements ILessonGra
 export abstract class ILessonGradesRepository extends IBaseRepository {
     abstract create(dto: CreateLessonGradeDto, createdBy: number): Promise<LessonGrades>;
     // abstract deleteById(id: number): Promise<void>;
-    // abstract getAllQ(): SelectQueryBuilder<Lesson>;
+    abstract getAllQ(): SelectQueryBuilder<LessonGrades>;
     abstract getById(id: number): Promise<LessonGrades>;
     abstract getByLesson(lessonId: number, studentId: number): Promise<LessonGrades>;
     // abstract update(id: number, dto: UpdateLessonDto): Promise<Lesson>;

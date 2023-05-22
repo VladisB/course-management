@@ -16,11 +16,11 @@ export class LessonGradesViewModelFactory implements ILessonGradesViewModelFacto
         return this.setLessonViewModel(model, lessonGrades);
     }
 
-    // public initLessonListViewModel(lessons: Lesson[]): LessonViewModel[] {
-    //     const model: LessonViewModel[] = [];
+    public initLessonGradeListViewModel(lessons: LessonGrades[]): LessonGradeViewModel[] {
+        const model: LessonGradeViewModel[] = [];
 
-    //     return this.setLessonListViewModel(model, lessons);
-    // }
+        return this.setLessonGradeViewModel(model, lessons);
+    }
 
     private setLessonViewModel(
         model: LessonGradeViewModel,
@@ -39,25 +39,29 @@ export class LessonGradesViewModelFactory implements ILessonGradesViewModelFacto
         return model;
     }
 
-    // private setLessonListViewModel(model: LessonViewModel[], lessons: Lesson[]): LessonViewModel[] {
-    //     if (lessons.length) {
-    //         const lessonList = lessons.map<LessonViewModel>((lesson) => ({
-    //             id: lesson.id,
-    //             theme: lesson.theme,
-    //             date: lesson.date,
-    //             courseId: lesson.course.id,
-    //             course: lesson.course.name,
-    //             instructorList: this.populateInstructorList(lesson),
-    //         }));
+    private setLessonGradeViewModel(
+        model: LessonGradeViewModel[],
+        lessonGrades: LessonGrades[],
+    ): LessonGradeViewModel[] {
+        if (lessonGrades.length) {
+            const lessonList: LessonGradeViewModel[] = lessonGrades.map((lessonGrade) => ({
+                id: lessonGrade.id,
+                studentId: lessonGrade.student.id,
+                studentName: lessonGrade.student.firstName,
+                studentLastName: lessonGrade.student.lastName,
+                grade: lessonGrade.grade,
+                createdBy: lessonGrade.createdBy.email,
+                createdAt: lessonGrade.createdAt,
+            }));
 
-    //         model.push(...lessonList);
-    //     }
+            model.push(...lessonList);
+        }
 
-    //     return model;
-    // }
+        return model;
+    }
 }
 
 interface ILessonGradesViewModelFactory {
     initLessonGradesViewModel(lessonGrades: LessonGrades): LessonGradeViewModel;
-    // initLessonListViewModel(lesson: Lesson[]): LessonViewModel[];
+    initLessonGradeListViewModel(lessons: LessonGrades[]): LessonGradeViewModel[];
 }

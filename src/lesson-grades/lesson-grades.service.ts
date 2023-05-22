@@ -2,7 +2,7 @@ import { BadRequestException, ConflictException, HttpException, Injectable } fro
 import { CreateLessonGradeDto } from "./dto/create-lesson-grade.dto";
 import { UpdateLessonGradeDto } from "./dto/update-lesson-grade.dto";
 import { LessonGrades } from "./entities/lesson-grade.entity";
-import { QueryParamsDTO } from "src/common/dto/query-params.dto";
+import { ColumnType, QueryParamsDTO } from "src/common/dto/query-params.dto";
 import { DataListResponse } from "src/common/db/data-list-response";
 import { ILessonGradesRepository } from "./lesson-grades.repository";
 import { User } from "src/users/entities/user.entity";
@@ -11,6 +11,7 @@ import { IUsersRepository } from "src/users/users.repository";
 import { LessonGradesViewModelFactory } from "./model-factories";
 import { LessonGradeViewModel } from "./view-models";
 import { Lesson } from "src/lessons/entities/lesson.entity";
+import { ApplyToQueryExtension } from "src/common/query-extention";
 
 @Injectable()
 export class LessonGradesService implements ILessonGradesService {
@@ -32,17 +33,84 @@ export class LessonGradesService implements ILessonGradesService {
 
         return this.lessonGradesViewModelFactory.initLessonGradesViewModel(grade);
     }
+
     public async deleteGrade(id: number): Promise<void> {
         throw new Error("Method not implemented.");
     }
+
     public async getAllGrades(
         queryParams: QueryParamsDTO,
-    ): Promise<DataListResponse<LessonGrades>> {
-        throw new Error("Method not implemented.");
+    ): Promise<DataListResponse<LessonGradeViewModel>> {
+        const query = this.lessonGradesRepository.getAllQ();
+
+        const config = {
+            columns: [
+                {
+                    name: "id",
+                    prop: "id",
+                    tableName: "lesson_grades",
+                    isSearchable: true,
+                    isSortable: true,
+                    type: ColumnType.Integer,
+                },
+                {
+                    name: "studentId",
+                    prop: "id",
+                    tableName: "student",
+                    isSearchable: true,
+                    isSortable: true,
+                    type: ColumnType.Integer,
+                },
+                {
+                    name: "studentName",
+                    prop: "first_name",
+                    tableName: "student",
+                    isSearchable: true,
+                    isSortable: true,
+                    type: ColumnType.Text,
+                },
+                {
+                    name: "studentLastName",
+                    prop: "last_name",
+                    tableName: "student",
+                    isSearchable: true,
+                    isSortable: true,
+                    type: ColumnType.Text,
+                },
+                {
+                    name: "grade",
+                    prop: "grade",
+                    tableName: "lesson_grades",
+                    isSearchable: false,
+                    isSortable: true,
+                    type: ColumnType.Integer,
+                },
+                {
+                    name: "createdBy",
+                    prop: "email",
+                    tableName: "instructor",
+                    isSearchable: true,
+                    isSortable: true,
+                    type: ColumnType.Date,
+                },
+            ],
+        };
+
+        const [lessonGrades, count] = await ApplyToQueryExtension.applyToQuery<LessonGrades>(
+            queryParams,
+            query,
+            config,
+        );
+
+        const model = this.lessonGradesViewModelFactory.initLessonGradeListViewModel(lessonGrades);
+
+        return new DataListResponse<LessonGradeViewModel>(model, count);
     }
+
     public async getGrade(id: number): Promise<LessonGrades> {
         throw new Error("Method not implemented.");
     }
+
     public async updateGrade(id: number, dto: UpdateLessonGradeDto): Promise<LessonGrades> {
         throw new Error("Method not implemented.");
     }
@@ -101,7 +169,9 @@ export class LessonGradesService implements ILessonGradesService {
 export abstract class ILessonGradesService {
     abstract createGrade(dto: CreateLessonGradeDto, creator: User): Promise<LessonGradeViewModel>;
     abstract deleteGrade(id: number): Promise<void>;
-    abstract getAllGrades(queryParams: QueryParamsDTO): Promise<DataListResponse<LessonGrades>>;
+    abstract getAllGrades(
+        queryParams: QueryParamsDTO,
+    ): Promise<DataListResponse<LessonGradeViewModel>>;
     abstract getGrade(id: number): Promise<LessonGrades>;
     abstract updateGrade(id: number, dto: UpdateLessonGradeDto): Promise<LessonGrades>;
 }
