@@ -1,4 +1,10 @@
-import { BadRequestException, ConflictException, HttpException, Injectable } from "@nestjs/common";
+import {
+    BadRequestException,
+    ConflictException,
+    HttpException,
+    Injectable,
+    NotFoundException,
+} from "@nestjs/common";
 import { CreateLessonGradeDto } from "./dto/create-lesson-grade.dto";
 import { UpdateLessonGradeDto } from "./dto/update-lesson-grade.dto";
 import { LessonGrades } from "./entities/lesson-grade.entity";
@@ -12,6 +18,7 @@ import { LessonGradesViewModelFactory } from "./model-factories";
 import { LessonGradeViewModel } from "./view-models";
 import { Lesson } from "src/lessons/entities/lesson.entity";
 import { ApplyToQueryExtension } from "src/common/query-extention";
+import { BaseErrorMessage } from "src/common/enum";
 
 @Injectable()
 export class LessonGradesService implements ILessonGradesService {
@@ -107,8 +114,14 @@ export class LessonGradesService implements ILessonGradesService {
         return new DataListResponse<LessonGradeViewModel>(model, count);
     }
 
-    public async getGrade(id: number): Promise<LessonGrades> {
-        throw new Error("Method not implemented.");
+    public async getGrade(id: number): Promise<LessonGradeViewModel> {
+        const grade = await this.lessonGradesRepository.getById(id);
+
+        if (!grade) {
+            throw new NotFoundException(BaseErrorMessage.NOT_FOUND);
+        }
+
+        return this.lessonGradesViewModelFactory.initLessonGradesViewModel(grade);
     }
 
     public async updateGrade(id: number, dto: UpdateLessonGradeDto): Promise<LessonGrades> {
@@ -172,6 +185,6 @@ export abstract class ILessonGradesService {
     abstract getAllGrades(
         queryParams: QueryParamsDTO,
     ): Promise<DataListResponse<LessonGradeViewModel>>;
-    abstract getGrade(id: number): Promise<LessonGrades>;
+    abstract getGrade(id: number): Promise<LessonGradeViewModel>;
     abstract updateGrade(id: number, dto: UpdateLessonGradeDto): Promise<LessonGrades>;
 }

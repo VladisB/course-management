@@ -10,6 +10,7 @@ import {
     UsePipes,
     UseGuards,
     Query,
+    ParseIntPipe,
 } from "@nestjs/common";
 import { LessonGradesService } from "./lesson-grades.service";
 import { CreateLessonGradeDto } from "./dto/create-lesson-grade.dto";
@@ -39,10 +40,10 @@ export class LessonGradesController {
         return this.lessonGradesService.getAllGrades(queryParams);
     }
 
-    // @Get(":id")
-    // findOne(@Param("id") id: string) {
-    //     return this.lessonGradesService.getGrade(+id);
-    // }
+    @Get(":id")
+    findOne(@Param("id", ParseIntPipe) id: number): Promise<LessonGradeViewModel> {
+        return this.lessonGradesService.getGrade(id);
+    }
 
     // @Patch(":id")
     // update(@Param("id") id: string, @Body() updateLessonGradeDto: UpdateLessonGradeDto) {
