@@ -35,7 +35,8 @@ export class LessonGradesRepository extends BaseRepository implements ILessonGra
             .createQueryBuilder(this.tableName)
             .leftJoinAndSelect(`${this.tableName}.student`, "student")
             .leftJoinAndSelect(`${this.tableName}.lesson`, "lesson")
-            .leftJoinAndSelect(`${this.tableName}.createdBy`, "instructor");
+            .leftJoinAndSelect(`${this.tableName}.createdBy`, "instructorCreatedBy")
+            .leftJoinAndSelect(`${this.tableName}.modifiedBy`, "instructorModifiedBy");
 
         return userQuery;
     }

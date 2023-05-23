@@ -101,7 +101,15 @@ export class LessonGradesService implements ILessonGradesService {
                 {
                     name: "createdBy",
                     prop: "email",
-                    tableName: "instructor",
+                    tableName: "instructorCreatedBy",
+                    isSearchable: true,
+                    isSortable: true,
+                    type: ColumnType.Date,
+                },
+                {
+                    name: "updatedBy",
+                    prop: "email",
+                    tableName: "instructorModifiedBy",
                     isSearchable: true,
                     isSortable: true,
                     type: ColumnType.Date,
