@@ -43,6 +43,7 @@ export class UsersManagementService implements IUsersManagementService {
                 ? dto.roleId
                 : (await this.rolesRepository.getByName(RoleName.Student)).id;
 
+            //TODO: add transaction
             const user = await this.usersRepository.create(dto, roleId);
 
             await this.trxAddStudentCourses(transaction, user.id, group);

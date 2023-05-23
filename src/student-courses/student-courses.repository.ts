@@ -58,6 +58,25 @@ export class StudentCoursesRepository extends BaseRepository implements IStudent
         }
     }
 
+    public async trxUpdateFinalGrade(
+        queryRunner: QueryRunner,
+        id: number,
+        finalGrade: number,
+    ): Promise<StudentCourses> {
+        try {
+            const entity = await queryRunner.manager.preload(StudentCourses, {
+                id,
+                finalMark: finalGrade,
+            });
+
+            return await queryRunner.manager.save(entity);
+        } catch (err) {
+            console.error("Error: ", err);
+
+            throw new Error(BaseErrorMessage.DB_ERROR);
+        }
+    }
+
     public async getById(id: number): Promise<StudentCourses> {
         return await this.entityRepository.findOne({
             where: {
@@ -91,11 +110,14 @@ export class StudentCoursesRepository extends BaseRepository implements IStudent
         return userQuery;
     }
 
-    public async getByCourseAndStudent(course: Course, student: User): Promise<StudentCourses> {
+    public async getByCourseAndStudent(
+        courseId: number,
+        studentId: number,
+    ): Promise<StudentCourses> {
         return await this.entityRepository.findOne({
             where: {
-                course: { id: course.id },
-                student: { id: student.id },
+                course: { id: courseId },
+                student: { id: studentId },
             },
             relations: {
                 course: true,
@@ -156,8 +178,13 @@ export abstract class IStudentCoursesRepository extends IBaseRepository {
     abstract create(courseId: number, instructorId: number): Promise<StudentCourses>;
     abstract deleteById(id: number): Promise<void>;
     abstract getAllQ(): any;
-    abstract getByCourseAndStudent(course: Course, student: User): Promise<StudentCourses>;
+    abstract getByCourseAndStudent(courseId: number, studentId: number): Promise<StudentCourses>;
     abstract getById(id: number): Promise<StudentCourses>;
     abstract getByIdList(idList: number[]): Promise<StudentCourses[]>;
     abstract update(id: number, dto: UpdateStudentCoursesDto): Promise<StudentCourses>;
+    abstract trxUpdateFinalGrade(
+        queryRunner: QueryRunner,
+        id: number,
+        finalGrade: number,
+    ): Promise<StudentCourses>;
 }

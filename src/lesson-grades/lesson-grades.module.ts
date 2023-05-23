@@ -7,10 +7,16 @@ import { LessonGrades } from "./entities/lesson-grade.entity";
 import { LessonsModule } from "src/lessons/lessons.module";
 import { UsersModule } from "src/users/users.module";
 import { LessonGradesViewModelFactory } from "./model-factories";
+import { StudentCoursesModule } from "src/student-courses/student-courses.module";
 
 @Module({
     controllers: [LessonGradesController],
-    imports: [TypeOrmModule.forFeature([LessonGrades]), LessonsModule, UsersModule],
+    imports: [
+        TypeOrmModule.forFeature([LessonGrades]),
+        LessonsModule,
+        UsersModule,
+        StudentCoursesModule,
+    ],
     providers: [
         LessonGradesService,
         LessonGradesViewModelFactory,

@@ -136,7 +136,7 @@ export class StudentCoursesService implements IStudentCoursesService {
     private async validateCreate(dto: CreateStudentCoursesDto): Promise<readonly [User, Course]> {
         const student = await this.checkIfStudentExist(dto.studentId);
         const course = await this.checkifCourseExist(dto.courseId);
-        await this.checkIfExist(course, student);
+        await this.checkIfExist(course.id, student.id);
 
         return [student, course];
     }
@@ -167,10 +167,10 @@ export class StudentCoursesService implements IStudentCoursesService {
         return course;
     }
 
-    private async checkIfExist(course: Course, student: User): Promise<void> {
+    private async checkIfExist(courseId: number, studentId: number): Promise<void> {
         const studentCourse = await this.studentCoursesRepository.getByCourseAndStudent(
-            course,
-            student,
+            courseId,
+            studentId,
         );
 
         if (studentCourse) throw new ConflictException(`User course already exist.`);

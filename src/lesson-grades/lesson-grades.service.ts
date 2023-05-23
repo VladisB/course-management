@@ -19,6 +19,8 @@ import { LessonGradeViewModel } from "./view-models";
 import { Lesson } from "src/lessons/entities/lesson.entity";
 import { ApplyToQueryExtension } from "src/common/query-extention";
 import { BaseErrorMessage } from "src/common/enum";
+import { IStudentCoursesRepository } from "src/student-courses/student-courses.repository";
+import { QueryRunner } from "typeorm";
 
 @Injectable()
 export class LessonGradesService implements ILessonGradesService {
@@ -27,6 +29,7 @@ export class LessonGradesService implements ILessonGradesService {
         private readonly lessonsRepository: ILessonsRepository,
         private readonly usersRepository: IUsersRepository,
         private readonly lessonGradesViewModelFactory: LessonGradesViewModelFactory,
+        private readonly studentCoursesRepository: IStudentCoursesRepository,
     ) {}
 
     //#region Public methods
@@ -34,11 +37,28 @@ export class LessonGradesService implements ILessonGradesService {
         dto: CreateLessonGradeDto,
         createdBy: User,
     ): Promise<LessonGradeViewModel> {
-        await this.validateCreate(dto);
+        const lesson = await this.validateCreate(dto);
 
-        const grade = await this.lessonGradesRepository.create(dto, createdBy.id);
+        const transaction = await this.lessonGradesRepository.initTrx();
 
-        return this.lessonGradesViewModelFactory.initLessonGradesViewModel(grade);
+        try {
+            const grade = await this.lessonGradesRepository.trxCreate(
+                transaction,
+                dto,
+                createdBy.id,
+            );
+            await this.updateFinalMark(transaction, dto.studentId, lesson.course.id);
+
+            await this.lessonGradesRepository.commitTrx(transaction);
+
+            return this.lessonGradesViewModelFactory.initLessonGradesViewModel(grade);
+        } catch (err) {
+            console.error(err);
+
+            await this.lessonGradesRepository.rollbackTrx(transaction);
+
+            throw err;
+        }
     }
 
     public async deleteGrade(id: number): Promise<void> {
@@ -152,11 +172,38 @@ export class LessonGradesService implements ILessonGradesService {
     //#endregion
 
     //#region Private methods
-    private async validateCreate(dto: CreateLessonGradeDto): Promise<void> {
+    private async updateFinalMark(
+        transaction: QueryRunner,
+        studentId: number,
+        courseId: number,
+    ): Promise<void> {
+        const gradesByLesson = await this.lessonGradesRepository.getAllByCourse(
+            courseId,
+            studentId,
+        );
+
+        const finalMark = gradesByLesson.reduce((acc, curr) => acc + curr.grade, 0);
+        const finalGrade = finalMark / gradesByLesson.length;
+
+        const studentCourse = await this.studentCoursesRepository.getByCourseAndStudent(
+            courseId,
+            studentId,
+        );
+
+        await this.studentCoursesRepository.trxUpdateFinalGrade(
+            transaction,
+            studentCourse.id,
+            finalGrade,
+        );
+    }
+
+    private async validateCreate(dto: CreateLessonGradeDto): Promise<Lesson> {
         await this.checkIfGradeNotExists(dto);
         const lesson = await this.checkIfLessonExists(dto.lessonId);
         const student = await this.checkIfStudentExists(dto.studentId);
         await this.checkIfStudentAssignedToLessonsCourse(student, lesson);
+
+        return lesson;
     }
 
     private async validateUpdate(id: number, dto: UpdateLessonGradeDto): Promise<void> {

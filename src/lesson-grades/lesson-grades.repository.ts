@@ -1,6 +1,6 @@
 import { Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
-import { Repository, SelectQueryBuilder } from "typeorm";
+import { QueryRunner, Repository, SelectQueryBuilder } from "typeorm";
 import { BaseRepository, IBaseRepository } from "src/common/db/base.repository";
 import { LessonGrades } from "./entities/lesson-grade.entity";
 import { CreateLessonGradeDto } from "./dto/create-lesson-grade.dto";
@@ -14,13 +14,26 @@ export class LessonGradesRepository extends BaseRepository implements ILessonGra
         @InjectRepository(LessonGrades)
         private readonly entityRepository: Repository<LessonGrades>,
     ) {
-        super(entityRepository.manager.queryRunner);
+        super(entityRepository.manager.connection.createQueryRunner());
     }
 
     public async getByLesson(lessonId: number, studentId: number): Promise<LessonGrades> {
         return await this.entityRepository.findOne({
             where: {
                 lesson: { id: lessonId },
+                student: { id: studentId },
+            },
+            relations: {
+                createdBy: true,
+                student: true,
+            },
+        });
+    }
+
+    public async getAllByCourse(courseId: number, studentId: number): Promise<LessonGrades[]> {
+        return await this.entityRepository.find({
+            where: {
+                lesson: { course: { id: courseId } },
                 student: { id: studentId },
             },
             relations: {
@@ -54,6 +67,19 @@ export class LessonGradesRepository extends BaseRepository implements ILessonGra
         });
     }
 
+    public async trxGetById(queryRunner: QueryRunner, id: number): Promise<LessonGrades> {
+        return await queryRunner.manager.findOne(LessonGrades, {
+            where: {
+                id,
+            },
+            relations: {
+                createdBy: true,
+                modifiedBy: true,
+                student: true,
+            },
+        });
+    }
+
     public async deleteById(id: number): Promise<void> {
         await this.entityRepository.delete(id);
     }
@@ -72,9 +98,24 @@ export class LessonGradesRepository extends BaseRepository implements ILessonGra
         return await this.getById(lessonGrade.id);
     }
 
-    //Create migration for this
-    //Test this
-    // Read how to add reference to the table withouth creating a new feild in entity
+    public async trxCreate(
+        queryRunner: QueryRunner,
+        dto: CreateLessonGradeDto,
+        createdBy: number,
+    ): Promise<LessonGrades> {
+        const lessonGradesEntity = queryRunner.manager.create(LessonGrades, {
+            ...dto,
+            lesson: { id: dto.lessonId },
+            student: { id: dto.studentId },
+            createdBy: { id: createdBy },
+            modifiedBy: { id: createdBy },
+        });
+
+        const lessonGrade = await queryRunner.manager.save(lessonGradesEntity);
+
+        return await this.trxGetById(queryRunner, lessonGrade.id);
+    }
+
     public async update(
         id: number,
         dto: UpdateLessonGradeDto,
@@ -93,11 +134,18 @@ export class LessonGradesRepository extends BaseRepository implements ILessonGra
 }
 
 export abstract class ILessonGradesRepository extends IBaseRepository {
+    abstract trxCreate(
+        queryRunner: QueryRunner,
+        dto: CreateLessonGradeDto,
+        createdBy: number,
+    ): Promise<LessonGrades>;
     abstract create(dto: CreateLessonGradeDto, createdBy: number): Promise<LessonGrades>;
     abstract deleteById(id: number): Promise<void>;
+    abstract trxGetById(queryRunner: QueryRunner, id: number): Promise<LessonGrades>;
     abstract getAllQ(): SelectQueryBuilder<LessonGrades>;
     abstract getById(id: number): Promise<LessonGrades>;
     abstract getByLesson(lessonId: number, studentId: number): Promise<LessonGrades>;
+    abstract getAllByCourse(courseId: number, studentId: number): Promise<LessonGrades[]>;
     abstract update(
         id: number,
         dto: UpdateLessonGradeDto,
