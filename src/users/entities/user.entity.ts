@@ -51,8 +51,11 @@ export class User extends BaseEntity {
     @JoinColumn({ name: "group_id" })
     group: Group;
 
-    @OneToMany(() => LessonGrades, (lessonGrade) => lessonGrade.createdBy)
-    createdGrades: LessonGrades[];
+    // @OneToMany(() => LessonGrades, (lessonGrade) => lessonGrade.createdBy)
+    // createdGrades: LessonGrades[];
+
+    // @OneToMany(() => LessonGrades, (lessonGrade) => lessonGrade.modifiedBy)
+    // modifiedGrades: LessonGrades[];
 
     @OneToMany(() => LessonGrades, (lessonGrade) => lessonGrade.student)
     myGrades: LessonGrades[];

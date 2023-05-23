@@ -45,10 +45,14 @@ export class LessonGradesController {
         return this.lessonGradesService.getGrade(id);
     }
 
-    // @Patch(":id")
-    // update(@Param("id") id: string, @Body() updateLessonGradeDto: UpdateLessonGradeDto) {
-    //     return this.lessonGradesService.updateGrade(+id, updateLessonGradeDto);
-    // }
+    @Patch(":id")
+    update(
+        @Param("id", ParseIntPipe) id: number,
+        @GetUser() user: User,
+        @Body() updateLessonGradeDto: UpdateLessonGradeDto,
+    ) {
+        return this.lessonGradesService.updateGrade(id, updateLessonGradeDto, user);
+    }
 
     @Delete(":id")
     remove(@Param("id", ParseIntPipe) id: number) {

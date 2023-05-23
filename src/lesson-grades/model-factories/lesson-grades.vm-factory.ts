@@ -10,6 +10,7 @@ export class LessonGradesViewModelFactory implements ILessonGradesViewModelFacto
             studentLastName: "",
             grade: 0,
             createdBy: "",
+            modifiedBy: "",
             createdAt: null,
         };
 
@@ -33,6 +34,7 @@ export class LessonGradesViewModelFactory implements ILessonGradesViewModelFacto
             model.studentLastName = lessonGrades.student.lastName;
             model.grade = lessonGrades.grade;
             model.createdBy = lessonGrades.createdBy.email;
+            model.modifiedBy = lessonGrades.modifiedBy.email;
             model.createdAt = lessonGrades.createdAt;
         }
 
@@ -51,6 +53,7 @@ export class LessonGradesViewModelFactory implements ILessonGradesViewModelFacto
                 studentLastName: lessonGrade.student.lastName,
                 grade: lessonGrade.grade,
                 createdBy: lessonGrade.createdBy.email,
+                modifiedBy: lessonGrade.modifiedBy.email,
                 createdAt: lessonGrade.createdAt,
             }));
 

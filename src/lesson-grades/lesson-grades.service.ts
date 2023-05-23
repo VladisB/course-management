@@ -32,11 +32,11 @@ export class LessonGradesService implements ILessonGradesService {
     //#region Public methods
     public async createGrade(
         dto: CreateLessonGradeDto,
-        creator: User,
+        createdBy: User,
     ): Promise<LessonGradeViewModel> {
         await this.validateCreate(dto);
 
-        const grade = await this.lessonGradesRepository.create(dto, creator.id);
+        const grade = await this.lessonGradesRepository.create(dto, createdBy.id);
 
         return this.lessonGradesViewModelFactory.initLessonGradesViewModel(grade);
     }
@@ -130,8 +130,16 @@ export class LessonGradesService implements ILessonGradesService {
         return this.lessonGradesViewModelFactory.initLessonGradesViewModel(grade);
     }
 
-    public async updateGrade(id: number, dto: UpdateLessonGradeDto): Promise<LessonGrades> {
-        throw new Error("Method not implemented.");
+    public async updateGrade(
+        id: number,
+        dto: UpdateLessonGradeDto,
+        modifiedBy: User,
+    ): Promise<LessonGradeViewModel> {
+        await this.validateUpdate(id, dto);
+
+        const grade = await this.lessonGradesRepository.update(id, dto, modifiedBy.id);
+
+        return this.lessonGradesViewModelFactory.initLessonGradesViewModel(grade);
     }
     //#endregion
 
@@ -143,11 +151,24 @@ export class LessonGradesService implements ILessonGradesService {
         await this.checkIfStudentAssignedToLessonsCourse(student, lesson);
     }
 
-    private async checkIfGradeNotExists(dto: CreateLessonGradeDto): Promise<void> {
+    private async validateUpdate(id: number, dto: UpdateLessonGradeDto): Promise<void> {
+        await this.checkIfGradeNotExists(dto, id);
+        const lesson = dto.lessonId && (await this.checkIfLessonExists(dto.lessonId));
+        const student = dto.studentId && (await this.checkIfStudentExists(dto.studentId));
+
+        if (lesson && student) {
+            await this.checkIfStudentAssignedToLessonsCourse(student, lesson);
+        }
+    }
+
+    private async checkIfGradeNotExists(
+        dto: CreateLessonGradeDto | UpdateLessonGradeDto,
+        idToIgnore?: number,
+    ): Promise<void> {
         const grade = await this.lessonGradesRepository.getByLesson(dto.lessonId, dto.studentId);
 
-        if (grade) {
-            throw new ConflictException("Grade already exists");
+        if (grade && grade.id !== idToIgnore) {
+            throw new BadRequestException("Provided grade already exists");
         }
     }
 
@@ -192,5 +213,9 @@ export abstract class ILessonGradesService {
         queryParams: QueryParamsDTO,
     ): Promise<DataListResponse<LessonGradeViewModel>>;
     abstract getGrade(id: number): Promise<LessonGradeViewModel>;
-    abstract updateGrade(id: number, dto: UpdateLessonGradeDto): Promise<LessonGrades>;
+    abstract updateGrade(
+        id: number,
+        dto: UpdateLessonGradeDto,
+        modifiedBy: User,
+    ): Promise<LessonGradeViewModel>;
 }

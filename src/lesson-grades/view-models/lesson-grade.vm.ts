@@ -5,5 +5,6 @@ export class LessonGradeViewModel {
     studentLastName: string;
     grade: number;
     createdBy: string;
+    modifiedBy: string;
     createdAt: Date;
 }

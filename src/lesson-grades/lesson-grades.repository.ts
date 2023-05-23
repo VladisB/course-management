@@ -4,6 +4,7 @@ import { Repository, SelectQueryBuilder } from "typeorm";
 import { BaseRepository, IBaseRepository } from "src/common/db/base.repository";
 import { LessonGrades } from "./entities/lesson-grade.entity";
 import { CreateLessonGradeDto } from "./dto/create-lesson-grade.dto";
+import { UpdateLessonGradeDto } from "./dto/update-lesson-grade.dto";
 
 @Injectable()
 export class LessonGradesRepository extends BaseRepository implements ILessonGradesRepository {
@@ -46,6 +47,7 @@ export class LessonGradesRepository extends BaseRepository implements ILessonGra
             },
             relations: {
                 createdBy: true,
+                modifiedBy: true,
                 student: true,
             },
         });
@@ -56,28 +58,37 @@ export class LessonGradesRepository extends BaseRepository implements ILessonGra
     }
 
     public async create(dto: CreateLessonGradeDto, createdBy: number): Promise<LessonGrades> {
-        const lessonEntity = this.entityRepository.create({
+        const lessonGradesEntity = this.entityRepository.create({
             ...dto,
             lesson: { id: dto.lessonId },
             student: { id: dto.studentId },
             createdBy: { id: createdBy },
+            modifiedBy: { id: createdBy },
         });
 
-        const lesson = await this.entityRepository.save(lessonEntity);
+        const lessonGrade = await this.entityRepository.save(lessonGradesEntity);
 
-        return await this.getById(lesson.id);
+        return await this.getById(lessonGrade.id);
     }
 
-    // public async update(id: number, dto: UpdateLessonDto): Promise<Lesson> {
-    //     const lessonEntity = await this.entityRepository.preload({
-    //         id,
-    //         ...dto,
-    //     });
+    //Create migration for this
+    //Test this
+    // Read how to add reference to the table withouth creating a new feild in entity
+    public async update(
+        id: number,
+        dto: UpdateLessonGradeDto,
+        modifiedBy: number,
+    ): Promise<LessonGrades> {
+        const lessonGradesEntity = await this.entityRepository.preload({
+            id,
+            ...dto,
+            modifiedBy: { id: modifiedBy },
+        });
 
-    //     const lesson = await this.entityRepository.save(lessonEntity);
+        const lessonGrade = await this.entityRepository.save(lessonGradesEntity);
 
-    //     return await this.getById(lesson.id);
-    // }
+        return await this.getById(lessonGrade.id);
+    }
 }
 
 export abstract class ILessonGradesRepository extends IBaseRepository {
@@ -86,5 +97,9 @@ export abstract class ILessonGradesRepository extends IBaseRepository {
     abstract getAllQ(): SelectQueryBuilder<LessonGrades>;
     abstract getById(id: number): Promise<LessonGrades>;
     abstract getByLesson(lessonId: number, studentId: number): Promise<LessonGrades>;
-    // abstract update(id: number, dto: UpdateLessonDto): Promise<Lesson>;
+    abstract update(
+        id: number,
+        dto: UpdateLessonGradeDto,
+        modifiedBy: number,
+    ): Promise<LessonGrades>;
 }

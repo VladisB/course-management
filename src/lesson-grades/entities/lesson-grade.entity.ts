@@ -18,18 +18,21 @@ export class LessonGrades extends BaseEntity {
     @PrimaryGeneratedColumn()
     public id: number;
 
-    @ManyToOne(() => Lesson, (lesson) => lesson.grades)
+    @ManyToOne(() => Lesson, (lesson) => lesson.grades, { nullable: false })
     @JoinColumn({ name: "lesson_id" })
     public lesson: Lesson;
 
-    @ManyToOne(() => User, (user) => user.myGrades)
+    @ManyToOne(() => User, (user) => user.myGrades, { nullable: false })
     @JoinColumn({ name: "student_id" })
     public student: User;
 
-    // Instructor who created the grade
-    @ManyToOne(() => User, (user) => user.createdGrades)
+    @ManyToOne(() => User, { nullable: false })
     @JoinColumn({ name: "created_by" })
     public createdBy: User;
+
+    @ManyToOne(() => User, { nullable: false })
+    @JoinColumn({ name: "modified_by" })
+    public modifiedBy: User;
 
     @Column({ type: "integer", nullable: false })
     grade: number;
@@ -38,6 +41,7 @@ export class LessonGrades extends BaseEntity {
         type: "timestamp",
         default: () => "CURRENT_TIMESTAMP(6)",
         name: "created_at",
+        nullable: false,
     })
     public createdAt: Date;
 
@@ -46,6 +50,7 @@ export class LessonGrades extends BaseEntity {
         default: () => "CURRENT_TIMESTAMP(6)",
         onUpdate: "CURRENT_TIMESTAMP(6)",
         name: "updated_at",
+        nullable: false,
     })
     public updatedAt: Date;
 }
