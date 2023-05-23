@@ -76,6 +76,9 @@ export class LessonGradesRepository extends BaseRepository implements ILessonGra
                 createdBy: true,
                 modifiedBy: true,
                 student: true,
+                lesson: {
+                    course: true,
+                },
             },
         });
     }
@@ -116,6 +119,23 @@ export class LessonGradesRepository extends BaseRepository implements ILessonGra
         return await this.trxGetById(queryRunner, lessonGrade.id);
     }
 
+    public async trxUpdate(
+        queryRunner: QueryRunner,
+        id: number,
+        dto: UpdateLessonGradeDto,
+        modifiedBy: number,
+    ): Promise<LessonGrades> {
+        const lessonGradesEntity = await queryRunner.manager.preload(LessonGrades, {
+            id,
+            ...dto,
+            modifiedBy: { id: modifiedBy },
+        });
+
+        const lessonGrade = await queryRunner.manager.save(lessonGradesEntity);
+
+        return await this.trxGetById(queryRunner, lessonGrade.id);
+    }
+
     public async update(
         id: number,
         dto: UpdateLessonGradeDto,
@@ -147,6 +167,12 @@ export abstract class ILessonGradesRepository extends IBaseRepository {
     abstract getByLesson(lessonId: number, studentId: number): Promise<LessonGrades>;
     abstract getAllByCourse(courseId: number, studentId: number): Promise<LessonGrades[]>;
     abstract update(
+        id: number,
+        dto: UpdateLessonGradeDto,
+        modifiedBy: number,
+    ): Promise<LessonGrades>;
+    abstract trxUpdate(
+        queryRunner: QueryRunner,
         id: number,
         dto: UpdateLessonGradeDto,
         modifiedBy: number,

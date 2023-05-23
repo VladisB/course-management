@@ -34,7 +34,7 @@ export class LessonGrades extends BaseEntity {
     @JoinColumn({ name: "modified_by" })
     public modifiedBy: User;
 
-    @Column({ type: "integer", nullable: false })
+    @Column({ type: "float", nullable: false })
     grade: number;
 
     @CreateDateColumn({

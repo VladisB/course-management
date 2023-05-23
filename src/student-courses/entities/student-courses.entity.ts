@@ -24,7 +24,7 @@ export class StudentCourses {
     public studentId: number;
 
     // Avarage by lessons
-    @Column({ nullable: true, default: null, name: "final_mark" })
+    @Column({ nullable: true, default: null, name: "final_mark", type: "float" })
     public finalMark: number;
 
     @Column({ nullable: true, default: null, name: "feedback" })

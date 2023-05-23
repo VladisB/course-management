@@ -165,9 +165,27 @@ export class LessonGradesService implements ILessonGradesService {
     ): Promise<LessonGradeViewModel> {
         await this.validateUpdate(id, dto);
 
-        const grade = await this.lessonGradesRepository.update(id, dto, modifiedBy.id);
+        const transaction = await this.lessonGradesRepository.initTrx();
 
-        return this.lessonGradesViewModelFactory.initLessonGradesViewModel(grade);
+        try {
+            const grade = await this.lessonGradesRepository.trxUpdate(
+                transaction,
+                id,
+                dto,
+                modifiedBy.id,
+            );
+            await this.updateFinalMark(transaction, dto.studentId, grade.lesson.course.id);
+
+            await this.lessonGradesRepository.commitTrx(transaction);
+
+            return this.lessonGradesViewModelFactory.initLessonGradesViewModel(grade);
+        } catch (err) {
+            console.error(err);
+
+            await this.lessonGradesRepository.rollbackTrx(transaction);
+
+            throw err;
+        }
     }
     //#endregion
 
@@ -207,7 +225,7 @@ export class LessonGradesService implements ILessonGradesService {
     }
 
     private async validateUpdate(id: number, dto: UpdateLessonGradeDto): Promise<void> {
-        await this.checkIfGradeNotExists(dto, id);
+        await this.checkIfGradeExists(id);
         const lesson = dto.lessonId && (await this.checkIfLessonExists(dto.lessonId));
         const student = dto.studentId && (await this.checkIfStudentExists(dto.studentId));
 
@@ -224,6 +242,14 @@ export class LessonGradesService implements ILessonGradesService {
 
         if (grade && grade.id !== idToIgnore) {
             throw new BadRequestException("Provided grade already exists");
+        }
+    }
+
+    private async checkIfGradeExists(id: number): Promise<void> {
+        const grade = await this.lessonGradesRepository.getById(id);
+
+        if (!grade) {
+            throw new NotFoundException(BaseErrorMessage.NOT_FOUND);
         }
     }
 
