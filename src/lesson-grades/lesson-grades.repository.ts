@@ -43,6 +43,23 @@ export class LessonGradesRepository extends BaseRepository implements ILessonGra
         });
     }
 
+    trxGetAllByCourse(
+        queryRunner: QueryRunner,
+        courseId: number,
+        studentId: number,
+    ): Promise<LessonGrades[]> {
+        return queryRunner.manager.find(LessonGrades, {
+            where: {
+                lesson: { course: { id: courseId } },
+                student: { id: studentId },
+            },
+            relations: {
+                createdBy: true,
+                student: true,
+            },
+        });
+    }
+
     public getAllQ(): SelectQueryBuilder<LessonGrades> {
         const userQuery = this.entityRepository
             .createQueryBuilder(this.tableName)
@@ -63,6 +80,9 @@ export class LessonGradesRepository extends BaseRepository implements ILessonGra
                 createdBy: true,
                 modifiedBy: true,
                 student: true,
+                lesson: {
+                    course: true,
+                },
             },
         });
     }
@@ -85,6 +105,10 @@ export class LessonGradesRepository extends BaseRepository implements ILessonGra
 
     public async deleteById(id: number): Promise<void> {
         await this.entityRepository.delete(id);
+    }
+
+    public async trxDeleteById(queryRunner: QueryRunner, id: number): Promise<void> {
+        await queryRunner.manager.delete(LessonGrades, id);
     }
 
     public async create(dto: CreateLessonGradeDto, createdBy: number): Promise<LessonGrades> {
@@ -161,11 +185,17 @@ export abstract class ILessonGradesRepository extends IBaseRepository {
     ): Promise<LessonGrades>;
     abstract create(dto: CreateLessonGradeDto, createdBy: number): Promise<LessonGrades>;
     abstract deleteById(id: number): Promise<void>;
+    abstract trxDeleteById(queryRunner: QueryRunner, id: number): Promise<void>;
     abstract trxGetById(queryRunner: QueryRunner, id: number): Promise<LessonGrades>;
     abstract getAllQ(): SelectQueryBuilder<LessonGrades>;
     abstract getById(id: number): Promise<LessonGrades>;
     abstract getByLesson(lessonId: number, studentId: number): Promise<LessonGrades>;
     abstract getAllByCourse(courseId: number, studentId: number): Promise<LessonGrades[]>;
+    abstract trxGetAllByCourse(
+        queryRunner: QueryRunner,
+        courseId: number,
+        studentId: number,
+    ): Promise<LessonGrades[]>;
     abstract update(
         id: number,
         dto: UpdateLessonGradeDto,

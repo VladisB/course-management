@@ -126,6 +126,23 @@ export class StudentCoursesRepository extends BaseRepository implements IStudent
         });
     }
 
+    public async trxGetByCourseAndStudent(
+        queryRunner: QueryRunner,
+        courseId: number,
+        studentId: number,
+    ): Promise<StudentCourses> {
+        return await queryRunner.manager.findOne(StudentCourses, {
+            where: {
+                course: { id: courseId },
+                student: { id: studentId },
+            },
+            relations: {
+                course: true,
+                student: true,
+            },
+        });
+    }
+
     public async bulkCreate(studentId: number, courseIdList: number[]): Promise<StudentCourses[]> {
         const enteties = courseIdList.map((id) =>
             this.entityRepository.create({
@@ -179,6 +196,11 @@ export abstract class IStudentCoursesRepository extends IBaseRepository {
     abstract deleteById(id: number): Promise<void>;
     abstract getAllQ(): any;
     abstract getByCourseAndStudent(courseId: number, studentId: number): Promise<StudentCourses>;
+    abstract trxGetByCourseAndStudent(
+        queryRunner: QueryRunner,
+        courseId: number,
+        studentId: number,
+    ): Promise<StudentCourses>;
     abstract getById(id: number): Promise<StudentCourses>;
     abstract getByIdList(idList: number[]): Promise<StudentCourses[]>;
     abstract update(id: number, dto: UpdateStudentCoursesDto): Promise<StudentCourses>;

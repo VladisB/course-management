@@ -47,7 +47,7 @@ export class LessonGradesService implements ILessonGradesService {
                 dto,
                 createdBy.id,
             );
-            await this.updateFinalMark(transaction, dto.studentId, lesson.course.id);
+            await this.trxUpdateFinalGrade(transaction, dto.studentId, lesson.course.id);
 
             await this.lessonGradesRepository.commitTrx(transaction);
 
@@ -68,7 +68,20 @@ export class LessonGradesService implements ILessonGradesService {
             throw new NotFoundException(BaseErrorMessage.NOT_FOUND);
         }
 
-        await this.lessonGradesRepository.deleteById(id);
+        const transaction = await this.lessonGradesRepository.initTrx();
+
+        try {
+            await this.lessonGradesRepository.trxDeleteById(transaction, id);
+            await this.trxUpdateFinalGrade(transaction, grade.student.id, grade.lesson.course.id);
+
+            await this.lessonGradesRepository.commitTrx(transaction);
+        } catch (err) {
+            console.error(err);
+
+            await this.lessonGradesRepository.rollbackTrx(transaction);
+
+            throw err;
+        }
     }
 
     public async getAllGrades(
@@ -174,7 +187,7 @@ export class LessonGradesService implements ILessonGradesService {
                 dto,
                 modifiedBy.id,
             );
-            await this.updateFinalMark(transaction, dto.studentId, grade.lesson.course.id);
+            await this.trxUpdateFinalGrade(transaction, dto.studentId, grade.lesson.course.id);
 
             await this.lessonGradesRepository.commitTrx(transaction);
 
@@ -190,20 +203,23 @@ export class LessonGradesService implements ILessonGradesService {
     //#endregion
 
     //#region Private methods
-    private async updateFinalMark(
+    private async trxUpdateFinalGrade(
         transaction: QueryRunner,
         studentId: number,
         courseId: number,
     ): Promise<void> {
-        const gradesByLesson = await this.lessonGradesRepository.getAllByCourse(
+        const gradesByCourse = await this.lessonGradesRepository.trxGetAllByCourse(
+            transaction,
             courseId,
             studentId,
         );
 
-        const finalMark = gradesByLesson.reduce((acc, curr) => acc + curr.grade, 0);
-        const finalGrade = finalMark / gradesByLesson.length;
+        const gradesSum = gradesByCourse.reduce((acc, curr) => acc + curr.grade, 0);
+        const finalGrade =
+            gradesByCourse.length > 0 && gradesSum ? gradesSum / gradesByCourse.length : 0;
 
-        const studentCourse = await this.studentCoursesRepository.getByCourseAndStudent(
+        const studentCourse = await this.studentCoursesRepository.trxGetByCourseAndStudent(
+            transaction,
             courseId,
             studentId,
         );
