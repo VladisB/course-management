@@ -18,6 +18,7 @@ import { Group } from "../../groups/entities/group.entity";
 import { CourseInstructors } from "src/courses/entities/course-to-instructor.entity";
 import { StudentCourses } from "src/student-courses/entities/student-courses.entity";
 import { LessonGrades } from "src/lesson-grades/entities/lesson-grade.entity";
+import { Homework } from "src/homeworks/entities/homework.entity";
 
 @Entity()
 export class User extends BaseEntity {
@@ -51,14 +52,11 @@ export class User extends BaseEntity {
     @JoinColumn({ name: "group_id" })
     group: Group;
 
-    // @OneToMany(() => LessonGrades, (lessonGrade) => lessonGrade.createdBy)
-    // createdGrades: LessonGrades[];
-
-    // @OneToMany(() => LessonGrades, (lessonGrade) => lessonGrade.modifiedBy)
-    // modifiedGrades: LessonGrades[];
-
     @OneToMany(() => LessonGrades, (lessonGrade) => lessonGrade.student)
     myGrades: LessonGrades[];
+
+    @OneToMany(() => Homework, (homeWork) => homeWork.student)
+    myHomeworks: Homework[];
 
     @OneToMany(() => CourseInstructors, (courseInstructors) => courseInstructors.instructor)
     courseInstructors: CourseInstructors[];

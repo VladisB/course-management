@@ -1,4 +1,5 @@
 import { Course } from "src/courses/entities/course.entity";
+import { Homework } from "src/homeworks/entities/homework.entity";
 import { LessonGrades } from "src/lesson-grades/entities/lesson-grade.entity";
 import {
     BaseEntity,
@@ -29,6 +30,9 @@ export class Lesson extends BaseEntity {
 
     @OneToMany(() => LessonGrades, (LessonGrade) => LessonGrade.lesson)
     public grades: LessonGrades[];
+
+    @OneToMany(() => Homework, (Homework) => Homework.lesson)
+    public homeworks: Homework[];
 
     @CreateDateColumn({
         type: "timestamp",
