@@ -5,6 +5,7 @@ import { AuthModule } from "./auth/auth.module";
 import { RolesModule } from "./roles/roles.module";
 import databaseConfig from "./config/database.config";
 import appConfig from "./config/app.config";
+import awsConfig from "./config/aws.config";
 import { TypeOrmConfigService } from "./database/typeorm-config.service";
 import { FacultiesModule } from "./faculties/faculties.module";
 import { GroupsModule } from "./groups/groups.module";
@@ -17,12 +18,13 @@ import { UsersModule } from "./users/users.module";
 import { StudentsModule } from "./students/students.module";
 import { LessonGradesModule } from "./lesson-grades/lesson-grades.module";
 import { HomeWorksModule } from "./homeworks/homeworks.module";
+import { FilesModule } from "./files/files.module";
 
 @Module({
     imports: [
         ConfigModule.forRoot({
             isGlobal: true,
-            load: [databaseConfig, appConfig],
+            load: [databaseConfig, appConfig, awsConfig],
             envFilePath: `.${process.env.NODE_ENV}.env`,
         }),
         RolesModule,
@@ -39,6 +41,7 @@ import { HomeWorksModule } from "./homeworks/homeworks.module";
         StudentsModule,
         LessonGradesModule,
         HomeWorksModule,
+        FilesModule,
     ],
     controllers: [],
     providers: [TypeOrmConfigService],

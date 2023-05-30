@@ -10,9 +10,5 @@ export class CreateHomeworkDto {
     lessonId: number;
 
     // @IsNotEmpty()
-    // @IsNumber()
-    // @Min(1)
-    // @Max(100)
-    // @Type(() => Number)
-    file: string;
+    // file: Express.Multer.File;
 }

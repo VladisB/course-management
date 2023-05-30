@@ -56,10 +56,14 @@ export class HomeworksRepository extends BaseRepository implements IHomeworksRep
         await this.entityRepository.delete(id);
     }
 
-    public async create(dto: CreateHomeworkDto, createdBy: number): Promise<Homework> {
+    public async create(
+        dto: CreateHomeworkDto,
+        filePath: string,
+        createdBy: number,
+    ): Promise<Homework> {
         const homeworkEntity = this.entityRepository.create({
             ...dto,
-            filePath: dto.file,
+            filePath,
             lesson: { id: dto.lessonId },
             student: { id: createdBy },
             createdBy: { id: createdBy },
@@ -85,7 +89,7 @@ export class HomeworksRepository extends BaseRepository implements IHomeworksRep
 }
 
 export abstract class IHomeworksRepository extends IBaseRepository {
-    abstract create(dto: CreateHomeworkDto, createdBy: number): Promise<Homework>;
+    abstract create(dto: CreateHomeworkDto, filePath: string, createdBy: number): Promise<Homework>;
     abstract deleteById(id: number): Promise<void>;
     abstract getByLesson(lessonId: number, studentId: number): Promise<Homework>;
     abstract getAllQ(): SelectQueryBuilder<Homework>;

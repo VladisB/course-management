@@ -6,4 +6,6 @@ export default registerAs("app", () => ({
     jwt: process.env.APP_JWT,
     accessTokenExpiresIn: process.env.APP_ACCESS_TOKEN_EXPIRES_IN || "1h",
     refreshTokenExpiresIn: process.env.APP_REFRESH_TOKEN_EXPIRES_IN || "1d",
+    uploadRateLimitTTL: process.env.APP_UPLOAD_RATE_LIMIT_TTL || 60,
+    uploadRateLimit: process.env.APP_UPLOAD_RATE_LIMIT || 3,
 }));

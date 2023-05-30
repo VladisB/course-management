@@ -8,6 +8,9 @@ import { HomeworkViewModel } from "./view-models";
 import { ILessonsRepository } from "src/lessons/lessons.repository";
 import { IUsersRepository } from "src/users/users.repository";
 import { Lesson } from "src/lessons/entities/lesson.entity";
+import { IFilesService } from "src/files/files.service.interface";
+import { FileMimeType, S3BucketPath } from "src/common/enum";
+import { ConfigService } from "@nestjs/config";
 
 @Injectable()
 export class HomeWorksService implements IHomeWorksService {
@@ -16,20 +19,66 @@ export class HomeWorksService implements IHomeWorksService {
         private readonly homeworksRepository: IHomeworksRepository,
         private readonly lessonsRepository: ILessonsRepository,
         private readonly usersRepository: IUsersRepository,
+        private readonly filesService: IFilesService,
+        private readonly configService: ConfigService,
     ) {}
 
-    public async createHomework(dto: CreateHomeworkDto, creator: User): Promise<HomeworkViewModel> {
-        await this.validateCreate(dto, creator.id);
+    public async createHomework(
+        dto: CreateHomeworkDto,
+        file: Buffer,
+        fileName: string,
+        creator: User,
+    ): Promise<HomeworkViewModel> {
+        const lesson = await this.validateCreate(dto, creator.id);
 
-        const homework = await this.homeworksRepository.create(dto, creator.id);
+        const fullName = `${creator.firstName} ${creator.lastName}`;
+        const objecKey = await this.uploadHomework(
+            file,
+            creator,
+            lesson.course.name,
+            fullName,
+            dto.lessonId,
+        );
+
+        const homework = await this.homeworksRepository.create(dto, objecKey, creator.id);
 
         return this.homeworkViewModelFactory.initHomeworkViewModel(homework);
     }
 
-    private async validateCreate(dto: CreateHomeworkDto, studentId: number): Promise<void> {
+    private async uploadHomework(
+        fileContent: Buffer,
+        creator: User,
+        courseName: string,
+        studentName: string,
+        lessonId: number,
+    ): Promise<string> {
+        const fileName = this.setFileName(courseName, studentName, lessonId);
+        const objectKey = `${this.getHomeworkS3FolderPath(creator.id)}${fileName}`;
+
+        await this.filesService.uploadFile(
+            this.configService.get<string>("aws.appBucketName"),
+            objectKey,
+            fileContent,
+            FileMimeType.Text,
+        );
+
+        return objectKey;
+    }
+
+    private getHomeworkS3FolderPath(studentId: number) {
+        return `${S3BucketPath.Homework}/${studentId}/`;
+    }
+
+    private setFileName(courseName: string, studentName: string, lessonId: number): string {
+        return `${studentName}. Homework ${courseName} - lesson #${lessonId}.txt`;
+    }
+
+    private async validateCreate(dto: CreateHomeworkDto, studentId: number): Promise<Lesson> {
         await this.checkIfExists(dto.lessonId, studentId);
-        await this.checkIfLessonExists(dto.lessonId);
+        const lesson = await this.checkIfLessonExists(dto.lessonId);
         await this.checkIfStudentExists(studentId);
+
+        return lesson;
     }
 
     private async checkIfExists(lessonId: number, studentId: number): Promise<void> {
@@ -62,7 +111,12 @@ export class HomeWorksService implements IHomeWorksService {
 }
 
 export abstract class IHomeWorksService {
-    abstract createHomework(dto: CreateHomeworkDto, creator: User): Promise<HomeworkViewModel>;
+    abstract createHomework(
+        dto: CreateHomeworkDto,
+        file: Buffer,
+        fileName: string,
+        creator: User,
+    ): Promise<HomeworkViewModel>;
     // abstract deleteGrade(id: number): Promise<void>;
     // abstract getAllGrades(
     //     queryParams: QueryParamsDTO,
