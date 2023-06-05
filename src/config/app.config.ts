@@ -8,4 +8,5 @@ export default registerAs("app", () => ({
     refreshTokenExpiresIn: process.env.APP_REFRESH_TOKEN_EXPIRES_IN || "1d",
     uploadRateLimitTTL: process.env.APP_UPLOAD_RATE_LIMIT_TTL || 60,
     uploadRateLimit: process.env.APP_UPLOAD_RATE_LIMIT || 3,
+    uploadFileSizeLimitMb: process.env.APP_UPLOAD_FILE_SIZE_LIMIT_MB || 2,
 }));

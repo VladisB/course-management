@@ -3,7 +3,7 @@ export class HomeworkViewModel {
     studentId: number;
     studentName: string;
     studentLastName: string;
-    filePath: string;
+    downloadURL: string | null;
     createdBy: string;
     modifiedBy: string;
     createdAt: Date;

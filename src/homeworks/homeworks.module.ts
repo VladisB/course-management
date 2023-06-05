@@ -1,6 +1,6 @@
 import { Module } from "@nestjs/common";
-import { HomeWorksService } from "./homeworks.service";
-import { HomeWorksController } from "./homeworks.controller";
+import { HomeworksService } from "./homeworks.service";
+import { HomeworksController } from "./homeworks.controller";
 import { HomeworksRepository, IHomeworksRepository } from "./homeworks.repository";
 import { TypeOrmModule } from "@nestjs/typeorm";
 import { Homework } from "./entities/homework.entity";
@@ -29,9 +29,9 @@ import { APP_GUARD } from "@nestjs/core";
             inject: [ConfigService],
         }),
     ],
-    controllers: [HomeWorksController],
+    controllers: [HomeworksController],
     providers: [
-        HomeWorksService,
+        HomeworksService,
         HomeworkViewModelFactory,
         {
             useClass: HomeworksRepository,

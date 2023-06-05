@@ -3,12 +3,10 @@ import { InjectRepository } from "@nestjs/typeorm";
 import { Repository, SelectQueryBuilder } from "typeorm";
 import { BaseRepository, IBaseRepository } from "src/common/db/base.repository";
 import { Homework } from "./entities/homework.entity";
-import { CreateHomeworkDto } from "./dto/create-homework.dto";
-import { UpdateHomeworkDto } from "./dto/update-homework.dto";
 
 @Injectable()
 export class HomeworksRepository extends BaseRepository implements IHomeworksRepository {
-    private readonly tableName = "home_works";
+    private readonly tableName = "homework";
 
     constructor(
         @InjectRepository(Homework)
@@ -18,7 +16,11 @@ export class HomeworksRepository extends BaseRepository implements IHomeworksRep
     }
 
     public getAllQ(): SelectQueryBuilder<Homework> {
-        const query = this.entityRepository.createQueryBuilder(this.tableName);
+        const query = this.entityRepository
+            .createQueryBuilder(this.tableName)
+            .leftJoinAndSelect(`${this.tableName}.student`, "student")
+            .leftJoinAndSelect(`${this.tableName}.createdBy`, "createdBy")
+            .leftJoinAndSelect(`${this.tableName}.modifiedBy`, "modifiedBy");
 
         return query;
     }
@@ -29,7 +31,9 @@ export class HomeworksRepository extends BaseRepository implements IHomeworksRep
                 id,
             },
             relations: {
-                lesson: true,
+                lesson: {
+                    course: true,
+                },
                 student: true,
                 createdBy: true,
                 modifiedBy: true,
@@ -56,43 +60,24 @@ export class HomeworksRepository extends BaseRepository implements IHomeworksRep
         await this.entityRepository.delete(id);
     }
 
-    public async create(
-        dto: CreateHomeworkDto,
-        filePath: string,
-        createdBy: number,
-    ): Promise<Homework> {
-        const homeworkEntity = this.entityRepository.create({
-            ...dto,
-            filePath,
-            lesson: { id: dto.lessonId },
-            student: { id: createdBy },
-            createdBy: { id: createdBy },
-            modifiedBy: { id: createdBy },
-        });
-
-        const homework = await this.entityRepository.save(homeworkEntity);
+    public async create(entity: Homework): Promise<Homework> {
+        const homework = await this.entityRepository.save(entity);
 
         return await this.getById(homework.id);
     }
 
-    public async update(id: number, dto: UpdateHomeworkDto, modifiedBy: number): Promise<Homework> {
-        const lessonGradesEntity = await this.entityRepository.preload({
-            id,
-            ...dto,
-            modifiedBy: { id: modifiedBy },
-        });
+    public async update(entity: Homework): Promise<Homework> {
+        const updatedEntity = await this.entityRepository.save(entity);
 
-        const lessonGrade = await this.entityRepository.save(lessonGradesEntity);
-
-        return await this.getById(lessonGrade.id);
+        return await this.getById(updatedEntity.id);
     }
 }
 
 export abstract class IHomeworksRepository extends IBaseRepository {
-    abstract create(dto: CreateHomeworkDto, filePath: string, createdBy: number): Promise<Homework>;
+    abstract create(entity: Homework): Promise<Homework>;
     abstract deleteById(id: number): Promise<void>;
     abstract getByLesson(lessonId: number, studentId: number): Promise<Homework>;
     abstract getAllQ(): SelectQueryBuilder<Homework>;
     abstract getById(id: number): Promise<Homework>;
-    abstract update(id: number, dto: UpdateHomeworkDto, modifiedBy: number): Promise<Homework>;
+    abstract update(entity: Homework): Promise<Homework>;
 }

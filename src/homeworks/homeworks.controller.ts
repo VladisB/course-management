@@ -14,10 +14,10 @@ import {
     FileTypeValidator,
     ValidationPipe,
     UsePipes,
+    ParseIntPipe,
+    Query,
 } from "@nestjs/common";
-import { HomeWorksService } from "./homeworks.service";
 import { CreateHomeworkDto } from "./dto/create-homework.dto";
-import { UpdateHomeworkDto } from "./dto/update-homework.dto";
 import { GetUser } from "src/auth/get-user.decorator";
 import { User } from "src/users/entities/user.entity";
 import { RoleName } from "src/roles/roles.enum";
@@ -26,54 +26,54 @@ import { RolesGuard } from "src/roles/roles.guard";
 import { Strategies } from "src/auth/strategies.enum";
 import { AuthGuard } from "@nestjs/passport";
 import { FileInterceptor } from "@nestjs/platform-express";
+import { HomeworkViewModel } from "./view-models";
+import { FileValidationPipe } from "./pipes/file-validation.pipe";
+import { HomeworksService } from "./homeworks.service";
+import { QueryParamsDTO } from "src/common/dto/query-params.dto";
 
-@Roles(RoleName.Student)
 @UseGuards(AuthGuard(Strategies.JWT), RolesGuard)
 @UsePipes(new ValidationPipe({ transform: true }))
 @Controller("homeworks")
-export class HomeWorksController {
-    constructor(private readonly homeWorksService: HomeWorksService) {}
+export class HomeworksController {
+    constructor(private readonly homeworksService: HomeworksService) {}
 
     @Post()
     @UseInterceptors(FileInterceptor("file"))
+    @Roles(RoleName.Student)
     create(
-        @UploadedFile(
-            new ParseFilePipe({
-                validators: [
-                    new MaxFileSizeValidator({ maxSize: 1000 }),
-                    new FileTypeValidator({ fileType: "text/plain" }),
-                ],
-            }),
-        )
-        file: Express.Multer.File,
+        @UploadedFile(FileValidationPipe) file: Express.Multer.File,
         @GetUser() user: User,
         @Body() CreateHomeworkDto: CreateHomeworkDto,
-    ): Promise<any> {
-        return this.homeWorksService.createHomework(
-            CreateHomeworkDto,
-            file.buffer,
-            file.originalname,
-            user,
-        );
+    ): Promise<HomeworkViewModel> {
+        return this.homeworksService.createHomework(CreateHomeworkDto, file.buffer, user);
     }
 
-    // @Get()
-    // findAll() {
-    //     return this.homeWorksService.findAll();
-    // }
+    @Get()
+    @Roles(RoleName.Admin, RoleName.Instructor)
+    findAll(@GetUser() user: User, @Query() queryParams: QueryParamsDTO) {
+        return this.homeworksService.getAllHomeworks(queryParams);
+    }
 
-    // @Get(":id")
-    // findOne(@Param("id") id: string) {
-    //     return this.homeWorksService.findOne(+id);
-    // }
+    @Get(":id")
+    @Roles(RoleName.Student, RoleName.Admin, RoleName.Instructor)
+    findOne(@Param("id", ParseIntPipe) id: number): Promise<HomeworkViewModel> {
+        return this.homeworksService.getHomework(id);
+    }
 
-    // @Patch(":id")
-    // update(@Param("id") id: string, @Body() UpdateHomeworkDto: UpdateHomeworkDto) {
-    //     return this.homeWorksService.update(+id, UpdateHomeworkDto);
-    // }
+    @Patch(":id")
+    @Roles(RoleName.Student)
+    @UseInterceptors(FileInterceptor("file"))
+    update(
+        @Param("id", ParseIntPipe) id: number,
+        @UploadedFile(FileValidationPipe) file: Express.Multer.File,
+        @GetUser() user: User,
+    ): Promise<HomeworkViewModel> {
+        return this.homeworksService.updateHomework(id, file.buffer, user);
+    }
 
-    // @Delete(":id")
-    // remove(@Param("id") id: string) {
-    //     return this.homeWorksService.remove(+id);
-    // }
+    @Delete(":id")
+    @Roles(RoleName.Student, RoleName.Admin)
+    remove(@Param("id", ParseIntPipe) id: number, @GetUser() user: User) {
+        return this.homeworksService.deleteHomework(id, user);
+    }
 }
