@@ -1,5 +1,5 @@
 import { Homework } from "../entities/homework.entity";
-import { SignedHomeworkURL } from "../signed-homework-url.interface";
+import { SignedHomeworkURL } from "../interfaces/signed-homework-url.interface";
 import { HomeworkViewModel } from "../view-models";
 
 export class HomeworkViewModelFactory implements IHomeworkViewModelFactory {

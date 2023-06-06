@@ -20,7 +20,8 @@ import { Homework } from "./entities/homework.entity";
 import { DataListResponse } from "src/common/db/data-list-response";
 import { ColumnType, QueryParamsDTO } from "src/common/dto/query-params.dto";
 import { ApplyToQueryExtension, DatatablesConfig } from "src/common/query-extention";
-import { SignedHomeworkURL } from "./signed-homework-url.interface";
+import { SignedHomeworkURL } from "./interfaces/signed-homework-url.interface";
+
 @Injectable()
 export class HomeworksService implements IHomeworksService {
     constructor(
@@ -55,6 +56,30 @@ export class HomeworksService implements IHomeworksService {
         return new DataListResponse<HomeworkViewModel>(model, count);
     }
 
+    public async getAllStudentHomeworks(
+        queryParams: QueryParamsDTO,
+        student: User,
+    ): Promise<DataListResponse<HomeworkViewModel>> {
+        const query = this.homeworksRepository.getAllByStudentQ(student.id);
+
+        const config = this.getDatatablesConfig();
+
+        const [homeworks, count] = await ApplyToQueryExtension.applyToQuery<Homework>(
+            queryParams,
+            query,
+            config,
+        );
+
+        const signedHomeWorkURL = await this.signHomeworks(homeworks);
+
+        const model = this.homeworkViewModelFactory.initHomeworkListViewModel(
+            homeworks,
+            signedHomeWorkURL,
+        );
+
+        return new DataListResponse<HomeworkViewModel>(model, count);
+    }
+
     public async getHomework(id: number): Promise<HomeworkViewModel> {
         const homework = await this.homeworksRepository.getById(id);
 
@@ -68,7 +93,9 @@ export class HomeworksService implements IHomeworksService {
     }
 
     public async deleteHomework(id: number, user: User): Promise<void> {
-        await this.validateDelete(id, user.id);
+        const homework = await this.validateDelete(id, user.id);
+
+        await this.deleteHomeworkFile(homework.filePath);
 
         await this.homeworksRepository.deleteById(id);
     }
@@ -208,13 +235,21 @@ export class HomeworksService implements IHomeworksService {
         const objectKey = `${this.getHomeworkS3FolderPath(creator.id)}${fileName}`;
 
         await this.filesService.uploadFile(
-            this.configService.get<string>("aws.appBucketName"),
+            this.getS3Bucket(),
             objectKey,
             fileContent,
             FileMimeType.PDF,
         );
 
         return objectKey;
+    }
+
+    private async deleteHomeworkFile(objectKey: string): Promise<void> {
+        await this.filesService.deleteObject(this.getS3Bucket(), objectKey);
+    }
+
+    private getS3Bucket(): string {
+        return this.configService.getOrThrow<string>("aws.appBucketName");
     }
 
     private async signHomeworkUrl(objectKey: string): Promise<string> {
@@ -259,9 +294,11 @@ export class HomeworksService implements IHomeworksService {
         return homework;
     }
 
-    private async validateDelete(id: number, userId: number): Promise<void> {
+    private async validateDelete(id: number, userId: number): Promise<Homework> {
         const homework = await this.checkIfNotExists(id);
         await this.checkOwner(homework, userId);
+
+        return homework;
     }
 
     private async checkIfExists(lessonId: number, studentId: number): Promise<void> {
@@ -320,6 +357,10 @@ export abstract class IHomeworksService {
     abstract deleteHomework(id: number, user: User): Promise<void>;
     abstract getAllHomeworks(
         queryParams: QueryParamsDTO,
+    ): Promise<DataListResponse<HomeworkViewModel>>;
+    abstract getAllStudentHomeworks(
+        queryParams: QueryParamsDTO,
+        student: User,
     ): Promise<DataListResponse<HomeworkViewModel>>;
     abstract getHomework(id: number): Promise<HomeworkViewModel>;
 }

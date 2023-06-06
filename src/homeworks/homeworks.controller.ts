@@ -9,9 +9,6 @@ import {
     UseGuards,
     UseInterceptors,
     UploadedFile,
-    ParseFilePipe,
-    MaxFileSizeValidator,
-    FileTypeValidator,
     ValidationPipe,
     UsePipes,
     ParseIntPipe,
@@ -43,15 +40,21 @@ export class HomeworksController {
     create(
         @UploadedFile(FileValidationPipe) file: Express.Multer.File,
         @GetUser() user: User,
-        @Body() CreateHomeworkDto: CreateHomeworkDto,
+        @Body() createHomeworkDto: CreateHomeworkDto,
     ): Promise<HomeworkViewModel> {
-        return this.homeworksService.createHomework(CreateHomeworkDto, file.buffer, user);
+        return this.homeworksService.createHomework(createHomeworkDto, file.buffer, user);
     }
 
     @Get()
     @Roles(RoleName.Admin, RoleName.Instructor)
-    findAll(@GetUser() user: User, @Query() queryParams: QueryParamsDTO) {
+    findAll(@Query() queryParams: QueryParamsDTO) {
         return this.homeworksService.getAllHomeworks(queryParams);
+    }
+
+    @Get("/my")
+    @Roles(RoleName.Student)
+    findMy(@GetUser() user: User, @Query() queryParams: QueryParamsDTO) {
+        return this.homeworksService.getAllStudentHomeworks(queryParams, user);
     }
 
     @Get(":id")

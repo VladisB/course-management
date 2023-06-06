@@ -1,6 +1,11 @@
 import { Injectable } from "@nestjs/common";
 import { IFilesService } from "./files.service.interface";
-import { GetObjectCommand, PutObjectCommand, S3Client } from "@aws-sdk/client-s3";
+import {
+    DeleteObjectCommand,
+    GetObjectCommand,
+    PutObjectCommand,
+    S3Client,
+} from "@aws-sdk/client-s3";
 import { ConfigService } from "@nestjs/config";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 
@@ -32,6 +37,15 @@ export class S3Service implements IFilesService {
         };
 
         await this.s3.send(new PutObjectCommand(params));
+    }
+
+    public async deleteObject(bucketName: string, objectKey: string): Promise<void> {
+        const command = new DeleteObjectCommand({
+            Bucket: bucketName,
+            Key: objectKey,
+        });
+
+        await this.s3.send(command);
     }
 
     public async getSignedReadUrl(

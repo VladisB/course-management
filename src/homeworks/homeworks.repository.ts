@@ -25,6 +25,17 @@ export class HomeworksRepository extends BaseRepository implements IHomeworksRep
         return query;
     }
 
+    public getAllByStudentQ(studentId: number): SelectQueryBuilder<Homework> {
+        const query = this.entityRepository
+            .createQueryBuilder(this.tableName)
+            .leftJoinAndSelect(`${this.tableName}.student`, "student")
+            .leftJoinAndSelect(`${this.tableName}.createdBy`, "createdBy")
+            .leftJoinAndSelect(`${this.tableName}.modifiedBy`, "modifiedBy")
+            .where(`${this.tableName}.student.id = :studentId`, { studentId });
+
+        return query;
+    }
+
     public async getById(id: number): Promise<Homework> {
         return await this.entityRepository.findOne({
             where: {
@@ -76,8 +87,9 @@ export class HomeworksRepository extends BaseRepository implements IHomeworksRep
 export abstract class IHomeworksRepository extends IBaseRepository {
     abstract create(entity: Homework): Promise<Homework>;
     abstract deleteById(id: number): Promise<void>;
-    abstract getByLesson(lessonId: number, studentId: number): Promise<Homework>;
+    abstract getAllByStudentQ(studentId: number): SelectQueryBuilder<Homework>;
     abstract getAllQ(): SelectQueryBuilder<Homework>;
     abstract getById(id: number): Promise<Homework>;
+    abstract getByLesson(lessonId: number, studentId: number): Promise<Homework>;
     abstract update(entity: Homework): Promise<Homework>;
 }
