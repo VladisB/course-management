@@ -282,7 +282,8 @@ export class HomeworksService implements IHomeworksService {
     private async validateCreate(dto: CreateHomeworkDto, studentId: number): Promise<Lesson> {
         await this.checkIfExists(dto.lessonId, studentId);
         const lesson = await this.checkIfLessonExists(dto.lessonId);
-        await this.checkIfStudentExists(studentId);
+        const student = await this.checkIfStudentExists(studentId);
+        await this.checkIfStudentAssignedToLessonsCourse(student, lesson);
 
         return lesson;
     }
@@ -343,6 +344,18 @@ export class HomeworksService implements IHomeworksService {
         }
 
         return student;
+    }
+
+    private async checkIfStudentAssignedToLessonsCourse(
+        student: User,
+        lesson: Lesson,
+    ): Promise<void> {
+        if (
+            lesson.course.id &&
+            !student.studentCourses.find((sCourses) => sCourses.courseId === lesson.course.id)
+        ) {
+            throw new BadRequestException("Provided student is not assigned to the lessons course");
+        }
     }
     //#endregion
 }
