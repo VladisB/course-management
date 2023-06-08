@@ -23,8 +23,8 @@ import { QueryParamsDTO } from "src/common/dto/query-params.dto";
 import { DataListResponse } from "src/common/db/data-list-response";
 import { LessonGradeViewModel } from "./view-models";
 import { RolesGuard } from "src/roles/roles.guard";
-import { RoleName } from "src/roles/roles.enum";
 import { Roles } from "src/roles/roles-auth.decorator";
+import { RoleName } from "src/common/enum";
 
 @Roles(RoleName.Admin, RoleName.Instructor)
 @UseGuards(AuthGuard(Strategies.JWT), RolesGuard)

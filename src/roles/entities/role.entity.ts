@@ -4,6 +4,8 @@ import {
     Column,
     CreateDateColumn,
     Entity,
+    JoinColumn,
+    ManyToOne,
     OneToMany,
     PrimaryGeneratedColumn,
     UpdateDateColumn,
@@ -20,10 +22,19 @@ export class Role extends BaseEntity {
     @OneToMany(() => User, (user) => user.role)
     users: User[];
 
+    @ManyToOne(() => User, { nullable: false })
+    @JoinColumn({ name: "created_by" })
+    public createdBy: User;
+
+    @ManyToOne(() => User, { nullable: false })
+    @JoinColumn({ name: "modified_by" })
+    public modifiedBy: User;
+
     @CreateDateColumn({
         type: "timestamp",
         default: () => "CURRENT_TIMESTAMP(6)",
         name: "created_at",
+        nullable: false,
     })
     public createdAt: Date;
 
@@ -31,7 +42,8 @@ export class Role extends BaseEntity {
         type: "timestamp",
         default: () => "CURRENT_TIMESTAMP(6)",
         onUpdate: "CURRENT_TIMESTAMP(6)",
-        name: "updated_at",
+        name: "modified_at",
+        nullable: false,
     })
-    public updatedAt: Date;
+    public modifiedAt: Date;
 }

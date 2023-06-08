@@ -15,7 +15,6 @@ import {
 import { RolesService } from "./roles.service";
 import { CreateRoleDto } from "./dto/create-role.dto";
 import { Roles } from "./roles-auth.decorator";
-import { RoleName } from "./roles.enum";
 import { AuthGuard } from "@nestjs/passport";
 import { RolesGuard } from "./roles.guard";
 import { DataListResponse } from "src/common/db/data-list-response";
@@ -23,6 +22,9 @@ import { QueryParamsDTO } from "src/common/dto/query-params.dto";
 import { RoleViewModel } from "./view-models";
 import { UpdateRoleDto } from "./dto/update-role.dto";
 import { Strategies } from "src/auth/strategies.enum";
+import { GetUser } from "src/auth/get-user.decorator";
+import { User } from "src/users/entities/user.entity";
+import { RoleName } from "src/common/enum";
 
 @Roles(RoleName.Admin)
 @UseGuards(AuthGuard(Strategies.JWT), RolesGuard)
@@ -32,8 +34,8 @@ export class RolesController {
     constructor(private roleService: RolesService) {}
 
     @Post()
-    create(@Body() dto: CreateRoleDto) {
-        return this.roleService.createRole(dto);
+    create(@Body() dto: CreateRoleDto, @GetUser() user: User): Promise<RoleViewModel> {
+        return this.roleService.createRole(dto, user);
     }
 
     @Get()
@@ -50,8 +52,9 @@ export class RolesController {
     update(
         @Param("id", ParseIntPipe) id: number,
         @Body() updateRoleDto: UpdateRoleDto,
+        @GetUser() user: User,
     ): Promise<RoleViewModel> {
-        return this.roleService.updateRole(id, updateRoleDto);
+        return this.roleService.updateRole(id, updateRoleDto, user);
     }
 
     @Delete(":id")

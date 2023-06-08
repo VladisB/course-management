@@ -1,5 +1,5 @@
+import { RoleName } from "src/common/enum";
 import { Role } from "src/roles/entities/role.entity";
-import { RoleName } from "src/roles/roles.enum";
 import { User } from "src/users/entities/user.entity";
 import { MigrationInterface, QueryRunner } from "typeorm";
 

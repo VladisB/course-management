@@ -17,7 +17,6 @@ import {
 import { CreateHomeworkDto } from "./dto/create-homework.dto";
 import { GetUser } from "src/auth/get-user.decorator";
 import { User } from "src/users/entities/user.entity";
-import { RoleName } from "src/roles/roles.enum";
 import { Roles } from "src/roles/roles-auth.decorator";
 import { RolesGuard } from "src/roles/roles.guard";
 import { Strategies } from "src/auth/strategies.enum";
@@ -27,6 +26,7 @@ import { HomeworkViewModel } from "./view-models";
 import { FileValidationPipe } from "./pipes/file-validation.pipe";
 import { HomeworksService } from "./homeworks.service";
 import { QueryParamsDTO } from "src/common/dto/query-params.dto";
+import { RoleName } from "src/common/enum";
 
 @UseGuards(AuthGuard(Strategies.JWT), RolesGuard)
 @UsePipes(new ValidationPipe({ transform: true }))

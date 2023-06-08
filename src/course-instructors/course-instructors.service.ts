@@ -10,7 +10,6 @@ import { ApplyToQueryExtension } from "src/common/query-extention";
 import { ICoursesRepository } from "src/courses/courses.repository";
 import { CourseInstructors } from "src/courses/entities/course-to-instructor.entity";
 import { Course } from "src/courses/entities/course.entity";
-import { RoleName } from "src/roles/roles.enum";
 import { IRolesRepository } from "src/roles/roles.repository";
 import { User } from "src/users/entities/user.entity";
 import { IUsersRepository } from "src/users/users.repository";
@@ -23,7 +22,7 @@ import {
     CourseInstructorsListViewModel,
     CourseInstructorsViewModel,
 } from "./view-models";
-import { BaseErrorMessage } from "src/common/enum";
+import { BaseErrorMessage, RoleName } from "src/common/enum";
 
 @Injectable()
 export class CourseInstructorsService implements ICourseInstructorsService {

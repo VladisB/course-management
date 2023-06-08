@@ -9,6 +9,8 @@ import { RolesViewModelFactory } from "./model-factories/roles.vm-factory";
 import { IRolesRepository } from "./roles.repository";
 import { RoleViewModel } from "./view-models";
 import { BaseErrorMessage } from "src/common/enum";
+import { RoleModelFactory } from "./model-factories/";
+import { User } from "src/users/entities/user.entity";
 
 @Injectable()
 export class RolesService implements IRolesService {
@@ -19,10 +21,18 @@ export class RolesService implements IRolesService {
 
     //#region Public methods
 
-    public async createRole(dto: CreateRoleDto): Promise<Role> {
+    public async createRole(dto: CreateRoleDto, user: User): Promise<RoleViewModel> {
         await this.validateCreate(dto);
 
-        return await this.rolesRepository.create(dto);
+        const newEntity = RoleModelFactory.create({
+            name: dto.name,
+            createdBy: user,
+            createdAt: new Date(),
+        });
+
+        const role = await this.rolesRepository.create(newEntity);
+
+        return this.rolesViewModelFactory.initRoleViewModel(role);
     }
 
     public async getRoleByName(name: string): Promise<Role> {
@@ -72,10 +82,17 @@ export class RolesService implements IRolesService {
         return new DataListResponse<RoleViewModel>(model, count);
     }
 
-    public async updateRole(id: number, updateRoleDto: UpdateRoleDto): Promise<RoleViewModel> {
-        await this.validateUpdate(id, updateRoleDto);
+    public async updateRole(id: number, dto: UpdateRoleDto, user: User): Promise<RoleViewModel> {
+        const role = await this.validateUpdate(id, dto);
 
-        const model = await this.rolesRepository.update(id, updateRoleDto);
+        const updatedEntity = RoleModelFactory.update({
+            id: role.id,
+            name: dto.name,
+            modifiedBy: user,
+            modifiedAt: new Date(),
+        });
+
+        const model = await this.rolesRepository.update(updatedEntity);
 
         return this.rolesViewModelFactory.initRoleViewModel(model);
     }
@@ -94,9 +111,11 @@ export class RolesService implements IRolesService {
         await this.checkifNotExistByName(dto.name);
     }
 
-    private async validateUpdate(id: number, dto: UpdateRoleDto): Promise<void> {
-        await this.checkifExist(id);
+    private async validateUpdate(id: number, dto: UpdateRoleDto): Promise<Role> {
+        const role = await this.checkifExist(id);
         await this.checkifNotExistByName(dto.name);
+
+        return role;
     }
 
     private async validateDelete(id: number): Promise<Role> {
@@ -121,7 +140,8 @@ export class RolesService implements IRolesService {
 }
 
 interface IRolesService {
-    createRole(dto: CreateRoleDto): Promise<Role>;
+    createRole(dto: CreateRoleDto, user: User): Promise<RoleViewModel>;
+    updateRole(id: number, updateRoleDto: UpdateRoleDto, user: User): Promise<RoleViewModel>;
     deleteRole(id: number): Promise<void>;
     getRole(id: number): Promise<RoleViewModel>;
     getRoleByName(name: string): Promise<Role>;

@@ -13,3 +13,9 @@ export enum FileMimeType {
 export enum S3BucketPath {
     Homework = "homework",
 }
+
+export enum RoleName {
+    Admin = "admin",
+    Student = "student",
+    Instructor = "instructor",
+}

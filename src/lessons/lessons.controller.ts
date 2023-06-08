@@ -19,13 +19,13 @@ import { UpdateLessonDto } from "./dto/update-lesson.dto";
 import { LessonViewModel } from "./view-models";
 import { DataListResponse } from "src/common/db/data-list-response";
 import { QueryParamsDTO } from "src/common/dto/query-params.dto";
-import { RoleName } from "src/roles/roles.enum";
 import { Strategies } from "src/auth/strategies.enum";
 import { RolesGuard } from "src/roles/roles.guard";
 import { Roles } from "src/roles/roles-auth.decorator";
 import { AuthGuard } from "@nestjs/passport";
 import { User } from "src/users/entities/user.entity";
 import { GetUser } from "src/auth/get-user.decorator";
+import { RoleName } from "src/common/enum";
 
 @UsePipes(new ValidationPipe({ transform: true }))
 @UseGuards(AuthGuard(Strategies.JWT), RolesGuard)

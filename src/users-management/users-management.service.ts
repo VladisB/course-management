@@ -10,7 +10,6 @@ import { IGroupsRepository } from "src/groups/groups.repository";
 import { IRolesRepository } from "src/roles/roles.repository";
 import { ColumnType, QueryParamsDTO } from "../common/dto/query-params.dto";
 import { ApplyToQueryExtension } from "../common/query-extention";
-import { RoleName } from "../roles/roles.enum";
 import { IUsersRepository } from "src/users/users.repository";
 import { CreateUserDto } from "src/users/dto/create-user.dto";
 import { UpdateUserDto } from "src/users/dto/update-user.dto";
@@ -19,7 +18,7 @@ import { IUsersViewModelFactory } from "src/users/model-factories";
 import { UserViewModel } from "src/users/view-models";
 import { IStudentCoursesRepository } from "src/student-courses/student-courses.repository";
 import { QueryRunner } from "typeorm";
-import { BaseErrorMessage } from "src/common/enum";
+import { BaseErrorMessage, RoleName } from "src/common/enum";
 
 @Injectable()
 export class UsersManagementService implements IUsersManagementService {

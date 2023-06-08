@@ -3,8 +3,6 @@ import { InjectRepository } from "@nestjs/typeorm";
 import { BaseRepository, IBaseRepository } from "src/common/db/base.repository";
 import { Role } from "src/roles/entities/role.entity";
 import { Repository, SelectQueryBuilder } from "typeorm";
-import { CreateRoleDto } from "./dto/create-role.dto";
-import { UpdateRoleDto } from "./dto/update-role.dto";
 
 @Injectable()
 export class RolesRepository extends BaseRepository implements IRolesRepository {
@@ -29,19 +27,12 @@ export class RolesRepository extends BaseRepository implements IRolesRepository 
         return roleQuery;
     }
 
-    public async create(dto: CreateRoleDto): Promise<Role> {
-        const role = this.entityRepository.create(dto);
-
-        return await this.entityRepository.save(role);
+    public async create(entity: Role): Promise<Role> {
+        return await this.entityRepository.save(entity);
     }
 
-    public async update(id: number, dto: UpdateRoleDto): Promise<Role> {
-        const role = await this.entityRepository.preload({
-            id,
-            ...dto,
-        });
-
-        return await this.entityRepository.save(role);
+    public async update(entity: Role): Promise<Role> {
+        return await this.entityRepository.save(entity);
     }
 
     public async deleteById(id: number): Promise<void> {
@@ -52,10 +43,10 @@ export class RolesRepository extends BaseRepository implements IRolesRepository 
 }
 
 export abstract class IRolesRepository extends IBaseRepository {
-    abstract create(dto: CreateRoleDto): Promise<Role>;
+    abstract create(entity: Role): Promise<Role>;
     abstract deleteById(id: number): Promise<void>;
     abstract getAllQ(): SelectQueryBuilder<Role>;
     abstract getById(id: number): Promise<Role>;
     abstract getByName(name: string): Promise<Role>;
-    abstract update(id: number, dto: UpdateRoleDto): Promise<Role>;
+    abstract update(entity: Role): Promise<Role>;
 }

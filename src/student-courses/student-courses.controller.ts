@@ -21,8 +21,8 @@ import { UpdateStudentCoursesDto } from "./dto/update-student-courses.dto";
 import { StudentCoursesService } from "./student-courses.service";
 import { QueryParamsDTO } from "src/common/dto/query-params.dto";
 import { StudentCoursesViewModel } from "./view-models";
-import { RoleName } from "src/roles/roles.enum";
 import { Roles } from "src/roles/roles-auth.decorator";
+import { RoleName } from "src/common/enum";
 
 @Roles(RoleName.Admin, RoleName.Instructor)
 @UseGuards(AuthGuard(Strategies.JWT), RolesGuard)
