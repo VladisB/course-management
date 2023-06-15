@@ -11,8 +11,8 @@ import {
     UsePipes,
     ValidationPipe,
 } from "@nestjs/common";
-import { DataListResponse } from "src/common/db/data-list-response";
-import { QueryParamsDTO } from "src/common/dto/query-params.dto";
+import { DataListResponse } from "@common/db/data-list-response";
+import { QueryParamsDTO } from "@common/dto/query-params.dto";
 import { PUTUpdateCourseDto } from "./dto/put-update-course-instructors.dto";
 import { CourseInstructorsService } from "./course-instructors.service";
 import {

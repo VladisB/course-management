@@ -15,15 +15,15 @@ import {
 import { AuthGuard } from "@nestjs/passport";
 import { Roles } from "../roles/roles-auth.decorator";
 import { RolesGuard } from "../roles/roles.guard";
-import { DataListResponse } from "src/common/db/data-list-response";
-import { QueryParamsDTO } from "src/common/dto/query-params.dto";
+import { DataListResponse } from "@common/db/data-list-response";
+import { QueryParamsDTO } from "@common/dto/query-params.dto";
 import { Strategies } from "src/auth/strategies.enum";
 import { CreateUserDto } from "src/users/dto/create-user.dto";
 import { UpdateUserDto } from "src/users/dto/update-user.dto";
 import { IUsersViewModelFactory } from "src/users/model-factories/users.vm-factory";
 import { UserViewModel } from "src/users/view-models";
 import { IUsersManagementService } from "./users-management.service";
-import { RoleName } from "src/common/enum";
+import { RoleName } from "@common/enum";
 
 @Controller("users-management")
 @Roles(RoleName.Admin)

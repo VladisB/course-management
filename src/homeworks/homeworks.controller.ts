@@ -25,8 +25,8 @@ import { FileInterceptor } from "@nestjs/platform-express";
 import { HomeworkViewModel } from "./view-models";
 import { FileValidationPipe } from "./pipes/file-validation.pipe";
 import { HomeworksService } from "./homeworks.service";
-import { QueryParamsDTO } from "src/common/dto/query-params.dto";
-import { RoleName } from "src/common/enum";
+import { QueryParamsDTO } from "@common/dto/query-params.dto";
+import { RoleName } from "@common/enum";
 
 @UseGuards(AuthGuard(Strategies.JWT), RolesGuard)
 @UsePipes(new ValidationPipe({ transform: true }))

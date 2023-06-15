@@ -13,13 +13,13 @@ import { ILessonsRepository } from "src/lessons/lessons.repository";
 import { IUsersRepository } from "src/users/users.repository";
 import { Lesson } from "src/lessons/entities/lesson.entity";
 import { IFilesService } from "src/files/files.service.interface";
-import { BaseErrorMessage, FileMimeType, S3BucketPath } from "src/common/enum";
+import { BaseErrorMessage, FileMimeType, S3BucketPath } from "@common/enum";
 import { ConfigService } from "@nestjs/config";
 import { HomeworkModelFactory } from "./model-factories/homework.factory";
 import { Homework } from "./entities/homework.entity";
-import { DataListResponse } from "src/common/db/data-list-response";
-import { ColumnType, QueryParamsDTO } from "src/common/dto/query-params.dto";
-import { ApplyToQueryExtension, DatatablesConfig } from "src/common/query-extention";
+import { DataListResponse } from "@common/db/data-list-response";
+import { ColumnType, QueryParamsDTO } from "@common/dto/query-params.dto";
+import { ApplyToQueryExtension, DatatablesConfig } from "@common/query-extention";
 import { SignedHomeworkURL } from "./interfaces/signed-homework-url.interface";
 
 @Injectable()

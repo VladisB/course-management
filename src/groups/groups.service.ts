@@ -6,14 +6,14 @@ import { Group } from "./entities/group.entity";
 import { IGroupsRepository } from "./groups.repository";
 import { GroupsViewModelFactory } from "./model-factories";
 import { GroupViewModel } from "./view-models";
-import { ApplyToQueryExtension } from "src/common/query-extention";
-import { ColumnType, QueryParamsDTO } from "src/common/dto/query-params.dto";
-import { DataListResponse } from "src/common/db/data-list-response";
+import { ApplyToQueryExtension } from "@common/query-extention";
+import { ColumnType, QueryParamsDTO } from "@common/dto/query-params.dto";
+import { DataListResponse } from "@common/db/data-list-response";
 import { UpdateGroupDto } from "./dto/update-group.dto";
 import { ICoursesRepository } from "src/courses/courses.repository";
 import { Course } from "src/courses/entities/course.entity";
 import { GroupCoursesRepository } from "./group-courses.repository";
-import { BaseErrorMessage } from "src/common/enum";
+import { BaseErrorMessage } from "@common/enum";
 
 @Injectable()
 export class GroupsService implements IGroupsService {

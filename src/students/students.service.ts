@@ -1,16 +1,16 @@
 import { Injectable, NotFoundException } from "@nestjs/common";
-import { DataListResponse } from "src/common/db/data-list-response";
+import { DataListResponse } from "@common/db/data-list-response";
 import {
     StudentCourseViewModel,
     StudentDetailsViewModel,
     StudentListViewModel,
 } from "./view-models";
-import { ColumnType, QueryParamsDTO } from "src/common/dto/query-params.dto";
+import { ColumnType, QueryParamsDTO } from "@common/dto/query-params.dto";
 import { IUsersRepository } from "src/users/users.repository";
 import { User } from "src/users/entities/user.entity";
-import { BaseErrorMessage } from "src/common/enum";
+import { BaseErrorMessage } from "@common/enum";
 import { StudentsViewModelFactory } from "./model-factories";
-import { ApplyToQueryExtension } from "src/common/query-extention";
+import { ApplyToQueryExtension } from "@common/query-extention";
 import { ICoursesRepository } from "src/courses/courses.repository";
 
 @Injectable()

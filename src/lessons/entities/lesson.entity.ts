@@ -1,6 +1,6 @@
-import { Course } from "src/courses/entities/course.entity";
-import { Homework } from "src/homeworks/entities/homework.entity";
-import { LessonGrades } from "src/lesson-grades/entities/lesson-grade.entity";
+import { Course } from "@app/courses/entities/course.entity";
+import { Homework } from "@app/homeworks/entities/homework.entity";
+import { LessonGrades } from "@app/lesson-grades/entities/lesson-grade.entity";
 import {
     BaseEntity,
     Column,

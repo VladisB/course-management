@@ -1,6 +1,6 @@
 import { PipeTransform, Injectable, ArgumentMetadata, BadRequestException } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
-import { FileMimeType } from "src/common/enum";
+import { FileMimeType } from "@common/enum";
 
 @Injectable()
 export class FileValidationPipe implements PipeTransform {

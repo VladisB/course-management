@@ -4,7 +4,7 @@ import {
     Injectable,
     NotFoundException,
 } from "@nestjs/common";
-import { DataListResponse } from "src/common/db/data-list-response";
+import { DataListResponse } from "@common/db/data-list-response";
 import { Group } from "src/groups/entities/group.entity";
 import { IGroupsRepository } from "src/groups/groups.repository";
 import { IRolesRepository } from "src/roles/roles.repository";
@@ -18,7 +18,7 @@ import { IUsersViewModelFactory } from "src/users/model-factories";
 import { UserViewModel } from "src/users/view-models";
 import { IStudentCoursesRepository } from "src/student-courses/student-courses.repository";
 import { QueryRunner } from "typeorm";
-import { BaseErrorMessage, RoleName } from "src/common/enum";
+import { BaseErrorMessage, RoleName } from "@common/enum";
 
 @Injectable()
 export class UsersManagementService implements IUsersManagementService {

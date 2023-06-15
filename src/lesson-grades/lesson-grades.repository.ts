@@ -1,7 +1,7 @@
 import { Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { QueryRunner, Repository, SelectQueryBuilder } from "typeorm";
-import { BaseRepository, IBaseRepository } from "src/common/db/base.repository";
+import { BaseRepository, IBaseRepository } from "@common/db/base.repository";
 import { LessonGrades } from "./entities/lesson-grade.entity";
 import { CreateLessonGradeDto } from "./dto/create-lesson-grade.dto";
 import { UpdateLessonGradeDto } from "./dto/update-lesson-grade.dto";

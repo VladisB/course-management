@@ -1,4 +1,4 @@
-import { Course } from "src/courses/entities/course.entity";
+import { Course } from "@app/courses/entities/course.entity";
 import {
     Entity,
     Column,

@@ -1,4 +1,3 @@
-import { Course } from "src/courses/entities/course.entity";
 import {
     BaseEntity,
     Column,

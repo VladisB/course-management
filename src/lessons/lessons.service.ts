@@ -4,9 +4,9 @@ import {
     Injectable,
     NotFoundException,
 } from "@nestjs/common";
-import { DataListResponse } from "src/common/db/data-list-response";
-import { ColumnType, QueryParamsDTO } from "src/common/dto/query-params.dto";
-import { ApplyToQueryExtension, DatatablesConfig } from "src/common/query-extention";
+import { DataListResponse } from "@common/db/data-list-response";
+import { ColumnType, QueryParamsDTO } from "@common/dto/query-params.dto";
+import { ApplyToQueryExtension, DatatablesConfig } from "@common/query-extention";
 import { ICoursesRepository } from "src/courses/courses.repository";
 import { Course } from "src/courses/entities/course.entity";
 import { CreateLessonDto } from "./dto/create-lesson.dto";
@@ -15,7 +15,7 @@ import { Lesson } from "./entities/lesson.entity";
 import { ILessonsRepository } from "./lessons.repository";
 import { LessonsViewModelFactory } from "./model-factories";
 import { LessonViewModel } from "./view-models";
-import { BaseErrorMessage } from "src/common/enum";
+import { BaseErrorMessage } from "@common/enum";
 
 @Injectable()
 export class LessonsService implements ILessonsService {

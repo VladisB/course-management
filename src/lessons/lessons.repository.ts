@@ -5,7 +5,7 @@ import { Repository, SelectQueryBuilder } from "typeorm";
 import { CreateLessonDto } from "./dto/create-lesson.dto";
 import { UpdateLessonDto } from "./dto/update-lesson.dto";
 import { Lesson } from "./entities/lesson.entity";
-import { BaseRepository, IBaseRepository } from "src/common/db/base.repository";
+import { BaseRepository, IBaseRepository } from "@common/db/base.repository";
 
 @Injectable()
 export class LessonsRepository extends BaseRepository implements ILessonsRepository {

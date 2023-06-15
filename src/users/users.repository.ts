@@ -4,8 +4,8 @@ import { In, QueryRunner, Repository, SelectQueryBuilder } from "typeorm";
 import { CreateUserDto } from "./dto/create-user.dto";
 import { UpdateUserDto } from "./dto/update-user.dto";
 import { User } from "./entities/user.entity";
-import { BaseRepository, IBaseRepository } from "src/common/db/base.repository";
-import { BaseErrorMessage, RoleName } from "src/common/enum";
+import { BaseRepository, IBaseRepository } from "@common/db/base.repository";
+import { BaseErrorMessage, RoleName } from "@common/enum";
 
 @Injectable()
 export class UsersRepository extends BaseRepository implements IUsersRepository {

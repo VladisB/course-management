@@ -1,5 +1,5 @@
-import { Course } from "src/courses/entities/course.entity";
-import { User } from "src/users/entities/user.entity";
+import { Course } from "@app/courses/entities/course.entity";
+import { User } from "@app/users/entities/user.entity";
 import {
     Entity,
     Column,

@@ -1,7 +1,7 @@
 import { Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
-import { BaseRepository, IBaseRepository } from "src/common/db/base.repository";
-import { BaseErrorMessage } from "src/common/enum";
+import { BaseRepository, IBaseRepository } from "@common/db/base.repository";
+import { BaseErrorMessage } from "@common/enum";
 import { In, QueryRunner, Repository, SelectQueryBuilder } from "typeorm";
 import { CreateCourseDto } from "./dto/create-course.dto";
 import { UpdateCourseDto } from "./dto/update-course.dto";

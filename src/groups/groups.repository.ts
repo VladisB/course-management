@@ -5,7 +5,7 @@ import { Repository, SelectQueryBuilder } from "typeorm";
 import { CreateGroupDto } from "./dto/create-group.dto";
 import { UpdateGroupDto } from "./dto/update-group.dto";
 import { Group } from "./entities/group.entity";
-import { BaseRepository, IBaseRepository } from "src/common/db/base.repository";
+import { BaseRepository, IBaseRepository } from "@common/db/base.repository";
 
 @Injectable()
 export class GroupsRepository extends BaseRepository implements IGroupsRepository {

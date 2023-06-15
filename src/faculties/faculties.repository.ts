@@ -4,7 +4,7 @@ import { Repository, SelectQueryBuilder } from "typeorm";
 import { CreateFacultyDto } from "./dto/create-faculty.dto";
 import { UpdateFacultyDto } from "./dto/update-faculty.dto";
 import { Faculty } from "./entities/faculty.entity";
-import { BaseRepository, IBaseRepository } from "src/common/db/base.repository";
+import { BaseRepository, IBaseRepository } from "@common/db/base.repository";
 
 @Injectable()
 export class FacultiesRepository extends BaseRepository implements IFacultiesRepository {

@@ -1,4 +1,4 @@
-import { BaseRepository, IBaseRepository } from "src/common/db/base.repository";
+import { BaseRepository, IBaseRepository } from "@common/db/base.repository";
 import { CourseInstructors } from "./entities/course-instructors.entity";
 import { In, QueryRunner, Repository, SelectQueryBuilder } from "typeorm";
 import { Injectable } from "@nestjs/common";

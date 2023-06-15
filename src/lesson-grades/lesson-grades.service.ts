@@ -8,8 +8,8 @@ import {
 import { CreateLessonGradeDto } from "./dto/create-lesson-grade.dto";
 import { UpdateLessonGradeDto } from "./dto/update-lesson-grade.dto";
 import { LessonGrades } from "./entities/lesson-grade.entity";
-import { ColumnType, QueryParamsDTO } from "src/common/dto/query-params.dto";
-import { DataListResponse } from "src/common/db/data-list-response";
+import { ColumnType, QueryParamsDTO } from "@common/dto/query-params.dto";
+import { DataListResponse } from "@common/db/data-list-response";
 import { ILessonGradesRepository } from "./lesson-grades.repository";
 import { User } from "src/users/entities/user.entity";
 import { ILessonsRepository } from "src/lessons/lessons.repository";
@@ -17,8 +17,8 @@ import { IUsersRepository } from "src/users/users.repository";
 import { LessonGradesViewModelFactory } from "./model-factories";
 import { LessonGradeViewModel } from "./view-models";
 import { Lesson } from "src/lessons/entities/lesson.entity";
-import { ApplyToQueryExtension } from "src/common/query-extention";
-import { BaseErrorMessage } from "src/common/enum";
+import { ApplyToQueryExtension } from "@common/query-extention";
+import { BaseErrorMessage } from "@common/enum";
 import { IStudentCoursesRepository } from "src/student-courses/student-courses.repository";
 import { QueryRunner } from "typeorm";
 

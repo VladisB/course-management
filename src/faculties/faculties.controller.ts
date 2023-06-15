@@ -18,11 +18,11 @@ import { RolesGuard } from "../roles/roles.guard";
 import { CreateFacultyDto } from "./dto/create-faculty.dto";
 import { FacultiesService } from "./faculties.service";
 import { FacultyViewModel } from "./view-models";
-import { DataListResponse } from "src/common/db/data-list-response";
-import { QueryParamsDTO } from "src/common/dto/query-params.dto";
+import { DataListResponse } from "@common/db/data-list-response";
+import { QueryParamsDTO } from "@common/dto/query-params.dto";
 import { UpdateFacultyDto } from "./dto/update-faculty.dto";
 import { Strategies } from "src/auth/strategies.enum";
-import { RoleName } from "src/common/enum";
+import { RoleName } from "@common/enum";
 
 @UseGuards(AuthGuard(Strategies.JWT), RolesGuard)
 @UsePipes(new ValidationPipe({ transform: true }))

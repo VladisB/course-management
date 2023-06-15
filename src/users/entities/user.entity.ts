@@ -13,12 +13,12 @@ import {
     UpdateDateColumn,
 } from "typeorm";
 import { IsEmail } from "class-validator";
-import { Role } from "../../roles/entities/role.entity";
-import { Group } from "../../groups/entities/group.entity";
-import { CourseInstructors } from "src/courses/entities/course-to-instructor.entity";
-import { StudentCourses } from "src/student-courses/entities/student-courses.entity";
-import { LessonGrades } from "src/lesson-grades/entities/lesson-grade.entity";
-import { Homework } from "src/homeworks/entities/homework.entity";
+import { Role } from "@app/roles/entities/role.entity";
+import { Group } from "@app/groups/entities/group.entity";
+import { CourseInstructors } from "@app/courses/entities/course-to-instructor.entity";
+import { StudentCourses } from "@app/student-courses/entities/student-courses.entity";
+import { LessonGrades } from "@app/lesson-grades/entities/lesson-grade.entity";
+import { Homework } from "@app/homeworks/entities/homework.entity";
 
 @Entity()
 export class User extends BaseEntity {
