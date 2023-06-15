@@ -71,7 +71,19 @@ describe("RolesService", () => {
             });
         });
 
-        test.todo("should throw an error if role already exists");
+        it("should throw an error if role already exists", async () => {
+            const createRoleDto: CreateRoleDto = {
+                name: RoleName.Admin,
+            };
+
+            jest.spyOn(rolesRepository, "getByName").mockResolvedValue(
+                rolesMock.find((r) => r.name === createRoleDto.name),
+            );
+
+            await expect(rolesService.createRole(createRoleDto, user)).rejects.toThrowError(
+                new ConflictException(`Role with name ${createRoleDto.name} already exists.`),
+            );
+        });
     });
 
     describe("get role by name", () => {
