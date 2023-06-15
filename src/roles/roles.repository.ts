@@ -1,7 +1,7 @@
 import { Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
-import { BaseRepository, IBaseRepository } from "src/common/db/base.repository";
-import { Role } from "src/roles/entities/role.entity";
+import { BaseRepository, IBaseRepository } from "@common/db/base.repository";
+import { Role } from "@app/roles/entities/role.entity";
 import { Repository, SelectQueryBuilder } from "typeorm";
 
 @Injectable()

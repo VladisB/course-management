@@ -1,6 +1,6 @@
 import { Module } from "@nestjs/common";
 import { TypeOrmModule } from "@nestjs/typeorm";
-import { ApplyToQueryExtension } from "src/common/query-extention";
+import { ApplyToQueryExtension } from "@common/query-extention";
 import { Role } from "./entities/role.entity";
 import { RolesViewModelFactory } from "./model-factories/roles.vm-factory";
 import { RolesController } from "./roles.controller";

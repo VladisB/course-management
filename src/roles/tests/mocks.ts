@@ -1,32 +1,17 @@
-import { CreateRoleDto } from "../dto/create-role.dto";
 import { Role } from "../entities/role.entity";
 
-const rolesMock = [
-    {
-        id: 2,
-        name: "admin",
-    },
-    {
-        id: 3,
-        name: "student",
-    },
-];
-
 const mockRolesRepository = () => ({
-    getAllUsers: jest.fn(),
-    findOne: jest.fn().mockResolvedValue(rolesMock[0]),
-    findOneBy: jest.fn().mockResolvedValue(rolesMock[0]),
-    find: jest.fn().mockResolvedValue(rolesMock),
-    create: jest.fn((dto: CreateRoleDto) => {
-        const role = new Role();
-        role.name = dto.name;
-
-        return role;
+    getByName: jest.fn().mockResolvedValue(null),
+    getById: jest.fn().mockResolvedValue(null),
+    deleteById: jest.fn().mockResolvedValue(null),
+    getAllQ: jest.fn().mockReturnValue(null),
+    create: jest.fn().mockImplementation((entity: Role) => {
+        entity.id = 1;
+        return Promise.resolve(entity);
     }),
-    save: jest.fn().mockImplementation((role: Role): Promise<Role> => {
-        role.id = 1;
-        return Promise.resolve(role);
+    update: jest.fn().mockImplementation((entity: Role) => {
+        return Promise.resolve(entity);
     }),
 });
 
-export { rolesMock, mockRolesRepository };
+export { mockRolesRepository };

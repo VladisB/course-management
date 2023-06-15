@@ -1,29 +1,48 @@
-import { NotFoundException } from "@nestjs/common";
-import { Test } from "@nestjs/testing";
-import { getRepositoryToken } from "@nestjs/typeorm";
-import { Repository } from "typeorm";
+import { ApplyToQueryExtension } from "@app/common/query-extention";
+import { BaseErrorMessage, RoleName } from "@app/common/enum";
+import { ConflictException, NotFoundException } from "@nestjs/common";
 import { CreateRoleDto } from "../dto/create-role.dto";
+import { IRolesRepository } from "../roles.repository";
+import { QueryParamsDTO } from "@app/common/dto/query-params.dto";
 import { Role } from "../entities/role.entity";
-import { RoleName } from "../roles.enum";
 import { RolesService } from "../roles.service";
-import { mockRolesRepository, rolesMock } from "./mocks";
+import { RolesViewModelFactory } from "../model-factories";
+import { SelectQueryBuilder } from "typeorm";
+import { Test } from "@nestjs/testing";
+import { UpdateRoleDto } from "../dto/update-role.dto";
+import { User } from "@app/users/entities/user.entity";
+import { adminRoleStub, rolesMock } from "@app/common/test/stubs";
+import { mockQueryBuilder } from "@common/test/mocks";
+import { mockRolesRepository } from "./mocks";
 
-const USER_REPOSITORY_TOKEN = getRepositoryToken(Role);
+const queryBuilderMock = mockQueryBuilder<Role>(rolesMock);
 
 describe("RolesService", () => {
     let rolesService: RolesService;
-    let rolesRepository: Repository<Role>;
+    let rolesRepository: IRolesRepository;
+    let rolesViewModelFactory: RolesViewModelFactory;
+    let queryBuilder: Partial<SelectQueryBuilder<Role>>;
+    let user: User;
 
     beforeEach(async () => {
         const module = await Test.createTestingModule({
             providers: [
                 RolesService,
-                { provide: USER_REPOSITORY_TOKEN, useFactory: mockRolesRepository },
+                {
+                    provide: IRolesRepository,
+                    useValue: mockRolesRepository(),
+                },
+                { provide: RolesViewModelFactory, useClass: RolesViewModelFactory },
             ],
         }).compile();
 
-        rolesService = await module.get<RolesService>(RolesService);
-        rolesRepository = module.get(USER_REPOSITORY_TOKEN);
+        rolesService = module.get<RolesService>(RolesService);
+        rolesRepository = module.get(IRolesRepository);
+        rolesViewModelFactory = module.get(RolesViewModelFactory);
+        queryBuilder = queryBuilderMock;
+        user = new User();
+
+        jest.clearAllMocks();
     });
 
     it("RolesService should be defined", () => {
@@ -34,60 +53,171 @@ describe("RolesService", () => {
         expect(rolesRepository).toBeDefined();
     });
 
+    it("rolesViewModelFactory should be defined", () => {
+        expect(rolesViewModelFactory).toBeDefined();
+    });
+
     describe("create a role", () => {
         it("should save the new role", async () => {
             const createRoleDto: CreateRoleDto = {
                 name: "mockRole",
             };
 
-            const result = await rolesService.createRole(createRoleDto);
+            const result = await rolesService.createRole(createRoleDto, user);
+
             expect(result).toEqual({
                 id: expect.any(Number),
                 name: createRoleDto.name,
             });
-            expect(result).toBeInstanceOf(Role);
         });
 
-        //TODO: Cover error case
+        test.todo("should throw an error if role already exists");
     });
 
     describe("get role by name", () => {
         it("calls getRoleByName and successfully retrieve and return the role", async () => {
-            const repoSpy = jest.spyOn(rolesRepository, "findOne");
-            const adminEntity = { ...rolesMock[0] };
+            const repoSpy = jest
+                .spyOn(rolesRepository, "getByName")
+                .mockResolvedValue(rolesMock[0]);
 
-            expect(rolesService.getRoleByName(RoleName.Admin)).resolves.toEqual(adminEntity);
-            expect(repoSpy).toBeCalledWith({ where: { name: RoleName.Admin } });
-        });
-
-        it("throws an error if role is not found ", async () => {
-            jest.spyOn(rolesService, "getRoleByName").mockRejectedValue(NotFoundException);
-
-            await expect(rolesService.getRoleByName("unexisted role")).rejects.toThrow();
+            expect(rolesService.getRoleByName(RoleName.Admin)).resolves.toEqual(adminRoleStub);
+            expect(repoSpy).toBeCalledWith(RoleName.Admin);
         });
     });
 
     describe("get role by id", () => {
-        it("calls getRoleById and successfully retrieve and return the role", async () => {
-            const repoSpy = jest.spyOn(rolesRepository, "findOneBy");
-            const adminEntity = { ...rolesMock[0] };
+        it("should return role", async () => {
+            const repoSpy = jest.spyOn(rolesRepository, "getById").mockResolvedValue(rolesMock[0]);
 
-            expect(rolesService.getRoleById(1)).resolves.toEqual(adminEntity);
-            expect(repoSpy).toBeCalledWith({ id: 1 });
+            expect(rolesService.getRole(1)).resolves.toEqual(adminRoleStub);
+            expect(repoSpy).toBeCalledWith(1);
         });
 
-        it("throws an error if role is not found ", async () => {
-            jest.spyOn(rolesService, "getRoleById").mockRejectedValue(NotFoundException);
+        it("should throw NotFoundException if role does not exist", async () => {
+            const roleId = 99;
 
-            await expect(rolesService.getRoleById(999999)).rejects.toThrow();
+            await expect(rolesService.getRole(roleId)).rejects.toThrow(
+                new NotFoundException(BaseErrorMessage.NOT_FOUND),
+            );
+            expect(rolesRepository.getById).toHaveBeenCalledWith(roleId);
         });
     });
 
-    describe("Get all roles from the repository", () => {
-        it("should return an array of roles", async () => {
-            const roles = await rolesService.getRoles();
+    describe("delete role by id", () => {
+        it("should delete role", async () => {
+            const repoSpy = jest.spyOn(rolesRepository, "getById").mockResolvedValue(rolesMock[0]);
+            const roleId = 1;
 
-            expect(roles).toEqual(rolesMock);
+            expect(rolesService.deleteRole(roleId)).resolves.toBeUndefined();
+            expect(repoSpy).toBeCalledWith(roleId);
+        });
+
+        it("should throw NotFoundException if role to delete does not exist", async () => {
+            const roleId = 99;
+
+            await expect(rolesService.deleteRole(roleId)).rejects.toThrow(
+                new NotFoundException(BaseErrorMessage.NOT_FOUND),
+            );
+            expect(rolesRepository.getById).toHaveBeenCalledWith(roleId);
+        });
+    });
+
+    describe("get all roles from the repository", () => {
+        it("should return a list of roles", async () => {
+            const queryParams: QueryParamsDTO = {};
+
+            jest.spyOn(rolesRepository, "getAllQ").mockReturnValue(
+                queryBuilderMock as unknown as SelectQueryBuilder<Role>,
+            );
+
+            jest.spyOn(ApplyToQueryExtension, "applyToQuery").mockResolvedValue([
+                rolesMock,
+                rolesMock.length,
+            ]);
+
+            jest.spyOn(rolesViewModelFactory, "initRoleListViewModel").mockReturnValue(rolesMock);
+
+            const result = await rolesService.getRoles(queryParams);
+
+            const resultNames = result.records.map((item) => item.name);
+            const mockNames = rolesMock.map((role) => role.name);
+
+            expect(result.totalRecords).toEqual(rolesMock.length);
+            expect(resultNames).toEqual(mockNames);
+        });
+
+        it("should return a empty list of roles", async () => {
+            const queryParams: QueryParamsDTO = {};
+
+            jest.spyOn(rolesRepository, "getAllQ").mockReturnValue(
+                queryBuilderMock as unknown as SelectQueryBuilder<Role>,
+            );
+
+            jest.spyOn(ApplyToQueryExtension, "applyToQuery").mockResolvedValue([[], 0]);
+
+            jest.spyOn(rolesViewModelFactory, "initRoleListViewModel").mockReturnValue([]);
+
+            const result = await rolesService.getRoles(queryParams);
+
+            const resultNames = result.records.map((item) => item.name);
+
+            expect(result.totalRecords).toEqual(0);
+            expect(resultNames).toEqual([]);
+        });
+    });
+
+    describe("update role", () => {
+        it("should return an updated role", async () => {
+            const dto: UpdateRoleDto = {
+                name: "mockRole",
+            };
+
+            const roleId = 1;
+
+            jest.spyOn(rolesRepository, "getById").mockResolvedValue(
+                rolesMock.find((r) => r.id === roleId),
+            );
+
+            const result = await rolesService.updateRole(roleId, dto, user);
+
+            expect(result).toEqual({
+                id: roleId,
+                name: dto.name,
+            });
+        });
+
+        it("should throw ConflictException if role name is not unique", async () => {
+            const dto: UpdateRoleDto = {
+                name: RoleName.Admin,
+            };
+
+            const roleId = 1;
+
+            jest.spyOn(rolesRepository, "getById").mockResolvedValue(
+                rolesMock.find((r) => r.id === roleId),
+            );
+
+            const spyRepo = jest
+                .spyOn(rolesRepository, "getByName")
+                .mockResolvedValue(rolesMock.find((r) => r.name === dto.name));
+
+            await expect(rolesService.updateRole(roleId, dto, user)).rejects.toThrow(
+                new ConflictException(`Role with name ${dto.name} already exists.`),
+            );
+            expect(spyRepo).toHaveBeenCalledWith(dto.name);
+        });
+
+        it("should throw NotFoundException since updated role not found", async () => {
+            const dto: UpdateRoleDto = {
+                name: "mockRole",
+            };
+
+            const roleId = 99;
+
+            expect(rolesService.updateRole(roleId, dto, user)).rejects.toThrow(
+                new NotFoundException(BaseErrorMessage.NOT_FOUND),
+            );
+            expect(rolesRepository.getById).toHaveBeenCalledWith(roleId);
         });
     });
 });

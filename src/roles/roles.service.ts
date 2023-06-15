@@ -1,14 +1,14 @@
 import { ConflictException, Injectable, NotFoundException } from "@nestjs/common";
-import { DataListResponse } from "src/common/db/data-list-response";
-import { ColumnType, QueryParamsDTO } from "src/common/dto/query-params.dto";
-import { ApplyToQueryExtension } from "src/common/query-extention";
+import { DataListResponse } from "@common/db/data-list-response";
+import { ColumnType, QueryParamsDTO } from "@common/dto/query-params.dto";
+import { ApplyToQueryExtension } from "@common/query-extention";
 import { CreateRoleDto } from "./dto/create-role.dto";
 import { UpdateRoleDto } from "./dto/update-role.dto";
 import { Role } from "./entities/role.entity";
 import { RolesViewModelFactory } from "./model-factories/roles.vm-factory";
 import { IRolesRepository } from "./roles.repository";
 import { RoleViewModel } from "./view-models";
-import { BaseErrorMessage } from "src/common/enum";
+import { BaseErrorMessage } from "@common/enum";
 import { RoleModelFactory } from "./model-factories/";
 import { User } from "src/users/entities/user.entity";
 

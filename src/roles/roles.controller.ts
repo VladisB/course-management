@@ -12,19 +12,19 @@ import {
     UsePipes,
     ValidationPipe,
 } from "@nestjs/common";
-import { RolesService } from "./roles.service";
-import { CreateRoleDto } from "./dto/create-role.dto";
-import { Roles } from "./roles-auth.decorator";
 import { AuthGuard } from "@nestjs/passport";
-import { RolesGuard } from "./roles.guard";
-import { DataListResponse } from "src/common/db/data-list-response";
-import { QueryParamsDTO } from "src/common/dto/query-params.dto";
+import { CreateRoleDto } from "./dto/create-role.dto";
+import { DataListResponse } from "@common/db/data-list-response";
+import { GetUser } from "@app/auth/get-user.decorator";
+import { QueryParamsDTO } from "@common/dto/query-params.dto";
+import { RoleName } from "@common/enum";
 import { RoleViewModel } from "./view-models";
+import { Roles } from "./roles-auth.decorator";
+import { RolesGuard } from "./roles.guard";
+import { RolesService } from "./roles.service";
+import { Strategies } from "@app/auth/strategies.enum";
 import { UpdateRoleDto } from "./dto/update-role.dto";
-import { Strategies } from "src/auth/strategies.enum";
-import { GetUser } from "src/auth/get-user.decorator";
-import { User } from "src/users/entities/user.entity";
-import { RoleName } from "src/common/enum";
+import { User } from "@app/users/entities/user.entity";
 
 @Roles(RoleName.Admin)
 @UseGuards(AuthGuard(Strategies.JWT), RolesGuard)

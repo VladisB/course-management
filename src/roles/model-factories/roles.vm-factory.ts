@@ -40,7 +40,7 @@ export class RolesViewModelFactory implements IRolesViewModelFactory {
     }
 }
 
-interface IRolesViewModelFactory {
+export interface IRolesViewModelFactory {
     initRoleViewModel(role: Role): RoleViewModel;
     initRoleListViewModel(roles: Role[]): RoleViewModel[];
 }
