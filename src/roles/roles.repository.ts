@@ -3,6 +3,7 @@ import { InjectRepository } from "@nestjs/typeorm";
 import { BaseRepository, IBaseRepository } from "@common/db/base.repository";
 import { Role } from "@app/roles/entities/role.entity";
 import { Repository, SelectQueryBuilder } from "typeorm";
+import { BaseErrorMessage } from "@app/common/enum";
 
 @Injectable()
 export class RolesRepository extends BaseRepository implements IRolesRepository {
@@ -32,7 +33,13 @@ export class RolesRepository extends BaseRepository implements IRolesRepository 
     }
 
     public async update(entity: Role): Promise<Role> {
-        return await this.entityRepository.save(entity);
+        try {
+            return await this.entityRepository.save(entity);
+        } catch (err) {
+            console.error("Error: ", err);
+
+            throw new Error(BaseErrorMessage.DB_ERROR);
+        }
     }
 
     public async deleteById(id: number): Promise<void> {

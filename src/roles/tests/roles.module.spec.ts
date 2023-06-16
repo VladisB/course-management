@@ -1,29 +1,49 @@
-import { Test, TestingModule } from "@nestjs/testing";
-import { getRepositoryToken } from "@nestjs/typeorm";
-import { AuthModule } from "../../auth/auth.module";
-import { Role } from "../entities/role.entity";
-import { RolesController } from "../roles.controller";
 import { RolesService } from "../roles.service";
-import { mockRolesRepository } from "./mocks";
+import { IRolesRepository, RolesRepository } from "../roles.repository";
+import { getRepositoryToken } from "@nestjs/typeorm";
+import { Role } from "../entities/role.entity";
+import { Repository } from "typeorm";
+import { Test, TestingModule } from "@nestjs/testing";
+import { createMock } from "@golevelup/ts-jest";
+import { RolesViewModelFactory } from "../model-factories";
 
-const USER_REPOSITORY_TOKEN = getRepositoryToken(Role);
+describe("RolesModule", () => {
+    const entityRepositoryToken = getRepositoryToken(Role);
+    let moduleRef: TestingModule;
 
-describe("Roles Module", () => {
-    it("should compile the module", async () => {
-        const module: TestingModule = await Test.createTestingModule({
-            controllers: [RolesController],
+    beforeEach(async () => {
+        moduleRef = await Test.createTestingModule({
             providers: [
-                AuthModule,
                 RolesService,
-                { provide: USER_REPOSITORY_TOKEN, useFactory: mockRolesRepository },
+                { provide: IRolesRepository, useClass: RolesRepository },
+                RolesViewModelFactory,
+                {
+                    provide: entityRepositoryToken,
+                    useValue: createMock<Repository<Role>>(),
+                },
             ],
         }).compile();
+    });
 
-        expect(module).toBeDefined();
-        expect(module.get(AuthModule)).toBeInstanceOf(AuthModule);
-        expect(module.get(RolesController)).toBeInstanceOf(RolesController);
-        expect(module.get(RolesService)).toBeInstanceOf(RolesService);
+    it("should compile the Roles module", async () => {
+        expect(moduleRef).toBeDefined();
+    });
 
-        //TODO: Try to test TypeOrmModule.forFeature([Role])
+    it("should have RolesService as provider", async () => {
+        expect(moduleRef.get(RolesService)).toBeInstanceOf(RolesService);
+    });
+
+    it("should have RolesRepository as provider", async () => {
+        expect(moduleRef.get(IRolesRepository)).toBeInstanceOf(RolesRepository);
+    });
+
+    it("should have RolesViewModelFactory as provider", async () => {
+        expect(moduleRef.get(IRolesRepository)).toBeInstanceOf(RolesRepository);
+    });
+
+    it("should have RolesController as controller", async () => {
+        expect(moduleRef.get(RolesViewModelFactory)).toBeInstanceOf(RolesViewModelFactory);
     });
 });
+
+// NOTE: Remove this file. There are no testable logic.

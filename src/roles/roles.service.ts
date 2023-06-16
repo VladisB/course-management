@@ -98,9 +98,9 @@ export class RolesService implements IRolesService {
     }
 
     public async deleteRole(id: number): Promise<void> {
-        const role = await this.validateDelete(id);
+        await this.validateDelete(id);
 
-        await this.rolesRepository.deleteById(role.id);
+        await this.rolesRepository.deleteById(id);
     }
 
     //#endregion
