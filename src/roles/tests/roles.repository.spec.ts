@@ -27,6 +27,10 @@ describe("RolesRepository", () => {
         entityRepository = moduleRef.get(entityRepositoryToken);
     });
 
+    afterEach(() => {
+        jest.resetAllMocks();
+    });
+
     describe("getByName", () => {
         it("should return the role if it exists", async () => {
             jest.spyOn(entityRepository, "findOne").mockResolvedValue(adminRoleStub);
@@ -112,14 +116,17 @@ describe("RolesRepository", () => {
                 throw new Error(BaseErrorMessage.DB_ERROR);
             });
 
+            jest.spyOn(console, "error").mockImplementation((err) => err);
+
             adminRoleStub.id = 99;
 
             try {
                 await rolesRepository.update(adminRoleStub);
 
                 expect(entityRepository.save).toHaveBeenCalledTimes(1);
-            } catch (e) {
-                expect(e.message).toEqual(BaseErrorMessage.DB_ERROR);
+            } catch (err) {
+                expect(console.error).toHaveBeenCalled();
+                expect(err.message).toEqual(BaseErrorMessage.DB_ERROR);
             }
         });
     });

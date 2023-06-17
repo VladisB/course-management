@@ -25,6 +25,10 @@ describe("RolesModule", () => {
         }).compile();
     });
 
+    afterEach(() => {
+        jest.resetAllMocks();
+    });
+
     it("should compile the Roles module", async () => {
         expect(moduleRef).toBeDefined();
     });
