@@ -15,6 +15,6 @@ const instructorRoleStub = new Role();
 studentRoleStub.id = 3;
 studentRoleStub.name = RoleName.Instructor;
 
-rolesMock = [adminRoleStub, studentRoleStub];
+rolesMock = [adminRoleStub, studentRoleStub, instructorRoleStub];
 
 export { rolesMock, adminRoleStub, studentRoleStub, instructorRoleStub };

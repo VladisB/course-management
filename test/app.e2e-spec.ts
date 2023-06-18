@@ -3,76 +3,52 @@ import { INestApplication } from "@nestjs/common";
 import * as request from "supertest";
 import { AppModule } from "./../src/app.module";
 import { AuthService } from "../src/auth/auth.service";
-import { RolesService } from "../src/roles/roles.service";
 import { CreateRoleDto } from "../src/roles/dto/create-role.dto";
-import { Role } from "../src/roles/entities/role.entity";
-import { UserViewModel } from "src/users/view-models";
-
-const mockAdminCredentials: UserViewModel = {
-    id: 333331,
-    email: "admin@unexisted.com",
-    firstName: "John",
-    lastName: "Doe",
-    role: "admin",
-    group: null,
-};
-
-const mockStudentCredentials: UserViewModel = {
-    id: 333332,
-    email: "student@unexisted.com",
-    firstName: "John",
-    lastName: "Doe",
-    role: "student",
-    group: null,
-};
-
-const mockInstructorCredentials: UserViewModel = {
-    id: 333333,
-    email: "instructor@unexisted.com",
-    firstName: "John",
-    lastName: "Doe",
-    role: "instructor",
-    group: null,
-};
-
-const mockNewRole = {
-    id: 33333,
-    name: "unexisted role",
-};
-
-const mockRolesService = {
-    createRole: jest.fn((dto: CreateRoleDto) => {
-        const role = new Role();
-        role.name = dto.name;
-        role.id = 1;
-
-        return role;
-    }),
-    getRoles: jest
-        .fn()
-        .mockResolvedValue([
-            mockAdminCredentials,
-            mockStudentCredentials,
-            mockInstructorCredentials,
-        ]),
-};
+import { adminUserStub, instructorUserStub, studentUserStub } from "@app/common/test/stubs";
+import { JwtModelFactory } from "@app/auth/model-factories";
 
 describe("AppController (e2e)", () => {
     let app: INestApplication;
     let authService: AuthService;
+    let jwtModelFactory: JwtModelFactory;
 
-    beforeAll(async () => {
+    let accessTokenAdmin: string;
+    let accessTokenStudent: string;
+    let accessTokenInstructor: string;
+
+    const generateToken = async (userStub) => {
+        const spyMock = jest.spyOn(authService, "validateJwt").mockResolvedValue(userStub);
+
+        const jwtModel = jwtModelFactory.initJwtModel(userStub);
+        const signIn = await authService.generateTokens(jwtModel);
+
+        spyMock.mockRestore();
+
+        return signIn.accessToken;
+    };
+
+    const createRoleDto = (randomNumber: number): CreateRoleDto => ({
+        name: "newrole_" + randomNumber,
+    });
+
+    beforeEach(async () => {
         const moduleFixture: TestingModule = await Test.createTestingModule({
             imports: [AppModule],
-        })
-            .overrideProvider(RolesService)
-            .useValue(mockRolesService)
-            .compile();
+        }).compile();
 
         app = moduleFixture.createNestApplication();
         authService = moduleFixture.get<AuthService>(AuthService);
+        jwtModelFactory = moduleFixture.get<JwtModelFactory>(JwtModelFactory);
+
+        accessTokenAdmin = await generateToken(adminUserStub);
+        accessTokenStudent = await generateToken(studentUserStub);
+        accessTokenInstructor = await generateToken(instructorUserStub);
 
         await app.init();
+    });
+
+    afterEach(async () => {
+        jest.clearAllMocks();
     });
 
     afterAll(async () => {
@@ -82,25 +58,23 @@ describe("AppController (e2e)", () => {
     describe("Roles Module", () => {
         describe("/roles (GET)", () => {
             it("Successfuly GET roles(3) as an Admin", async () => {
-                jest.spyOn(authService, "validateJwt").mockResolvedValue(mockAdminCredentials);
-
-                const signInAdmin = await authService.generateTokens(mockAdminCredentials);
-                const accessTokenAdmin = signInAdmin.accessToken;
+                jest.spyOn(authService, "validateJwt").mockResolvedValue(adminUserStub);
 
                 const { body } = await request(app.getHttpServer())
                     .get("/roles")
                     .set("Authorization", `Bearer ${accessTokenAdmin}`)
                     .expect(200);
 
-                expect(body).toEqual(expect.any(Array));
-                expect(body.length).toBe(3);
+                expect(body.records).toEqual(expect.any(Array));
+                expect(body.records[0]).toEqual({
+                    id: expect.any(Number),
+                    name: expect.any(String),
+                });
+                expect(body.totalRecords).toBeGreaterThanOrEqual(3); // Base roles: admin, student, instructor
             });
 
             it("Fail during getting roles as student", async () => {
-                jest.spyOn(authService, "validateJwt").mockResolvedValue(mockStudentCredentials);
-
-                const signInStudent = await authService.generateTokens(mockStudentCredentials);
-                const accessTokenStudent = signInStudent.accessToken;
+                jest.spyOn(authService, "validateJwt").mockResolvedValue(studentUserStub);
 
                 return request(app.getHttpServer())
                     .get("/roles")
@@ -109,12 +83,7 @@ describe("AppController (e2e)", () => {
             });
 
             it("Fail during getting roles as an Instructor", async () => {
-                jest.spyOn(authService, "validateJwt").mockResolvedValue(mockInstructorCredentials);
-
-                const signInInstructor = await authService.generateTokens(
-                    mockInstructorCredentials,
-                );
-                const accessTokenInstructor = signInInstructor.accessToken;
+                jest.spyOn(authService, "validateJwt").mockResolvedValue(instructorUserStub);
 
                 return request(app.getHttpServer())
                     .get("/roles")
@@ -125,48 +94,49 @@ describe("AppController (e2e)", () => {
 
         describe("/roles (POST)", () => {
             it("Successfuly create role as an Admin", async () => {
-                jest.spyOn(authService, "validateJwt").mockResolvedValue(mockAdminCredentials);
+                jest.spyOn(authService, "validateJwt").mockResolvedValue(adminUserStub);
 
-                const signInAdmin = await authService.generateTokens(mockAdminCredentials);
-                const accessTokenAdmin = signInAdmin.accessToken;
+                const randomNumber = Math.floor(Math.random() * 100) + 1;
+
+                const dto = createRoleDto(randomNumber);
 
                 const { body } = await request(app.getHttpServer())
                     .post("/roles")
                     .set("Authorization", `Bearer ${accessTokenAdmin}`)
-                    .send(mockNewRole)
+                    .send(dto)
                     .expect(201);
 
                 expect(body).toEqual({
-                    ...mockNewRole,
                     id: expect.any(Number),
+                    name: dto.name,
                 });
             });
 
             it("Fail during creating role as student", async () => {
-                jest.spyOn(authService, "validateJwt").mockResolvedValue(mockStudentCredentials);
+                jest.spyOn(authService, "validateJwt").mockResolvedValue(studentUserStub);
 
-                const signInStudent = await authService.generateTokens(mockStudentCredentials);
-                const accessTokenStudent = signInStudent.accessToken;
+                const randomNumber = Math.floor(Math.random() * 100) + 1;
+
+                const dto = createRoleDto(randomNumber);
 
                 return request(app.getHttpServer())
                     .post("/roles")
                     .set("Authorization", `Bearer ${accessTokenStudent}`)
-                    .send(mockNewRole)
+                    .send(dto)
                     .expect(403);
             });
 
             it("Fail during creating role as an Instructor", async () => {
-                jest.spyOn(authService, "validateJwt").mockResolvedValue(mockInstructorCredentials);
+                jest.spyOn(authService, "validateJwt").mockResolvedValue(instructorUserStub);
 
-                const signInInstructor = await authService.generateTokens(
-                    mockInstructorCredentials,
-                );
-                const accessTokenInstructor = signInInstructor.accessToken;
+                const randomNumber = Math.floor(Math.random() * 100) + 1;
+
+                const dto = createRoleDto(randomNumber);
 
                 return request(app.getHttpServer())
                     .post("/roles")
                     .set("Authorization", `Bearer ${accessTokenInstructor}`)
-                    .send(mockNewRole)
+                    .send(dto)
                     .expect(403);
             });
         });
