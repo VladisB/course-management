@@ -7,16 +7,16 @@ import {
 import { DataListResponse } from "@common/db/data-list-response";
 import { ColumnType, QueryParamsDTO } from "@common/dto/query-params.dto";
 import { ApplyToQueryExtension } from "@common/query-extention";
-import { ICoursesRepository } from "src/courses/courses.repository";
-import { Course } from "src/courses/entities/course.entity";
+import { ICoursesRepository } from "@app/courses/courses.repository";
+import { Course } from "@app/courses/entities/course.entity";
 import { CreateStudentCoursesDto } from "./dto/create-student-courses.dto";
 import { UpdateStudentCoursesDto } from "./dto/update-student-courses.dto";
 import { StudentCourses } from "./entities/student-courses.entity";
 import { StudentCoursesViewModelFactory } from "./model-factories/student-courses";
 import { IStudentCoursesRepository } from "./student-courses.repository";
 import { StudentCoursesViewModel } from "./view-models";
-import { IUsersRepository } from "src/users/users.repository";
-import { User } from "src/users/entities/user.entity";
+import { IUsersRepository } from "@app/users/users.repository";
+import { User } from "@app/users/entities/user.entity";
 import { BaseErrorMessage } from "@common/enum";
 
 @Injectable()

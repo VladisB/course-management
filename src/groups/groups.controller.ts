@@ -21,7 +21,7 @@ import { GroupViewModel } from "./view-models";
 import { QueryParamsDTO } from "@common/dto/query-params.dto";
 import { DataListResponse } from "@common/db/data-list-response";
 import { UpdateGroupDto } from "./dto/update-group.dto";
-import { Strategies } from "src/auth/strategies.enum";
+import { Strategies } from "@app/auth/strategies.enum";
 import { RoleName } from "@common/enum";
 
 @UseGuards(AuthGuard(Strategies.JWT), RolesGuard)

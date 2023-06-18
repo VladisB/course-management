@@ -4,9 +4,9 @@ import { User } from "./entities/user.entity";
 import { RolesModule } from "../roles/roles.module";
 import { IUsersViewModelFactory, UsersViewModelFactory } from "./model-factories/users.vm-factory";
 import { IUsersRepository, UsersRepository } from "./users.repository";
-import { ApplyToQueryExtension } from "../common/query-extention";
-import { GroupsModule } from "src/groups/groups.module";
 import { UserSubscriber } from "./entities/user.subsriber";
+import { ApplyToQueryExtension } from "@app/common/query-extention";
+import { GroupsModule } from "@app/groups/groups.module";
 
 @Module({
     providers: [

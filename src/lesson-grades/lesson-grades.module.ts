@@ -1,13 +1,13 @@
-import { Module } from "@nestjs/common";
-import { LessonGradesService } from "./lesson-grades.service";
-import { LessonGradesController } from "./lesson-grades.controller";
 import { ILessonGradesRepository, LessonGradesRepository } from "./lesson-grades.repository";
-import { TypeOrmModule } from "@nestjs/typeorm";
 import { LessonGrades } from "./entities/lesson-grade.entity";
-import { LessonsModule } from "src/lessons/lessons.module";
-import { UsersModule } from "src/users/users.module";
+import { LessonGradesController } from "./lesson-grades.controller";
+import { LessonGradesService } from "./lesson-grades.service";
 import { LessonGradesViewModelFactory } from "./model-factories";
-import { StudentCoursesModule } from "src/student-courses/student-courses.module";
+import { LessonsModule } from "@app/lessons/lessons.module";
+import { Module } from "@nestjs/common";
+import { StudentCoursesModule } from "@app/student-courses/student-courses.module";
+import { TypeOrmModule } from "@nestjs/typeorm";
+import { UsersModule } from "@app/users/users.module";
 
 @Module({
     controllers: [LessonGradesController],

@@ -5,14 +5,14 @@ import {
     NotFoundException,
 } from "@nestjs/common";
 import { CreateHomeworkDto } from "./dto/create-homework.dto";
-import { User } from "src/users/entities/user.entity";
+import { User } from "@app/users/entities/user.entity";
 import { IHomeworksRepository } from "./homeworks.repository";
 import { HomeworkViewModelFactory } from "./model-factories";
 import { HomeworkViewModel } from "./view-models";
-import { ILessonsRepository } from "src/lessons/lessons.repository";
-import { IUsersRepository } from "src/users/users.repository";
-import { Lesson } from "src/lessons/entities/lesson.entity";
-import { IFilesService } from "src/files/files.service.interface";
+import { ILessonsRepository } from "@app/lessons/lessons.repository";
+import { IUsersRepository } from "@app/users/users.repository";
+import { Lesson } from "@app/lessons/entities/lesson.entity";
+import { IFilesService } from "@app/files/files.service.interface";
 import { BaseErrorMessage, FileMimeType, S3BucketPath } from "@common/enum";
 import { ConfigService } from "@nestjs/config";
 import { HomeworkModelFactory } from "./model-factories/homework.factory";

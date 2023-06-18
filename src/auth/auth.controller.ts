@@ -15,8 +15,8 @@ import { AuthCredentialsDto } from "./dto";
 import { GetUser } from "./get-user.decorator";
 import { AuthViewModel } from "./models";
 import { Strategies } from "./strategies.enum";
-import { CreateUserDto } from "src/users/dto/create-user.dto";
-import { User } from "src/users/entities/user.entity";
+import { CreateUserDto } from "@app/users/dto/create-user.dto";
+import { User } from "@app/users/entities/user.entity";
 
 @Controller("auth")
 export class AuthController {

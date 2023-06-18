@@ -5,22 +5,22 @@ import {
     Injectable,
     NotFoundException,
 } from "@nestjs/common";
-import { CreateLessonGradeDto } from "./dto/create-lesson-grade.dto";
-import { UpdateLessonGradeDto } from "./dto/update-lesson-grade.dto";
-import { LessonGrades } from "./entities/lesson-grade.entity";
-import { ColumnType, QueryParamsDTO } from "@common/dto/query-params.dto";
-import { DataListResponse } from "@common/db/data-list-response";
-import { ILessonGradesRepository } from "./lesson-grades.repository";
-import { User } from "src/users/entities/user.entity";
-import { ILessonsRepository } from "src/lessons/lessons.repository";
-import { IUsersRepository } from "src/users/users.repository";
-import { LessonGradesViewModelFactory } from "./model-factories";
-import { LessonGradeViewModel } from "./view-models";
-import { Lesson } from "src/lessons/entities/lesson.entity";
 import { ApplyToQueryExtension } from "@common/query-extention";
 import { BaseErrorMessage } from "@common/enum";
-import { IStudentCoursesRepository } from "src/student-courses/student-courses.repository";
+import { ColumnType, QueryParamsDTO } from "@common/dto/query-params.dto";
+import { CreateLessonGradeDto } from "./dto/create-lesson-grade.dto";
+import { DataListResponse } from "@common/db/data-list-response";
+import { ILessonGradesRepository } from "./lesson-grades.repository";
+import { ILessonsRepository } from "@app/lessons/lessons.repository";
+import { IStudentCoursesRepository } from "@app/student-courses/student-courses.repository";
+import { IUsersRepository } from "@app/users/users.repository";
+import { Lesson } from "@app/lessons/entities/lesson.entity";
+import { LessonGradeViewModel } from "./view-models";
+import { LessonGrades } from "./entities/lesson-grade.entity";
+import { LessonGradesViewModelFactory } from "./model-factories";
 import { QueryRunner } from "typeorm";
+import { UpdateLessonGradeDto } from "./dto/update-lesson-grade.dto";
+import { User } from "@app/users/entities/user.entity";
 
 @Injectable()
 export class LessonGradesService implements ILessonGradesService {

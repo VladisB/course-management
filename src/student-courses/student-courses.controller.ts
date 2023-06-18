@@ -15,13 +15,13 @@ import {
 import { AuthGuard } from "@nestjs/passport";
 import { RolesGuard } from "../roles/roles.guard";
 import { DataListResponse } from "@common/db/data-list-response";
-import { Strategies } from "src/auth/strategies.enum";
+import { Strategies } from "@app/auth/strategies.enum";
 import { CreateStudentCoursesDto } from "./dto/create-student-courses.dto";
 import { UpdateStudentCoursesDto } from "./dto/update-student-courses.dto";
 import { StudentCoursesService } from "./student-courses.service";
 import { QueryParamsDTO } from "@common/dto/query-params.dto";
 import { StudentCoursesViewModel } from "./view-models";
-import { Roles } from "src/roles/roles-auth.decorator";
+import { Roles } from "@app/roles/roles-auth.decorator";
 import { RoleName } from "@common/enum";
 
 @Roles(RoleName.Admin, RoleName.Instructor)

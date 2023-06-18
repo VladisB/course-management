@@ -5,7 +5,7 @@ import { ILessonsRepository, LessonsRepository } from "./lessons.repository";
 import { Lesson } from "./entities/lesson.entity";
 import { TypeOrmModule } from "@nestjs/typeorm";
 import { LessonsViewModelFactory } from "./model-factories";
-import { CoursesModule } from "src/courses/courses.module";
+import { CoursesModule } from "@app/courses/courses.module";
 
 @Module({
     controllers: [LessonsController],

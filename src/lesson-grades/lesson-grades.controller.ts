@@ -12,19 +12,19 @@ import {
     Query,
     ParseIntPipe,
 } from "@nestjs/common";
-import { LessonGradesService } from "./lesson-grades.service";
-import { CreateLessonGradeDto } from "./dto/create-lesson-grade.dto";
-import { UpdateLessonGradeDto } from "./dto/update-lesson-grade.dto";
-import { GetUser } from "src/auth/get-user.decorator";
-import { User } from "src/users/entities/user.entity";
 import { AuthGuard } from "@nestjs/passport";
-import { Strategies } from "src/auth/strategies.enum";
-import { QueryParamsDTO } from "@common/dto/query-params.dto";
+import { CreateLessonGradeDto } from "./dto/create-lesson-grade.dto";
 import { DataListResponse } from "@common/db/data-list-response";
+import { GetUser } from "@app/auth/get-user.decorator";
 import { LessonGradeViewModel } from "./view-models";
-import { RolesGuard } from "src/roles/roles.guard";
-import { Roles } from "src/roles/roles-auth.decorator";
+import { LessonGradesService } from "./lesson-grades.service";
+import { QueryParamsDTO } from "@common/dto/query-params.dto";
 import { RoleName } from "@common/enum";
+import { Roles } from "@app/roles/roles-auth.decorator";
+import { RolesGuard } from "@app/roles/roles.guard";
+import { Strategies } from "@app/auth/strategies.enum";
+import { UpdateLessonGradeDto } from "./dto/update-lesson-grade.dto";
+import { User } from "@app/users/entities/user.entity";
 
 @Roles(RoleName.Admin, RoleName.Instructor)
 @UseGuards(AuthGuard(Strategies.JWT), RolesGuard)

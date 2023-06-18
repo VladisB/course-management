@@ -7,8 +7,8 @@ import {
 import { DataListResponse } from "@common/db/data-list-response";
 import { ColumnType, QueryParamsDTO } from "@common/dto/query-params.dto";
 import { ApplyToQueryExtension, DatatablesConfig } from "@common/query-extention";
-import { ICoursesRepository } from "src/courses/courses.repository";
-import { Course } from "src/courses/entities/course.entity";
+import { ICoursesRepository } from "@app/courses/courses.repository";
+import { Course } from "@app/courses/entities/course.entity";
 import { CreateLessonDto } from "./dto/create-lesson.dto";
 import { UpdateLessonDto } from "./dto/update-lesson.dto";
 import { Lesson } from "./entities/lesson.entity";

@@ -6,12 +6,12 @@ import {
     StudentListViewModel,
 } from "./view-models";
 import { ColumnType, QueryParamsDTO } from "@common/dto/query-params.dto";
-import { IUsersRepository } from "src/users/users.repository";
-import { User } from "src/users/entities/user.entity";
+import { IUsersRepository } from "@app/users/users.repository";
+import { User } from "@app/users/entities/user.entity";
 import { BaseErrorMessage } from "@common/enum";
 import { StudentsViewModelFactory } from "./model-factories";
 import { ApplyToQueryExtension } from "@common/query-extention";
-import { ICoursesRepository } from "src/courses/courses.repository";
+import { ICoursesRepository } from "@app/courses/courses.repository";
 
 @Injectable()
 export class StudentsService implements IStudentsService {

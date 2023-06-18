@@ -7,7 +7,7 @@ import { GroupsController } from "./groups.controller";
 import { GroupsRepository, IGroupsRepository } from "./groups.repository";
 import { GroupsService } from "./groups.service";
 import { GroupsViewModelFactory } from "./model-factories";
-import { CoursesModule } from "src/courses/courses.module";
+import { CoursesModule } from "@app/courses/courses.module";
 import { GroupCourses } from "./entities/group-to-course.entity";
 import { GroupCoursesRepository } from "./group-courses.repository";
 

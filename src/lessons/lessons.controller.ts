@@ -19,12 +19,12 @@ import { UpdateLessonDto } from "./dto/update-lesson.dto";
 import { LessonViewModel } from "./view-models";
 import { DataListResponse } from "@common/db/data-list-response";
 import { QueryParamsDTO } from "@common/dto/query-params.dto";
-import { Strategies } from "src/auth/strategies.enum";
-import { RolesGuard } from "src/roles/roles.guard";
-import { Roles } from "src/roles/roles-auth.decorator";
+import { Strategies } from "@app/auth/strategies.enum";
+import { RolesGuard } from "@app/roles/roles.guard";
+import { Roles } from "@app/roles/roles-auth.decorator";
 import { AuthGuard } from "@nestjs/passport";
-import { User } from "src/users/entities/user.entity";
-import { GetUser } from "src/auth/get-user.decorator";
+import { User } from "@app/users/entities/user.entity";
+import { GetUser } from "@app/auth/get-user.decorator";
 import { RoleName } from "@common/enum";
 
 @UsePipes(new ValidationPipe({ transform: true }))

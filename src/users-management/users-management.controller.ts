@@ -13,17 +13,17 @@ import {
     ValidationPipe,
 } from "@nestjs/common";
 import { AuthGuard } from "@nestjs/passport";
-import { Roles } from "../roles/roles-auth.decorator";
 import { RolesGuard } from "../roles/roles.guard";
 import { DataListResponse } from "@common/db/data-list-response";
 import { QueryParamsDTO } from "@common/dto/query-params.dto";
-import { Strategies } from "src/auth/strategies.enum";
-import { CreateUserDto } from "src/users/dto/create-user.dto";
-import { UpdateUserDto } from "src/users/dto/update-user.dto";
-import { IUsersViewModelFactory } from "src/users/model-factories/users.vm-factory";
 import { UserViewModel } from "src/users/view-models";
 import { IUsersManagementService } from "./users-management.service";
 import { RoleName } from "@common/enum";
+import { Roles } from "@app/roles/roles-auth.decorator";
+import { Strategies } from "@app/auth/strategies.enum";
+import { UpdateUserDto } from "@app/users/dto/update-user.dto";
+import { CreateUserDto } from "@app/users/dto/create-user.dto";
+import { IUsersViewModelFactory } from "@app/users/model-factories";
 
 @Controller("users-management")
 @Roles(RoleName.Admin)

@@ -4,21 +4,21 @@ import {
     Injectable,
     NotFoundException,
 } from "@nestjs/common";
-import { DataListResponse } from "@common/db/data-list-response";
-import { Group } from "src/groups/entities/group.entity";
-import { IGroupsRepository } from "src/groups/groups.repository";
-import { IRolesRepository } from "src/roles/roles.repository";
-import { ColumnType, QueryParamsDTO } from "../common/dto/query-params.dto";
-import { ApplyToQueryExtension } from "../common/query-extention";
-import { IUsersRepository } from "src/users/users.repository";
-import { CreateUserDto } from "src/users/dto/create-user.dto";
-import { UpdateUserDto } from "src/users/dto/update-user.dto";
-import { User } from "src/users/entities/user.entity";
-import { IUsersViewModelFactory } from "src/users/model-factories";
-import { UserViewModel } from "src/users/view-models";
-import { IStudentCoursesRepository } from "src/student-courses/student-courses.repository";
-import { QueryRunner } from "typeorm";
+import { ApplyToQueryExtension } from "@common/query-extention";
 import { BaseErrorMessage, RoleName } from "@common/enum";
+import { ColumnType, QueryParamsDTO } from "@common/dto/query-params.dto";
+import { CreateUserDto } from "@app/users/dto/create-user.dto";
+import { DataListResponse } from "@common/db/data-list-response";
+import { Group } from "@app/groups/entities/group.entity";
+import { IGroupsRepository } from "@app/groups/groups.repository";
+import { IRolesRepository } from "@app/roles/roles.repository";
+import { IStudentCoursesRepository } from "@app/student-courses/student-courses.repository";
+import { IUsersRepository } from "@app/users/users.repository";
+import { IUsersViewModelFactory } from "@app/users/model-factories";
+import { QueryRunner } from "typeorm";
+import { UpdateUserDto } from "@app/users/dto/update-user.dto";
+import { User } from "@app/users/entities/user.entity";
+import { UserViewModel } from "@app/users/view-models";
 
 @Injectable()
 export class UsersManagementService implements IUsersManagementService {

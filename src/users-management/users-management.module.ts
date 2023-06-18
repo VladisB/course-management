@@ -1,10 +1,10 @@
 import { Module } from "@nestjs/common";
 import { UsersController } from "./users-management.controller";
-import { RolesModule } from "../roles/roles.module";
-import { GroupsModule } from "src/groups/groups.module";
-import { UsersModule } from "src/users/users.module";
 import { IUsersManagementService, UsersManagementService } from "./users-management.service";
-import { StudentCoursesModule } from "src/student-courses/student-courses.module";
+import { UsersModule } from "@app/users/users.module";
+import { GroupsModule } from "@app/groups/groups.module";
+import { RolesModule } from "@app/roles/roles.module";
+import { StudentCoursesModule } from "@app/student-courses/student-courses.module";
 
 @Module({
     controllers: [UsersController],

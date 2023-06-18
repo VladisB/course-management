@@ -1,16 +1,16 @@
-import { Module } from "@nestjs/common";
-import { HomeworksService } from "./homeworks.service";
-import { HomeworksController } from "./homeworks.controller";
-import { HomeworksRepository, IHomeworksRepository } from "./homeworks.repository";
-import { TypeOrmModule } from "@nestjs/typeorm";
+import { APP_GUARD } from "@nestjs/core";
+import { ConfigModule, ConfigService } from "@nestjs/config";
+import { FilesModule } from "@app/files/files.module";
 import { Homework } from "./entities/homework.entity";
 import { HomeworkViewModelFactory } from "./model-factories";
-import { LessonsModule } from "src/lessons/lessons.module";
-import { UsersModule } from "src/users/users.module";
-import { FilesModule } from "src/files/files.module";
-import { ConfigModule, ConfigService } from "@nestjs/config";
+import { HomeworksController } from "./homeworks.controller";
+import { HomeworksRepository, IHomeworksRepository } from "./homeworks.repository";
+import { HomeworksService } from "./homeworks.service";
+import { LessonsModule } from "@app/lessons/lessons.module";
+import { Module } from "@nestjs/common";
 import { ThrottlerGuard, ThrottlerModule } from "@nestjs/throttler";
-import { APP_GUARD } from "@nestjs/core";
+import { TypeOrmModule } from "@nestjs/typeorm";
+import { UsersModule } from "@app/users/users.module";
 
 @Module({
     imports: [

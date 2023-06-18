@@ -14,19 +14,19 @@ import {
     ParseIntPipe,
     Query,
 } from "@nestjs/common";
-import { CreateHomeworkDto } from "./dto/create-homework.dto";
-import { GetUser } from "src/auth/get-user.decorator";
-import { User } from "src/users/entities/user.entity";
-import { Roles } from "src/roles/roles-auth.decorator";
-import { RolesGuard } from "src/roles/roles.guard";
-import { Strategies } from "src/auth/strategies.enum";
 import { AuthGuard } from "@nestjs/passport";
+import { CreateHomeworkDto } from "./dto/create-homework.dto";
 import { FileInterceptor } from "@nestjs/platform-express";
-import { HomeworkViewModel } from "./view-models";
 import { FileValidationPipe } from "./pipes/file-validation.pipe";
+import { GetUser } from "@app/auth/get-user.decorator";
+import { HomeworkViewModel } from "./view-models";
 import { HomeworksService } from "./homeworks.service";
 import { QueryParamsDTO } from "@common/dto/query-params.dto";
 import { RoleName } from "@common/enum";
+import { Roles } from "@app/roles/roles-auth.decorator";
+import { RolesGuard } from "@app/roles/roles.guard";
+import { Strategies } from "@app/auth/strategies.enum";
+import { User } from "@app/users/entities/user.entity";
 
 @UseGuards(AuthGuard(Strategies.JWT), RolesGuard)
 @UsePipes(new ValidationPipe({ transform: true }))

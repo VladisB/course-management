@@ -17,11 +17,11 @@ import {
 } from "./view-models";
 import { DataListResponse } from "@common/db/data-list-response";
 import { AuthGuard } from "@nestjs/passport";
-import { Strategies } from "src/auth/strategies.enum";
-import { Roles } from "src/roles/roles-auth.decorator";
-import { RolesGuard } from "src/roles/roles.guard";
-import { GetUser } from "src/auth/get-user.decorator";
-import { User } from "src/users/entities/user.entity";
+import { Strategies } from "@app/auth/strategies.enum";
+import { Roles } from "@app/roles/roles-auth.decorator";
+import { RolesGuard } from "@app/roles/roles.guard";
+import { GetUser } from "@app/auth/get-user.decorator";
+import { User } from "@app/users/entities/user.entity";
 import { RoleName } from "@common/enum";
 
 @UseGuards(AuthGuard(Strategies.JWT), RolesGuard)

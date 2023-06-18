@@ -8,8 +8,8 @@ import { JwtStrategy } from "./strategies/jwt.strategy";
 import { JwtModelFactory } from "./model-factories";
 import { RefreshStrategy } from "./strategies/jwt-refresh.strategy";
 import { Strategies } from "./strategies.enum";
-import { UsersModule } from "src/users/users.module";
-import { UsersManagementModule } from "src/users-management/users-management.module";
+import { UsersModule } from "@app/users/users.module";
+import { UsersManagementModule } from "@app/users-management/users-management.module";
 
 @Module({
     imports: [

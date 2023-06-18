@@ -5,9 +5,9 @@ import { StudentCoursesService } from "./student-courses.service";
 
 import { StudentCourses } from "./entities/student-courses.entity";
 import { IStudentCoursesRepository, StudentCoursesRepository } from "./student-courses.repository";
-import { CoursesModule } from "src/courses/courses.module";
+import { CoursesModule } from "@app/courses/courses.module";
 import { StudentCoursesViewModelFactory } from "./model-factories/student-courses";
-import { UsersModule } from "src/users/users.module";
+import { UsersModule } from "@app/users/users.module";
 
 @Module({
     controllers: [StudentCoursesController],

@@ -8,9 +8,9 @@ import {
 import { CoursesController } from "./course-instructors.controller";
 import { CourseInstructors } from "./entities/course-instructors.entity";
 import { CourseInstructorsViewModelFactory } from "./model-factories";
-import { UsersModule } from "src/users/users.module";
+import { UsersModule } from "@app/users/users.module";
 import { CourseInstructorsService } from "./course-instructors.service";
-import { CoursesModule } from "src/courses/courses.module";
+import { CoursesModule } from "@app/courses/courses.module";
 
 @Module({
     controllers: [CoursesController],

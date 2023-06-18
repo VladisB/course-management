@@ -1,6 +1,6 @@
 import { ConflictException, Injectable, NotFoundException } from "@nestjs/common";
-import { IFacultiesRepository } from "src/faculties/faculties.repository";
-import { Faculty } from "src/faculties/entities/faculty.entity";
+import { IFacultiesRepository } from "@app/faculties/faculties.repository";
+import { Faculty } from "@app/faculties/entities/faculty.entity";
 import { CreateGroupDto } from "./dto/create-group.dto";
 import { Group } from "./entities/group.entity";
 import { IGroupsRepository } from "./groups.repository";
@@ -10,8 +10,8 @@ import { ApplyToQueryExtension } from "@common/query-extention";
 import { ColumnType, QueryParamsDTO } from "@common/dto/query-params.dto";
 import { DataListResponse } from "@common/db/data-list-response";
 import { UpdateGroupDto } from "./dto/update-group.dto";
-import { ICoursesRepository } from "src/courses/courses.repository";
-import { Course } from "src/courses/entities/course.entity";
+import { ICoursesRepository } from "@app/courses/courses.repository";
+import { Course } from "@app/courses/entities/course.entity";
 import { GroupCoursesRepository } from "./group-courses.repository";
 import { BaseErrorMessage } from "@common/enum";
 
