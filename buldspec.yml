@@ -22,3 +22,9 @@ phases:
       - npm run build
       - echo Build phase completed.
 
+artifacts:
+  files:
+    - 'dist/**/*'
+    - package.json
+  base-directory: './'
+
