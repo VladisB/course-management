@@ -6,6 +6,7 @@ import { AuthService } from "../src/auth/auth.service";
 import { CreateRoleDto } from "../src/roles/dto/create-role.dto";
 import { adminUserStub, instructorUserStub, studentUserStub } from "@app/common/test/stubs";
 import { JwtModelFactory } from "@app/auth/model-factories";
+import { UpdateRoleDto } from "@app/roles/dto/update-role.dto";
 
 describe("AppController (e2e)", () => {
     let app: INestApplication;
@@ -15,6 +16,8 @@ describe("AppController (e2e)", () => {
     let accessTokenAdmin: string;
     let accessTokenStudent: string;
     let accessTokenInstructor: string;
+
+    let lastCreatedRoleId: number;
 
     const generateToken = async (userStub) => {
         const spyMock = jest.spyOn(authService, "validateJwt").mockResolvedValue(userStub);
@@ -30,6 +33,12 @@ describe("AppController (e2e)", () => {
     const createRoleDto = (randomNumber: number): CreateRoleDto => ({
         name: "newrole_" + randomNumber,
     });
+
+    const updateRoleDto = (randomNumber: number): UpdateRoleDto => ({
+        name: "updatedrolename_" + randomNumber,
+    });
+
+    const getRandomNumber = (limit = 1000) => Math.floor(Math.random() * limit);
 
     beforeEach(async () => {
         const moduleFixture: TestingModule = await Test.createTestingModule({
@@ -90,13 +99,17 @@ describe("AppController (e2e)", () => {
                     .set("Authorization", `Bearer ${accessTokenInstructor}`)
                     .expect(403);
             });
+
+            it("Fail during getting roles without authorization", async () => {
+                return request(app.getHttpServer()).get("/roles").expect(401);
+            });
         });
 
         describe("/roles (POST)", () => {
             it("Successfuly create role as an Admin", async () => {
                 jest.spyOn(authService, "validateJwt").mockResolvedValue(adminUserStub);
 
-                const randomNumber = Math.floor(Math.random() * 100) + 1;
+                const randomNumber = getRandomNumber(1000);
 
                 const dto = createRoleDto(randomNumber);
 
@@ -105,6 +118,8 @@ describe("AppController (e2e)", () => {
                     .set("Authorization", `Bearer ${accessTokenAdmin}`)
                     .send(dto)
                     .expect(201);
+
+                lastCreatedRoleId = body.id;
 
                 expect(body).toEqual({
                     id: expect.any(Number),
@@ -115,8 +130,7 @@ describe("AppController (e2e)", () => {
             it("Fail during creating role as student", async () => {
                 jest.spyOn(authService, "validateJwt").mockResolvedValue(studentUserStub);
 
-                const randomNumber = Math.floor(Math.random() * 100) + 1;
-
+                const randomNumber = getRandomNumber(1000);
                 const dto = createRoleDto(randomNumber);
 
                 return request(app.getHttpServer())
@@ -129,7 +143,7 @@ describe("AppController (e2e)", () => {
             it("Fail during creating role as an Instructor", async () => {
                 jest.spyOn(authService, "validateJwt").mockResolvedValue(instructorUserStub);
 
-                const randomNumber = Math.floor(Math.random() * 100) + 1;
+                const randomNumber = getRandomNumber(1000);
 
                 const dto = createRoleDto(randomNumber);
 
@@ -138,6 +152,156 @@ describe("AppController (e2e)", () => {
                     .set("Authorization", `Bearer ${accessTokenInstructor}`)
                     .send(dto)
                     .expect(403);
+            });
+
+            it("Fail during creating role without authorization", async () => {
+                const randomNumber = getRandomNumber(1000);
+
+                const dto = createRoleDto(randomNumber);
+
+                return request(app.getHttpServer()).post("/roles").send(dto).expect(401);
+            });
+        });
+
+        describe("/roles/:id (GET)", () => {
+            it("Successfully GET a specific role as an Admin", async () => {
+                jest.spyOn(authService, "validateJwt").mockResolvedValue(adminUserStub);
+
+                const id = lastCreatedRoleId;
+
+                const { body } = await request(app.getHttpServer())
+                    .get(`/roles/${id}`)
+                    .set("Authorization", `Bearer ${accessTokenAdmin}`)
+                    .expect(200);
+
+                expect(body).toEqual({
+                    id: expect.any(Number),
+                    name: expect.any(String),
+                });
+            });
+
+            it("Fail to GET a specific role as a Student", async () => {
+                jest.spyOn(authService, "validateJwt").mockResolvedValue(studentUserStub);
+
+                const id = lastCreatedRoleId;
+
+                await request(app.getHttpServer())
+                    .get(`/roles/${id}`)
+                    .set("Authorization", `Bearer ${accessTokenStudent}`)
+                    .expect(403);
+            });
+
+            it("Fail to GET a specific role as an Instructor", async () => {
+                jest.spyOn(authService, "validateJwt").mockResolvedValue(instructorUserStub);
+
+                const id = lastCreatedRoleId;
+
+                await request(app.getHttpServer())
+                    .get(`/roles/${id}`)
+                    .set("Authorization", `Bearer ${accessTokenInstructor}`)
+                    .expect(403);
+            });
+
+            it("Fail to GET a specific role without authorization", async () => {
+                const id = lastCreatedRoleId;
+
+                await request(app.getHttpServer()).get(`/roles/${id}`).expect(401);
+            });
+        });
+
+        describe("/roles/:id (PATCH)", () => {
+            it("Successfully update a specific role as an Admin", async () => {
+                jest.spyOn(authService, "validateJwt").mockResolvedValue(adminUserStub);
+
+                const id = lastCreatedRoleId;
+                const randomNumber = getRandomNumber(1000);
+                const dto = updateRoleDto(randomNumber);
+
+                const { body } = await request(app.getHttpServer())
+                    .patch(`/roles/${id}`)
+                    .set("Authorization", `Bearer ${accessTokenAdmin}`)
+                    .send(dto)
+                    .expect(200);
+
+                expect(body).toEqual({
+                    id: expect.any(Number),
+                    name: dto.name,
+                });
+            });
+
+            it("Fail to update a specific role as a Student", async () => {
+                jest.spyOn(authService, "validateJwt").mockResolvedValue(studentUserStub);
+
+                const id = lastCreatedRoleId;
+                const randomNumber = getRandomNumber(1000);
+                const dto = updateRoleDto(randomNumber);
+
+                await request(app.getHttpServer())
+                    .patch(`/roles/${id}`)
+                    .set("Authorization", `Bearer ${accessTokenStudent}`)
+                    .send(dto)
+                    .expect(403);
+            });
+
+            it("Fail to update a specific role as an Instructor", async () => {
+                jest.spyOn(authService, "validateJwt").mockResolvedValue(instructorUserStub);
+
+                const id = lastCreatedRoleId;
+                const randomNumber = getRandomNumber(1000);
+                const dto = updateRoleDto(randomNumber);
+
+                await request(app.getHttpServer())
+                    .patch(`/roles/${id}`)
+                    .set("Authorization", `Bearer ${accessTokenInstructor}`)
+                    .send(dto)
+                    .expect(403);
+            });
+
+            it("Fail to update a specific role without authorization", async () => {
+                const id = lastCreatedRoleId;
+                const randomNumber = getRandomNumber(1000);
+                const dto = updateRoleDto(randomNumber);
+
+                await request(app.getHttpServer()).patch(`/roles/${id}`).send(dto).expect(401);
+            });
+        });
+
+        describe("/roles/:id (DELETE)", () => {
+            it("Successfully delete a specific role as an Admin", async () => {
+                jest.spyOn(authService, "validateJwt").mockResolvedValue(adminUserStub);
+
+                const id = lastCreatedRoleId;
+                console.log("DELTED", id);
+                await request(app.getHttpServer())
+                    .delete(`/roles/${id}`)
+                    .set("Authorization", `Bearer ${accessTokenAdmin}`)
+                    .expect(200);
+            });
+
+            it("Fail to delete a specific role as a Student", async () => {
+                jest.spyOn(authService, "validateJwt").mockResolvedValue(studentUserStub);
+                const id = lastCreatedRoleId;
+
+                await request(app.getHttpServer())
+                    .delete(`/roles/${id}`)
+                    .set("Authorization", `Bearer ${accessTokenStudent}`)
+                    .expect(403);
+            });
+
+            it("Fail to delete a specific role as an Instructor", async () => {
+                jest.spyOn(authService, "validateJwt").mockResolvedValue(instructorUserStub);
+                const id = lastCreatedRoleId;
+
+                await request(app.getHttpServer())
+                    .delete(`/roles/${id}`)
+                    .set("Authorization", `Bearer ${accessTokenInstructor}`)
+                    .expect(403);
+            });
+
+            it("Fail to delete a specific role without authorization", async () => {
+                const id = lastCreatedRoleId;
+
+                await request(app.getHttpServer()).delete(`/roles/${id}`).expect(401);
             });
         });
     });
