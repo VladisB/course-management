@@ -12,7 +12,7 @@
 - [x] Student can take up to 5 courses at the same time;  (NOTE: I’ll check it on the group level)
 - [x] Each course should have at least one instructor;
 - [x] Each course contains at least 5 lessons;
-- [ ] The student should be able to upload a text file with homework;
+- [x] The student should be able to upload a text file with homework;
 - [x] The instructor should be able to put a mark for a student for each lesson;
 - [x] The final mark for course is average by lessons;
 - [x] The instructor should be able to give student final feedback for the course;
