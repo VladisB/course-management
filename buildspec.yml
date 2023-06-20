@@ -26,6 +26,7 @@ phases:
 artifacts:
   files:
     - 'dist/**/*'
+    - .ebextensions/*
     - package.json
   base-directory: './'
 
