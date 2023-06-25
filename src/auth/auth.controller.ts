@@ -1,6 +1,7 @@
 import {
     Body,
     Controller,
+    Get,
     HttpCode,
     Post,
     Res,
@@ -66,5 +67,11 @@ export class AuthController {
     @HttpCode(200)
     async logout(@GetUser() user: User): Promise<void> {
         await this.authService.logout(user);
+    }
+
+    @Get("/version")
+    @HttpCode(200)
+    async version(): Promise<string> {
+        return "Current version 0.0.3";
     }
 }
