@@ -106,5 +106,8 @@
     "_moduleAliases": {
         "^@app/(.*)$": "<rootDir>/../src/$1",
         "^@common/(.*)$": "<rootDir>/../src/common/$1"
+    },
+    "engines": {
+        "node": "18.16.0"
     }
 }
