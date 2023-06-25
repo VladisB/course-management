@@ -1,4 +1,4 @@
-FROM node:18.12.1 AS development
+FROM node:18.16.0 AS development
 
 WORKDIR /app
 
@@ -15,7 +15,7 @@ RUN npm run build
 ## PRODUCTION STAGE ##
 ######################
 # Build the production image
-FROM node:18.12.1 AS production
+FROM node:18.16.0 AS production
 
 # Set node env to production
 ARG NODE_ENV=production
