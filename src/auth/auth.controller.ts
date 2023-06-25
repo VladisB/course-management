@@ -72,6 +72,6 @@ export class AuthController {
     @Get("/version")
     @HttpCode(200)
     async version(): Promise<string> {
-        return "Current version 0.0.2";
+        return "Current version 0.0.3";
     }
 }
