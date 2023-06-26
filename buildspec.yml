@@ -22,6 +22,9 @@ phases:
       - echo Build phase started.
       - npm run build
       - echo Build phase completed.
+      - echo Test phase started.
+      - npm run test
+      - echo Test phase completed.
 
 artifacts:
   files:
