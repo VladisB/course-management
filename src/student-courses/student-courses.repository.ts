@@ -56,18 +56,14 @@ export class StudentCoursesRepository extends BaseRepository implements IStudent
         }
     }
 
-    public async trxUpdateFinalGrade(
+    public async trxUpdate(
         queryRunner: QueryRunner,
-        id: number,
-        finalGrade: number,
+        entity: StudentCourses,
     ): Promise<StudentCourses> {
         try {
-            const entity = await queryRunner.manager.preload(StudentCourses, {
-                id,
-                finalMark: finalGrade,
-            });
+            const { id: entityId } = await queryRunner.manager.save(entity);
 
-            return await queryRunner.manager.save(entity);
+            return await this.trxGetById(queryRunner, entityId);
         } catch (err) {
             console.error("Error: ", err);
 
@@ -75,8 +71,21 @@ export class StudentCoursesRepository extends BaseRepository implements IStudent
         }
     }
 
+
     public async getById(id: number): Promise<StudentCourses> {
         return await this.entityRepository.findOne({
+            where: {
+                id,
+            },
+            relations: {
+                course: true,
+                student: true,
+            },
+        });
+    }
+
+    public async trxGetById(queryRunner: QueryRunner, id: number): Promise<StudentCourses> {
+        return await queryRunner.manager.findOne(StudentCourses, {
             where: {
                 id,
             },
@@ -200,11 +209,8 @@ export abstract class IStudentCoursesRepository extends IBaseRepository {
         studentId: number,
     ): Promise<StudentCourses>;
     abstract getById(id: number): Promise<StudentCourses>;
+    abstract trxGetById(queryRunner: QueryRunner, id: number): Promise<StudentCourses>;
     abstract getByIdList(idList: number[]): Promise<StudentCourses[]>;
     abstract update(id: number, dto: UpdateStudentCoursesDto): Promise<StudentCourses>;
-    abstract trxUpdateFinalGrade(
-        queryRunner: QueryRunner,
-        id: number,
-        finalGrade: number,
-    ): Promise<StudentCourses>;
+    abstract trxUpdate(queryRunner: QueryRunner, entity: StudentCourses): Promise<StudentCourses>;
 }

@@ -19,3 +19,7 @@ export enum RoleName {
     Student = "student",
     Instructor = "instructor",
 }
+
+export enum AppLimit {
+    PassedLimit = 80,
+}

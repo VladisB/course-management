@@ -33,6 +33,6 @@
 - [x] Totaly follow REST API specification;
 - [x] Token based authentication(JWT is preferable);
 - [x] API should be running inside Docker container;
-- [ ] Build CI/CD pipeline with Jenkins(preferable);
-- [ ] Deploy your API to any cloud provider (AWS/GCP/Azure);
+- [x] Build CI/CD pipeline with Jenkins(preferable) - AWS CodePipeline;
+- [x] Deploy your API to any cloud provider (AWS/GCP/Azure) - AWS Elastic Beanstalk/EC2;
 
