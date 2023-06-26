@@ -162,6 +162,22 @@ export class LessonsService implements ILessonsService {
                     type: ColumnType.Integer,
                 },
                 {
+                    name: "courseId",
+                    prop: "id",
+                    tableName: "course",
+                    isSearchable: true,
+                    isSortable: true,
+                    type: ColumnType.Integer,
+                },
+                {
+                    name: "id",
+                    prop: "id",
+                    tableName: "lesson",
+                    isSearchable: true,
+                    isSortable: true,
+                    type: ColumnType.Integer,
+                },
+                {
                     name: "theme",
                     prop: "theme",
                     tableName: "lesson",
