@@ -1,20 +1,27 @@
-import { forwardRef, Module } from '@nestjs/common';
-import { SequelizeModule } from '@nestjs/sequelize';
-import { AuthModule } from 'src/auth/auth.module';
-import { Role } from 'src/roles/roles.model';
-import { RolesModule } from 'src/roles/roles.module';
-import { UsersController } from './users.controller';
-import { User } from './users.model';
-import { UsersService } from './users.service';
+import { Module } from "@nestjs/common";
+import { TypeOrmModule } from "@nestjs/typeorm";
+import { User } from "./entities/user.entity";
+import { RolesModule } from "../roles/roles.module";
+import { IUsersViewModelFactory, UsersViewModelFactory } from "./model-factories/users.vm-factory";
+import { IUsersRepository, UsersRepository } from "./users.repository";
+import { UserSubscriber } from "./entities/user.subsriber";
+import { ApplyToQueryExtension } from "@app/common/query-extention";
+import { GroupsModule } from "@app/groups/groups.module";
 
 @Module({
-  controllers: [UsersController],
-  providers: [UsersService],
-  imports: [
-    SequelizeModule.forFeature([User, Role]),
-    forwardRef(() => RolesModule),
-    forwardRef(() => AuthModule),
-  ],
-  exports: [UsersService],
+    providers: [
+        {
+            provide: IUsersRepository,
+            useClass: UsersRepository,
+        },
+        {
+            provide: IUsersViewModelFactory,
+            useClass: UsersViewModelFactory,
+        },
+        ApplyToQueryExtension,
+        UserSubscriber,
+    ],
+    imports: [TypeOrmModule.forFeature([User]), RolesModule, GroupsModule],
+    exports: [IUsersRepository, IUsersViewModelFactory],
 })
 export class UsersModule {}

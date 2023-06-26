@@ -1,0 +1,35 @@
+version: 0.2
+
+phases:
+  install:
+    runtime-versions:
+      nodejs: 18.x
+    commands:
+      - echo Install phase started.
+      - npm install -g npm
+      - npm install -g @nestjs/cli
+      - npm ci
+      - echo Install phase completed.
+
+  pre_build:
+    commands:
+      - echo Pre-Build phase started.
+      - echo "Node.js version:" $(node -v)
+      - echo Pre-Build phase completed.
+
+  build:
+    commands:
+      - echo Build phase started.
+      - npm run build
+      - echo Build phase completed.
+      - echo Test phase started.
+      - npm run test
+      - echo Test phase completed.
+
+artifacts:
+  files:
+    - 'dist/**/*'
+    - .ebextensions/*
+    - package.json
+  base-directory: './'
+

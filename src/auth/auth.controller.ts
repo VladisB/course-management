@@ -1,55 +1,77 @@
-import { Body, Controller, HttpCode, Post, Req, Res } from '@nestjs/common';
-import { Response, Request } from 'express';
-import { CreateUserDto } from '../users/dto/create-user.dto';
-import { AuthService } from './auth.service';
+import {
+    Body,
+    Controller,
+    Get,
+    HttpCode,
+    Post,
+    Res,
+    UseGuards,
+    UsePipes,
+    ValidationPipe,
+} from "@nestjs/common";
+import { AuthGuard } from "@nestjs/passport";
+import { Response } from "express";
+import { AuthService } from "./auth.service";
+import { AuthCredentialsDto } from "./dto";
+import { GetUser } from "./get-user.decorator";
+import { AuthViewModel } from "./models";
+import { Strategies } from "./strategies.enum";
+import { CreateUserDto } from "@app/users/dto/create-user.dto";
+import { User } from "@app/users/entities/user.entity";
 
-@Controller('auth')
+@Controller("auth")
 export class AuthController {
-  constructor(private authService: AuthService) {}
+    constructor(private authService: AuthService) {}
 
-  @Post('/login')
-  @HttpCode(200)
-  async login(
-    @Res({ passthrough: true }) res: Response,
-    @Body() userDto: CreateUserDto,
-  ) {
-    const tokens = await this.authService.login(userDto);
-    res.cookie('refreshToken', tokens.refresh_token, { httpOnly: true });
+    @Post("/login")
+    @HttpCode(200)
+    async login(
+        @Res({ passthrough: true }) res: Response,
+        @Body() authDto: AuthCredentialsDto,
+    ): Promise<AuthViewModel> {
+        const tokens = await this.authService.login(authDto);
+        res.cookie("refreshToken", tokens.refreshToken, { httpOnly: true });
 
-    return tokens;
-  }
+        return tokens;
+    }
 
-  @Post('/signup')
-  @HttpCode(201)
-  async registration(
-    @Res({ passthrough: true }) res: Response,
-    @Body() userDto: CreateUserDto,
-  ) {
-    const tokens = await this.authService.signUp(userDto);
-    res.cookie('refreshToken', tokens.refresh_token, { httpOnly: true });
+    @Post("/signup")
+    @UsePipes(new ValidationPipe({ transform: true }))
+    @HttpCode(201)
+    async registration(
+        @Res({ passthrough: true }) res: Response,
+        @Body() userDto: CreateUserDto,
+    ): Promise<AuthViewModel> {
+        const tokens = await this.authService.signUp(userDto);
+        res.cookie("refreshToken", tokens.refreshToken, { httpOnly: true });
 
-    return tokens;
-  }
+        return tokens;
+    }
 
-  @Post('/refresh')
-  @HttpCode(201)
-  async updateRefresh(
-    @Res({ passthrough: true }) res: Response,
-    @Req() req: Request,
-    @Body() userDto: CreateUserDto,
-  ) {
-    const { refreshToken } = req?.cookies;
-    const tokens = await this.authService.refresh(refreshToken);
+    @Post("/refresh")
+    @UseGuards(AuthGuard("refresh"))
+    @HttpCode(201)
+    async updateRefresh(
+        @GetUser() user: User,
+        @Res({ passthrough: true }) res: Response,
+    ): Promise<AuthViewModel> {
+        const tokens = await this.authService.refreshToken(user);
 
-    return tokens;
-  }
+        res.cookie("refreshToken", tokens.refreshToken, { httpOnly: true });
 
-  @Post('/logout')
-  @HttpCode(200)
-  async logout(@Req() req: Request) {
-    const { refreshToken } = req?.cookies;
-    const tokens = await this.authService.logout(refreshToken);
+        return tokens;
+    }
 
-    return tokens;
-  }
+    @Post("/logout")
+    @UseGuards(AuthGuard(Strategies.JWT))
+    @HttpCode(200)
+    async logout(@GetUser() user: User): Promise<void> {
+        await this.authService.logout(user);
+    }
+
+    @Get("/version")
+    @HttpCode(200)
+    async version(): Promise<string> {
+        return "Current version 0.0.3";
+    }
 }

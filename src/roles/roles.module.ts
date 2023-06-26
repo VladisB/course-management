@@ -1,21 +1,20 @@
-import { forwardRef, Module } from '@nestjs/common';
-import { RolesService } from './roles.service';
-import { RolesController } from './roles.controller';
-import { SequelizeModule } from '@nestjs/sequelize';
-import { Role } from './roles.model';
-import { User } from 'src/users/users.model';
-import { UserRoles } from './user-roles.model';
-import { UsersModule } from 'src/users/users.module';
-import { AuthModule } from 'src/auth/auth.module';
+import { Module } from "@nestjs/common";
+import { TypeOrmModule } from "@nestjs/typeorm";
+import { ApplyToQueryExtension } from "@common/query-extention";
+import { Role } from "./entities/role.entity";
+import { RolesViewModelFactory } from "./model-factories/roles.vm-factory";
+import { RolesController } from "./roles.controller";
+import { IRolesRepository, RolesRepository } from "./roles.repository";
+import { RolesService } from "./roles.service";
 
 @Module({
-  providers: [RolesService],
-  controllers: [RolesController],
-  imports: [
-    forwardRef(() => UsersModule),
-    SequelizeModule.forFeature([Role, User, UserRoles]),
-    forwardRef(() => AuthModule),
-  ],
-  exports: [RolesService],
+    imports: [TypeOrmModule.forFeature([Role]), ApplyToQueryExtension],
+    providers: [
+        RolesService,
+        { provide: IRolesRepository, useClass: RolesRepository },
+        RolesViewModelFactory,
+    ],
+    controllers: [RolesController],
+    exports: [RolesService, IRolesRepository],
 })
 export class RolesModule {}

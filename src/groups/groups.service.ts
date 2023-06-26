@@ -1,0 +1,205 @@
+import { ConflictException, Injectable, NotFoundException } from "@nestjs/common";
+import { IFacultiesRepository } from "@app/faculties/faculties.repository";
+import { Faculty } from "@app/faculties/entities/faculty.entity";
+import { CreateGroupDto } from "./dto/create-group.dto";
+import { Group } from "./entities/group.entity";
+import { IGroupsRepository } from "./groups.repository";
+import { GroupsViewModelFactory } from "./model-factories";
+import { GroupViewModel } from "./view-models";
+import { ApplyToQueryExtension } from "@common/query-extention";
+import { ColumnType, QueryParamsDTO } from "@common/dto/query-params.dto";
+import { DataListResponse } from "@common/db/data-list-response";
+import { UpdateGroupDto } from "./dto/update-group.dto";
+import { ICoursesRepository } from "@app/courses/courses.repository";
+import { Course } from "@app/courses/entities/course.entity";
+import { GroupCoursesRepository } from "./group-courses.repository";
+import { BaseErrorMessage } from "@common/enum";
+
+@Injectable()
+export class GroupsService implements IGroupsService {
+    constructor(
+        private readonly groupsRepository: IGroupsRepository,
+        private readonly coursesRepository: ICoursesRepository,
+        private readonly facultiesRepository: IFacultiesRepository,
+        private readonly groupCoursesRepository: GroupCoursesRepository,
+        private readonly groupsViewModelFactory: GroupsViewModelFactory,
+    ) {}
+
+    public async createGroup(dto: CreateGroupDto): Promise<GroupViewModel> {
+        const faculty = await this.validateCreate(dto);
+
+        const group = await this.groupsRepository.create(dto, faculty);
+
+        return this.groupsViewModelFactory.initGroupViewModel(group);
+    }
+
+    public async getGroups(queryParams: QueryParamsDTO): Promise<DataListResponse<GroupViewModel>> {
+        const query = this.groupsRepository.getAllQ();
+
+        const config = {
+            columns: [
+                {
+                    name: "id",
+                    prop: "id",
+                    tableName: "group",
+                    isSearchable: true,
+                    isSortable: true,
+                    type: ColumnType.Integer,
+                },
+                {
+                    name: "groupName",
+                    prop: "name",
+                    tableName: "group",
+                    isSearchable: true,
+                    isSortable: true,
+                    type: ColumnType.Text,
+                },
+                {
+                    name: "facultyName",
+                    prop: "name",
+                    tableName: "faculty",
+                    isSearchable: true,
+                    isSortable: true,
+                    type: ColumnType.Text,
+                },
+            ],
+        };
+
+        const [groups, count] = await ApplyToQueryExtension.applyToQuery<Group>(
+            queryParams,
+            query,
+            config,
+        );
+
+        const model = this.groupsViewModelFactory.initGroupListViewModel(groups);
+
+        return new DataListResponse<GroupViewModel>(model, count);
+    }
+
+    public async getGroup(id: number): Promise<GroupViewModel> {
+        const group = await this.groupsRepository.getById(id);
+
+        if (!group) throw new NotFoundException(`Group not found.`);
+
+        return this.groupsViewModelFactory.initGroupViewModel(group);
+    }
+
+    public async updateGroup(id: number, dto: UpdateGroupDto): Promise<GroupViewModel> {
+        const courses = await this.validateUpdate(id, dto);
+
+        const group = await this.groupsRepository.update(id, dto);
+        await this.updateGroupCourses(group, courses);
+
+        const newGroup = await this.groupsRepository.getById(id);
+
+        return this.groupsViewModelFactory.initGroupViewModel(newGroup);
+    }
+
+    public async deleteGroup(id: number): Promise<void> {
+        const group = await this.validateDelete(id);
+
+        await this.groupsRepository.deleteById(group.id);
+    }
+
+    private async updateGroupCourses(group: Group, courses: Course[]): Promise<void> {
+        if (!courses.length) return;
+
+        const groupCourses = await this.groupCoursesRepository.getAllByGroupId(group.id);
+
+        if (groupCourses.length) {
+            await this.groupCoursesRepository.deleteByGroupId(group.id);
+        }
+
+        await this.groupCoursesRepository.bulkCreate(group, courses);
+    }
+
+    private async validateCreate(dto: CreateGroupDto): Promise<Faculty> {
+        await this.checkifNotExistByName(dto.name);
+
+        return await this.checkIfFacultyExists(dto.facultyId);
+    }
+
+    private async validateUpdate(id: number, dto: UpdateGroupDto): Promise<Course[]> {
+        const group = await this.checkifExist(id);
+
+        if (dto.name) await this.checkifNotExistByName(dto.name, id);
+
+        await this.checkCourseNumber(group, dto);
+
+        const courses = dto.courseIdList && (await this.checkIfCoursesExists(dto));
+        if (courses) await this.checkIfCoursesHaveInstructors(courses);
+
+        this.checkIfCoursesAvailable(courses);
+
+        return courses;
+    }
+
+    private async validateDelete(id: number): Promise<Group> {
+        return await this.checkifExist(id);
+    }
+
+    private async checkifExist(id: number): Promise<Group> {
+        const group = await this.groupsRepository.getById(id);
+
+        if (!group) throw new NotFoundException(BaseErrorMessage.NOT_FOUND);
+
+        return group;
+    }
+
+    private async checkIfCoursesExists(dto: UpdateGroupDto): Promise<Course[]> {
+        const courses = await this.coursesRepository.getByIdList(dto.courseIdList);
+
+        if (courses.length !== dto.courseIdList.length)
+            throw new NotFoundException(`Course not found.`);
+
+        return courses;
+    }
+
+    private async checkIfCoursesHaveInstructors(courseList: Course[]): Promise<void> {
+        courseList.forEach((course) => {
+            if (!course.courseInstructors.length)
+                throw new ConflictException(`Course ${course.name} has no instructors.`);
+        });
+    }
+
+    private checkIfCoursesAvailable(courses: Course[]): void {
+        const coursesWithoutInstructors = courses.filter(
+            (course) => course.courseInstructors.length === 0,
+        );
+
+        if (coursesWithoutInstructors.length)
+            throw new ConflictException(`At least one course unavailable`);
+    }
+
+    private async checkCourseNumber(group: Group, dto: UpdateGroupDto): Promise<void> {
+        const assignedCourseIds = group.groupCourses.map((item) => item.courseId);
+        const newCourseIds = dto.courseIdList.filter((item) => !assignedCourseIds.includes(item));
+
+        if (group.groupCourses.length >= 5 && newCourseIds.length)
+            throw new ConflictException("Course number limit exceeded.");
+    }
+
+    private async checkIfFacultyExists(facultyId: number): Promise<Faculty> {
+        const faculty = await this.facultiesRepository.getById(facultyId);
+
+        if (!faculty) throw new ConflictException("Provided faculty does not exist");
+
+        return faculty;
+    }
+
+    private async checkifNotExistByName(name: string, id?: number): Promise<void> {
+        const group = await this.groupsRepository.getByName(name);
+
+        if (id && group && group.id === id) return;
+
+        if (group) throw new ConflictException(`Group with name ${name} already exists.`);
+    }
+}
+
+interface IGroupsService {
+    createGroup(dto: CreateGroupDto): Promise<GroupViewModel>;
+    deleteGroup(id: number): Promise<void>;
+    getGroup(id: number): Promise<GroupViewModel>;
+    getGroups(queryParams: QueryParamsDTO): Promise<DataListResponse<GroupViewModel>>;
+    updateGroup(id: number, dto: UpdateGroupDto): Promise<GroupViewModel>;
+}

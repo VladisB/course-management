@@ -1,0 +1,177 @@
+import { BaseRepository, IBaseRepository } from "@common/db/base.repository";
+import { CourseInstructors } from "./entities/course-instructors.entity";
+import { In, QueryRunner, Repository, SelectQueryBuilder } from "typeorm";
+import { Injectable } from "@nestjs/common";
+import { InjectRepository } from "@nestjs/typeorm";
+
+@Injectable()
+export class CourseInstructorsRepository
+    extends BaseRepository
+    implements ICourseInstructorsRepository
+{
+    private readonly tableName = "course_instructors";
+
+    constructor(
+        @InjectRepository(CourseInstructors)
+        private readonly entityRepository: Repository<CourseInstructors>,
+    ) {
+        super(entityRepository.manager.connection.createQueryRunner());
+    }
+
+    public getAllQ(): SelectQueryBuilder<CourseInstructors> {
+        const userQuery = this.entityRepository
+            .createQueryBuilder(this.tableName)
+            .innerJoinAndSelect("course_instructors.course", "course")
+            .innerJoinAndSelect("course_instructors.instructor", "user");
+
+        return userQuery;
+    }
+
+    public async trxGetAllByCourseId(
+        queryRunner: QueryRunner,
+        courseId: number,
+    ): Promise<CourseInstructors[]> {
+        return await queryRunner.manager.find(CourseInstructors, {
+            relations: {
+                course: true,
+                instructor: true,
+            },
+            where: {
+                courseId,
+            },
+        });
+    }
+
+    public async getByDetails(
+        instructorIdList: number[],
+        courseId: number,
+    ): Promise<CourseInstructors[]> {
+        return await this.entityRepository.find({
+            relations: {
+                course: true,
+                instructor: true,
+            },
+            where: {
+                courseId,
+                instructorId: In(instructorIdList),
+            },
+        });
+    }
+
+    public async create(courseId: number, instructorId: number): Promise<CourseInstructors> {
+        const groupCourse = this.entityRepository.create({
+            course: { id: courseId },
+            instructor: { id: instructorId },
+        });
+
+        const { id } = await this.entityRepository.save(groupCourse);
+
+        return await this.getById(id);
+    }
+
+    public async bulkCreate(
+        courseId: number,
+        instructorsIds: number[],
+    ): Promise<CourseInstructors[]> {
+        const enteties = instructorsIds.map((id) =>
+            this.entityRepository.create({
+                course: { id: courseId },
+                instructor: { id },
+            }),
+        );
+
+        const entityList = await this.entityRepository.save(enteties);
+
+        return await this.getByIdList(entityList.map((entity) => entity.id));
+    }
+
+    public async trxBulkCreate(
+        queryRunner: QueryRunner,
+        courseId: number,
+        instructorsIds: number[],
+    ): Promise<CourseInstructors[]> {
+        const enteties = instructorsIds.map((id) =>
+            this.entityRepository.create({
+                course: { id: courseId },
+                instructor: { id },
+            }),
+        );
+
+        return await queryRunner.manager.save(enteties);
+    }
+
+    public async getById(id: number): Promise<CourseInstructors> {
+        return await this.entityRepository.findOne({
+            relations: {
+                course: true,
+                instructor: true,
+            },
+            where: {
+                id,
+            },
+        });
+    }
+
+    async getByIdWithFullDetails(id: number): Promise<CourseInstructors> {
+        const result = await this.entityRepository
+            .createQueryBuilder(this.tableName)
+            .innerJoinAndSelect("course_instructors.course", "course")
+            .where("course_instructors.id = :id", { id })
+            .innerJoinAndMapMany(
+                "course.courseInstructors",
+                "course_instructors",
+                "courseInstructors",
+                "courseInstructors.courseId = course.id",
+            )
+            .innerJoinAndSelect("courseInstructors.instructor", "user")
+            .getOne();
+
+        return result;
+    }
+
+    public async getByIdList(idList: number[]): Promise<CourseInstructors[]> {
+        return await this.entityRepository.find({
+            relations: {
+                course: true,
+                instructor: true,
+            },
+            where: {
+                id: In(idList),
+            },
+        });
+    }
+
+    public async deleteById(id: number): Promise<void> {
+        await this.entityRepository.delete(id);
+    }
+
+    public async trxDeleteByIdList(queryRunner: QueryRunner, idList: number[]): Promise<void> {
+        await queryRunner.manager.delete(CourseInstructors, {
+            id: In(idList),
+        });
+    }
+}
+
+export abstract class ICourseInstructorsRepository extends IBaseRepository {
+    abstract bulkCreate(courseId: number, instructorsIds: number[]): Promise<CourseInstructors[]>;
+    abstract create(courseId: number, instructorId: number): Promise<CourseInstructors>;
+    abstract deleteById(id: number): Promise<void>;
+    abstract getAllQ(): SelectQueryBuilder<CourseInstructors>;
+    abstract getByDetails(
+        instructorIdList: number[],
+        courseId: number,
+    ): Promise<CourseInstructors[]>;
+    abstract getById(id: number): Promise<CourseInstructors>;
+    abstract getByIdList(idList: number[]): Promise<CourseInstructors[]>;
+    abstract getByIdWithFullDetails(id: number): Promise<CourseInstructors>;
+    abstract trxBulkCreate(
+        queryRunner: QueryRunner,
+        courseId: number,
+        instructorsIds: number[],
+    ): Promise<CourseInstructors[]>;
+    abstract trxDeleteByIdList(queryRunner: QueryRunner, idList: number[]): Promise<void>;
+    abstract trxGetAllByCourseId(
+        queryRunner: QueryRunner,
+        courseId: number,
+    ): Promise<CourseInstructors[]>;
+}
