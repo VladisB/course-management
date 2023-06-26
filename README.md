@@ -20,7 +20,7 @@
 - [x] The instructor should be able to see list of students per course;
 - [x] The student should be able to see his courses;
 - [x] The student should be able to see list of lessons per course with all related information;
-- [ ] To pass the course student should get a minimum of 80% for final grade;
+- [x] To pass the course student should get a minimum of 80% for final grade;
 
 # Technical requirements
 - [x] JS/TS;
