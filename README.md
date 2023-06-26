@@ -28,8 +28,8 @@
 - [x] Relational DB (PostgreSQL/MySQL);
 - [x] ORM;
 - [x] Database migration tool;
-- [ ] Unit tests for controllers/services/DAO layers;
-- [ ] e2e tests;
+- [x] Unit tests for controllers/services/DAO layers; NOTE: Exist but not full coverage
+- [x] e2e tests; NOTE: Exist but not full coverage
 - [x] Totaly follow REST API specification;
 - [x] Token based authentication(JWT is preferable);
 - [x] API should be running inside Docker container;
