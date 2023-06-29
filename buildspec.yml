@@ -5,11 +5,11 @@
 #     runtime-versions:
 #       nodejs: 18.x
 #     commands:
-#       - echo Install phase started.
-#       - npm install -g npm
-#       - npm install -g @nestjs/cli
-#       - npm ci
-#       - echo Install phase completed.
+      # - echo Install phase started.
+      # - npm install -g npm
+      # - npm install -g @nestjs/cli
+      # - npm ci
+      # - echo Install phase completed.
 
 #   pre_build:
 #     commands:
@@ -40,27 +40,42 @@ phases:
     runtime-versions:
       nodejs: 18.x
     commands:
+      - echo Install phase started.
+      - npm install -g npm
+      - npm install -g @nestjs/cli
+      - npm ci
       - nohup /usr/local/bin/dockerd --host=unix:///var/run/docker.sock --host=tcp://127.0.0.1:2375 --storage-driver=overlay2 &
       - timeout 15 sh -c "until docker info; do echo .; sleep 1; done"
+      - echo Install phase completed.
   pre_build:
     commands:
+      - echo Pre-Build phase started.
+      - echo "Node.js version:" $(node -v)
       - echo log in to Amazon ECR...
       - aws --version
       - echo $AWS_DEFAULT_REGION
-      # - aws ecr get-login-password --region eu-central-1
       - aws ecr get-login-password --region eu-central-1 | docker login --username AWS --password-stdin 544564125819.dkr.ecr.eu-central-1.amazonaws.com
       - REPOSITORY_URI=544564125819.dkr.ecr.eu-central-1.amazonaws.com/course-mangement
       - COMMIT_HASH=$(echo $CODEBUILD_RESOLVED_SOURCE_VERSION | cut -c 1-7)
       - IMAGE_TAG=${COMMIT_HASH:=latest}
+      - echo Pre-Build phase completed.
   build:
     commands:
-      - echo Build started on `date`
+      - echo Build phase started on `date`.
+      - npm run build
+      - echo nest build phase completed.
+
+      - echo Test phase started.
+      - npm run test
+      - echo Test phase completed.
+
       - echo Building the Docker image.
       - echo $REPOSITORY_URI 
       - echo $REPOSITORY_URI:latest $REPOSITORY_URI:$IMAGE_TAG
       - docker build -t $REPOSITORY_URI:latest .
       - echo $REPOSITORY_URI:$IMAGE_TAG
       - docker tag $REPOSITORY_URI:latest $REPOSITORY_URI:$IMAGE_TAG
+      - echo Building the Docker image complited.
   post_build:
     commands:
       - echo Build completed on `date`
