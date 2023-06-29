@@ -56,8 +56,9 @@ phases:
       - echo Build started on `date`
       - echo Building the Docker image.
       - echo $REPOSITORY_URI 
-      - echo $IMAGE_TAG
+      - echo $REPOSITORY_URI:latest $REPOSITORY_URI:$IMAGE_TAG
       - docker build -t $REPOSITORY_URI:latest .
+      - echo $REPOSITORY_URI:$IMAGE_TAG
       - docker tag $REPOSITORY_URI:latest $REPOSITORY_URI:$IMAGE_TAG
   post_build:
     commands:
