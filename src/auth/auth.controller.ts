@@ -69,9 +69,10 @@ export class AuthController {
         await this.authService.logout(user);
     }
 
+    // NOTE: for testing purposes
     @Get("/version")
     @HttpCode(200)
     async version(): Promise<string> {
-        return "Current version 0.0.3";
+        return "Current version 1.0.0";
     }
 }
