@@ -51,6 +51,10 @@ phases:
     commands:
       - echo Pre-Build phase started.
       - echo "Node.js version:" $(node -v)
+
+      - echo log in to Docker Hub
+      - echo "EHX3jkb!art9rjy0ecb" | docker login -u VladisB --password-stdin
+
       - echo log in to Amazon ECR...
       - aws --version
       - echo $AWS_DEFAULT_REGION
