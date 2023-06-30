@@ -35,6 +35,10 @@
 
 version: 0.2
 
+env:
+  secrets-manager:
+    DOCKERHUB_PASS: "/docker:PASSWORD"
+    DOCKERHUB_USERNAME: "/docker:USERNAME"
 phases:
   install:
     runtime-versions:
@@ -50,6 +54,11 @@ phases:
     commands:
       - echo Pre-Build phase started.
       - echo "Node.js version:" $(node -v)
+
+            
+      - echo log in into Docker hub.
+      - echo login with name $DOCKERHUB_USERNAME
+      - docker login --username $DOCKERHUB_USERNAME --password $DOCKERHUB_PASS
 
       - echo log in to Amazon ECR...
       - aws --version
