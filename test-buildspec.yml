@@ -42,13 +42,18 @@ phases:
     commands:
       - echo Install phase started.
       - npm install -g npm
+      - npm install -g @nestjs/cli
       - npm ci
       - echo Install phase completed.
+
   build:
     commands:
-      - echo Test phase started.
+      - echo Nest Build phase started on `date`.
       - npm run build
-      - npm run test:startup
+      - echo Nest Build phase completed.
+
+      - echo Test phase started.
+      - npm run test
       - echo Test phase completed.
 
 reports:
