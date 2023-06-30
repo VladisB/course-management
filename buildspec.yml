@@ -44,8 +44,7 @@ phases:
       - npm install -g npm
       - npm install -g @nestjs/cli
       - npm ci
-      - nohup /usr/local/bin/dockerd --host=unix:///var/run/docker.sock --host=tcp://127.0.0.1:2375 --storage-driver=overlay2 &
-      - timeout 15 sh -c "until docker info; do echo .; sleep 1; done"
+      - nohup /usr/local/bin/dockerd --host=unix:///var/run/docker.sock --host=tcp://127.0.0.1:2375 --storage-driver=overlay2 & timeout 15 sh -c "until docker info; do echo .; sleep 1; done"
       - echo Install phase completed.
   pre_build:
     commands:
