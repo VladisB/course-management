@@ -38,7 +38,7 @@ env:
 phases:
   install:
     runtime-versions:
-      nodejs: 14.x
+      nodejs: 18.x
     commands:
       - echo Install phase started.
       - npm install -g npm
