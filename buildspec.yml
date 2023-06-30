@@ -37,8 +37,10 @@ version: 0.2
 
 env:
   secrets-manager:
-    DOCKERHUB_PASS: "/docker:PASSWORD"
-    DOCKERHUB_USERNAME: "/docker:USERNAME"
+    DOCKERHUB_PASS: arn:aws:secretsmanager:eu-central-1:544564125819:secret:docker-zx2yH8:PASSWORD
+    DOCKERHUB_USERNAME: arn:aws:secretsmanager:eu-central-1:544564125819:secret:docker-zx2yH8:USERNAME
+    # DOCKERHUB_PASS: "/docker:PASSWORD"
+    # DOCKERHUB_USERNAME: "/docker:USERNAME"
 phases:
   install:
     runtime-versions:
