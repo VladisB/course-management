@@ -39,7 +39,7 @@ env:
   secrets-manager:
     DOCKERHUB_TOKEN: arn:aws:secretsmanager:eu-central-1:544564125819:secret:docker-zx2yH8:TOKEN
     DOCKERHUB_USERNAME: arn:aws:secretsmanager:eu-central-1:544564125819:secret:docker-zx2yH8:USERNAME
-    DOCKERHUB_TEST: arn:aws:secretsmanager:eu-central-1:544564125819:secret:docker-zx2yH8:DOCKER_TEST
+    DOCKERHUB_TEST: "docker:DOCKER_TEST"
     # DOCKERHUB_PASS: "/docker:PASSWORD"
     # DOCKERHUB_USERNAME: "/docker:USERNAME"
 phases:
