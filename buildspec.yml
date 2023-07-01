@@ -61,7 +61,8 @@ phases:
       - echo "All keys in secret:" $SECRET
 
       - echo log in into Docker hub.
-      - echo $DOCKERHUB_TOKEN | docker login --username $DOCKERHUB_USERNAME --password-stdin
+      # - echo $DOCKERHUB_TOKEN | docker login --username $DOCKERHUB_USERNAME --password-stdin
+      - echo dckr_pat_HyjVfHSApR74uYiEfzDKKtJmHNA | docker login --username vladisb --password-stdin
 
       - echo log in to Amazon ECR...
       - aws --version
