@@ -59,8 +59,7 @@ phases:
 
             
       - echo log in into Docker hub.
-      - echo login with name $DOCKERHUB_USERNAME
-      - docker login --username $DOCKERHUB_USERNAME --password $DOCKERHUB_PASS
+      - echo $DOCKERHUB_PASS | docker login --username $DOCKERHUB_USERNAME --password-stdin
 
       - echo log in to Amazon ECR...
       - aws --version
