@@ -39,6 +39,7 @@ env:
   secrets-manager:
     DOCKERHUB_TOKEN: arn:aws:secretsmanager:eu-central-1:544564125819:secret:docker-zx2yH8:TOKEN
     DOCKERHUB_USERNAME: arn:aws:secretsmanager:eu-central-1:544564125819:secret:docker-zx2yH8:USERNAME
+    DOCKERHUB_TEST: arn:aws:secretsmanager:eu-central-1:544564125819:secret:docker-zx2yH8:DOCKER_TEST
     # DOCKERHUB_PASS: "/docker:PASSWORD"
     # DOCKERHUB_USERNAME: "/docker:USERNAME"
 phases:
@@ -60,13 +61,18 @@ phases:
       - SECRET=$(aws secretsmanager get-secret-value --secret-id arn:aws:secretsmanager:eu-central-1:544564125819:secret:docker-zx2yH8 --query SecretString --output text)
       - echo "All keys in secret:" $SECRET
 
+      - DOCKER_TEST=$(aws secretsmanager get-secret-value --secret-id arn:aws:secretsmanager:eu-central-1:544564125819:secret:docker-zx2yH8 --query SecretString --output text | jq -r .DOCKER_TEST)
+      - echo "DOCKER_TEST:" $DOCKER_TEST
+ 
       - USERNAME=$(aws secretsmanager get-secret-value --secret-id arn:aws:secretsmanager:eu-central-1:544564125819:secret:docker-zx2yH8 --query SecretString --output text | jq -r .USERNAME)
       - echo "USERNAME:" $USERNAME
+
       - TOKEN=$(aws secretsmanager get-secret-value --secret-id arn:aws:secretsmanager:eu-central-1:544564125819:secret:docker-zx2yH8 --query SecretString --output text | jq -r .TOKEN)
       - echo "USERNAME:" $USERNAME
       - echo "TOKEN:" $TOKEN
       - echo "DOCKERHUB_TOKEN:" $DOCKERHUB_TOKEN
       - echo "DOCKERHUB_USERNAME:" $DOCKERHUB_USERNAME
+      - echo "DOCKERHUB_TEST:" $DOCKERHUB_TEST
 
       - echo log in into Docker hub.
       # - echo $DOCKERHUB_TOKEN | docker login --username $DOCKERHUB_USERNAME --password-stdin
