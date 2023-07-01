@@ -56,7 +56,10 @@ phases:
     commands:
       - echo Pre-Build phase started.
       - echo "Node.js version:" $(node -v)
- 
+      
+      - SECRET=$(aws secretsmanager get-secret-value --secret-id arn:aws:secretsmanager:eu-central-1:544564125819:secret:docker-zx2yH8 --query SecretString --output text)
+      - echo "All keys in secret:" $SECRET
+
       - echo log in into Docker hub.
       - echo $DOCKERHUB_TOKEN | docker login --username $DOCKERHUB_USERNAME --password-stdin
 
