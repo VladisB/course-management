@@ -64,7 +64,7 @@ phases:
       - DOCKER_TEST=$(aws secretsmanager get-secret-value --secret-id arn:aws:secretsmanager:eu-central-1:544564125819:secret:docker-zx2yH8 --query SecretString --output text | jq -r .DOCKER_TEST)
       - echo "DOCKER_TEST:" $DOCKER_TEST
  
-      - USERNAME=$(aws secretsmanager get-secret-value --secret-id arn:aws:secretsmanager:eu-central-1:544564125819:secret:docker-zx2yH8 --query SecretString --output text | jq -r .USERNAME)
+      - USERNAME=$(aws secretsmanager get-secret-value --secret-id arn:aws:secretsmanager:eu-central-1:544564125819:secret:docker-zx2yH8 --query SecretString --output text | jq -r .username)
       - USERNAME2=$(aws secretsmanager get-secret-value --secret-id $USERNAME | jq -r ".SecretString" | jq -r ".ssh_key")
       - echo "USERNAME:" $USERNAME
       - echo "USERNAME2:" $USERNAME2
