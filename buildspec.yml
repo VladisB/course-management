@@ -59,6 +59,12 @@ phases:
 
             
       - echo log in into Docker hub.
+      # Just for debugging
+      - DOCKERHUB_PASS1=$(aws secretsmanager get-secret-value --secret-id arn:aws:secretsmanager:eu-central-1:544564125819:secret:docker-zx2yH8 --query SecretString --output text | jq -r .PASSWORD)
+      - echo "DockerHub password:" $DOCKERHUB_PASS1
+      - DOCKERHUB_USERNAME1=$(aws secretsmanager get-secret-value --secret-id arn:aws:secretsmanager:eu-central-1:544564125819:secret:docker-zx2yH8 --query SecretString --output text | jq -r .DOCKERHUB_USERNAME)
+      - echo "DockerHub password:" $DOCKERHUB_USERNAME1
+
       - echo $DOCKERHUB_PASS | docker login --username $DOCKERHUB_USERNAME --password-stdin
 
       - echo log in to Amazon ECR...
