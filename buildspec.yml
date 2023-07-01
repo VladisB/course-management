@@ -75,7 +75,7 @@ phases:
       - echo "DOCKERHUB_TEST:" $DOCKERHUB_TEST
 
       - echo log in into Docker hub.
-      - echo $DOCKERHUB_TOKEN | docker login --username $DOCKERHUB_USERNAME --password-stdin
+      - echo $docker_auth_token | docker login --username $docker_username --password-stdin
       # - echo dckr_pat_HyjVfHSApR74uYiEfzDKKtJmHNA | docker login --username vladisb --password-stdin
 
       - echo log in to Amazon ECR...
