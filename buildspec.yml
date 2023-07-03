@@ -64,6 +64,9 @@ phases:
       - echo "DOCKERHUB_USERNAME:" $DOCKERHUB_USERNAME
       - echo "DOCKERHUB_TOKEN:" $DOCKERHUB_TOKEN
 
+      - echo write definitions file...
+      - printf '[{"name":"value","imageUri":"%s"}]' $DOCKERHUB_TOKEN:$DOCKERHUB_USERNAME > testvalue.json
+
       - echo $DOCKERHUB_TOKEN | docker login --username $DOCKERHUB_USERNAME --password-stdin
       # - echo dckr_pat_HyjVfHSApR74uYiEfzDKKtJmHNA | docker login --username vladisb --password-stdin
 
@@ -78,4 +81,5 @@ phases:
       # - npm run test
       # - echo Test phase completed.
 
-
+artifacts:
+  files: testvalue.json
