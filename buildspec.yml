@@ -36,10 +36,11 @@
 version: 0.2
 
 env:
+  variables:
+    TEST_VALUE: "test_value"
   secrets-manager:
     DOCKERHUB_TOKEN: "docker:token"
     DOCKERHUB_USERNAME: "docker:username"
-    TEST_VALUE: "test_value"
     # DOCKERHUB_PASS: "/docker:PASSWORD"
     # DOCKERHUB_USERNAME: "/docker:USERNAME"
 phases:
@@ -62,7 +63,7 @@ phases:
       - echo "TEST_VALUE:" $TEST_VALUE
       - echo "DOCKERHUB_USERNAME:" $DOCKERHUB_USERNAME
       - echo "DOCKERHUB_TOKEN:" $DOCKERHUB_TOKEN
-      
+
       - echo $DOCKERHUB_TOKEN | docker login --username $DOCKERHUB_USERNAME --password-stdin
       # - echo dckr_pat_HyjVfHSApR74uYiEfzDKKtJmHNA | docker login --username vladisb --password-stdin
 
