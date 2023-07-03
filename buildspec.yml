@@ -4,68 +4,62 @@ env:
   secrets-manager:
     DOCKERHUB_TOKEN: "docker:token"
     DOCKERHUB_USERNAME: "docker:username"
-    # REPO_DOMAIN: "course-management-api/prod:ecr_repo_domain"
-    # REPO_URI: "course-management-api/prod:ecr_repo_uri"
+    REPO_DOMAIN: "course-management-api/prod:ecr_repo_domain"
+    REPO_URI: "course-management-api/prod:ecr_repo_uri"
 phases:
   install:
     runtime-versions:
       nodejs: 18.x
     commands:
-      - SECRET=$(aws secretsmanager get-secret-value --secret-id arn:aws:secretsmanager:eu-central-1:544564125819:secret:course-management-api/prod-TWgGXX --query SecretString --output text)
-      - echo "All keys in secret:" $SECRET
-
-      - SECRET2=$(aws secretsmanager get-secret-value --secret-id arn:aws:secretsmanager:eu-central-1:544564125819:secret:docker-zx2yH8 --query SecretString --output text)
-      - echo "All keys in secret:" $SECRET2
-
       - echo Install phase started.
       - npm install -g npm
       - npm install -g @nestjs/cli
       - npm ci
       # - nohup /usr/local/bin/dockerd --host=unix:///var/run/docker.sock --host=tcp://127.0.0.1:2375 --storage-driver=overlay2 & timeout 15 sh -c "until docker info; do echo .; sleep 1; done"
       - echo Install phase completed.
-#   pre_build:
-#     commands:
-#       - echo Pre-Build phase started.
-#       - echo "Node.js version:" $(node -v)
+  pre_build:
+    commands:
+      - echo Pre-Build phase started.
+      - echo "Node.js version:" $(node -v)
 
-#       # It is necessary to avoid Docker's pull limitation.
-#       - echo log in into Docker hub.
-#       - echo $DOCKERHUB_TOKEN | docker login --username $DOCKERHUB_USERNAME --password-stdin
+      # It is necessary to avoid Docker's pull limitation.
+      - echo log in into Docker hub.
+      - echo $DOCKERHUB_TOKEN | docker login --username $DOCKERHUB_USERNAME --password-stdin
 
-#       - echo log in to Amazon ECR...
-#       - aws --version
-#       - echo "default region:" $AWS_DEFAULT_REGION
-#       - aws ecr get-login-password --region eu-central-1 | docker login --username AWS --password-stdin $REPO_DOMAIN
+      - echo log in to Amazon ECR...
+      - aws --version
+      - echo "default region:" $AWS_DEFAULT_REGION
+      - aws ecr get-login-password --region eu-central-1 | docker login --username AWS --password-stdin $REPO_DOMAIN
 
-#       - COMMIT_HASH=$(echo $CODEBUILD_RESOLVED_SOURCE_VERSION | cut -c 1-7)
-#       - IMAGE_TAG=${COMMIT_HASH:=latest}
+      - COMMIT_HASH=$(echo $CODEBUILD_RESOLVED_SOURCE_VERSION | cut -c 1-7)
+      - IMAGE_TAG=${COMMIT_HASH:=latest}
 
-#       - echo Pre-Build phase completed.
-#   build:
-#     commands:
-#       - echo Build phase started on `date`.
+      - echo Pre-Build phase completed.
+  build:
+    commands:
+      - echo Build phase started on `date`.
 
-#       - npm run build
-#       - echo nest build phase completed.
+      - npm run build
+      - echo nest build phase completed.
 
-#       - echo Building the Docker image.
-#       - echo $REPOSITORY_URI
-#       - echo $REPOSITORY_URI:latest $REPOSITORY_URI:$IMAGE_TAG
+      - echo Building the Docker image.
+      - echo $REPO_URI
+      - echo $REPO_URI:latest $REPO_URI:$IMAGE_TAG
 
-#       - docker build -t $REPOSITORY_URI:latest .
-#       - echo $REPOSITORY_URI:$IMAGE_TAG
-#       - docker tag $REPOSITORY_URI:latest $REPOSITORY_URI:$IMAGE_TAG
+      - docker build -t $REPO_URI:latest .
+      - echo $REPO_URI:$IMAGE_TAG
+      - docker tag $REPO_URI:latest $REPO_URI:$IMAGE_TAG
 
-#       - echo Building the Docker image complited.
-#   post_build:
-#     commands:
-#       - echo Build completed on `date`
+      - echo Building the Docker image complited.
+  post_build:
+    commands:
+      - echo Build completed on `date`
 
-#       - docker push $REPOSITORY_URI:latest
-#       - docker push $REPOSITORY_URI:$IMAGE_TAG
+      - docker push $REPO_URI:latest
+      - docker push $REPO_URI:$IMAGE_TAG
 
-#       - echo write definitions file...
-#       - printf '[{"name":"course-mangement-api","imageUri":"%s"}]' $REPOSITORY_URI:$IMAGE_TAG > imagedefinitions.json
-# artifacts:
-#   files: imagedefinitions.json
+      - echo write definitions file...
+      - printf '[{"name":"course-mangement-api","imageUri":"%s"}]' $REPO_URI:$IMAGE_TAG > imagedefinitions.json
+artifacts:
+  files: imagedefinitions.json
 
