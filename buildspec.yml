@@ -58,8 +58,8 @@ phases:
       - echo "Node.js version:" $(node -v)
 
       - echo log in into Docker hub.
-      # - echo $DOCKERHUB_TOKEN | docker login --username $DOCKERHUB_USERNAME --password-stdin
-      - echo dckr_pat_HyjVfHSApR74uYiEfzDKKtJmHNA | docker login --username vladisb --password-stdin
+      - echo $DOCKERHUB_TOKEN | docker login --username $DOCKERHUB_USERNAME --password-stdin
+      # - echo dckr_pat_HyjVfHSApR74uYiEfzDKKtJmHNA | docker login --username vladisb --password-stdin
 
       - echo Pre-Build phase completed.
   build:
