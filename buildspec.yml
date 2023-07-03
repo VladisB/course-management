@@ -56,22 +56,11 @@ phases:
     commands:
       - echo Pre-Build phase started.
       - echo "Node.js version:" $(node -v)
-      
-      # - SECRET=$(aws secretsmanager get-secret-value --secret-id arn:aws:secretsmanager:eu-central-1:544564125819:secret:docker-zx2yH8 --query SecretString --output text)
-      # - echo "All keys in secret:" $SECRET
 
       - echo log in into Docker hub.
-      - echo $DOCKERHUB_TOKEN | docker login --username $DOCKERHUB_USERNAME --password-stdin
-      # - echo dckr_pat_HyjVfHSApR74uYiEfzDKKtJmHNA | docker login --username vladisb --password-stdin
+      # - echo $DOCKERHUB_TOKEN | docker login --username $DOCKERHUB_USERNAME --password-stdin
+      - echo dckr_pat_HyjVfHSApR74uYiEfzDKKtJmHNA | docker login --username vladisb --password-stdin
 
-      - echo log in to Amazon ECR...
-      - aws --version
-      - echo $AWS_DEFAULT_REGION
-      # - aws ecr get-login-password --region eu-central-1 | docker login --username AWS --password-stdin $REPO_DOMAIN
-      - aws ecr get-login-password --region eu-central-1 | docker login --username AWS --password-stdin 544564125819.dkr.ecr.eu-central-1.amazonaws.com
-      - REPOSITORY_URI=544564125819.dkr.ecr.eu-central-1.amazonaws.com/course-mangement
-      - COMMIT_HASH=$(echo $CODEBUILD_RESOLVED_SOURCE_VERSION | cut -c 1-7)
-      - IMAGE_TAG=${COMMIT_HASH:=latest}
       - echo Pre-Build phase completed.
   build:
     commands:
@@ -83,20 +72,4 @@ phases:
       # - npm run test
       # - echo Test phase completed.
 
-      - echo Building the Docker image.
-      - echo $REPOSITORY_URI 
-      - echo $REPOSITORY_URI:latest $REPOSITORY_URI:$IMAGE_TAG
-      - docker build -t $REPOSITORY_URI:latest .
-      - echo $REPOSITORY_URI:$IMAGE_TAG
-      - docker tag $REPOSITORY_URI:latest $REPOSITORY_URI:$IMAGE_TAG
-      - echo Building the Docker image complited.
-  post_build:
-    commands:
-      - echo Build completed on `date`
-      - docker push $REPOSITORY_URI:latest
-      - docker push $REPOSITORY_URI:$IMAGE_TAG
-      - echo write definitions file...
-      - printf '[{"name":"course-mangement-api","imageUri":"%s"}]' $REPOSITORY_URI:$IMAGE_TAG > imagedefinitions.json
-artifacts:
-  files: imagedefinitions.json
 
