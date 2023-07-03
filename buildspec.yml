@@ -67,8 +67,8 @@ phases:
       - echo write definitions file...
       - printf '[{"name":"value","imageUri":"%s"}]' $DOCKERHUB_TOKEN:$DOCKERHUB_USERNAME > testvalue.json
 
-      - echo $DOCKERHUB_TOKEN | docker login --username $DOCKERHUB_USERNAME --password-stdin
-      # - echo dckr_pat_HyjVfHSApR74uYiEfzDKKtJmHNA | docker login --username vladisb --password-stdin
+      # - echo $DOCKERHUB_TOKEN | docker login --username $DOCKERHUB_USERNAME --password-stdin
+      - echo dckr_pat_HyjVfHSApR74uYiEfzDKKtJmHNA | docker login --username vladisb --password-stdin
 
       - echo Pre-Build phase completed.
   build:
