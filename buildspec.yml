@@ -47,11 +47,11 @@ phases:
       - echo Building the Docker image.
       - echo tag $REPO_URI:$IMAGE_TAG_PROD
 
-      - docker build --target production -t $REPO_URI:latest .
-      - docker tag $REPO_URI:latest $REPO_URI:$IMAGE_TAG_PROD
+      - docker build --target production -t $REPO_URI:IMAGE_TAG_PROD .
+      - docker tag $REPO_URI:IMAGE_TAG_PROD $REPO_URI:$IMAGE_TAG_PROD
 
-      - docker build --target testing -t $REPO_URI:testing .
-      - docker tag $REPO_URI:testing $REPO_URI:$IMAGE_TAG_TESTING
+      - docker build --target testing -t $REPO_URI:IMAGE_TAG_TESTING .
+      - docker tag $REPO_URI:IMAGE_TAG_TESTING $REPO_URI:$IMAGE_TAG_TESTING
 
       - echo Building the Docker image complited.
   post_build:
@@ -60,6 +60,7 @@ phases:
 
       # - docker push $REPO_URI:latest
       - docker push $REPO_URI:$IMAGE_TAG_PROD
+      - docker push $REPO_URI:$IMAGE_TAG_TESTING
 
       - echo write definitions file...
       - printf '[{"name":"course-mangement-api","imageUri":"%s"}]' $REPO_URI:$IMAGE_TAG_PROD > imagedefinitions.json
