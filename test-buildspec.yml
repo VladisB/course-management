@@ -51,19 +51,19 @@ phases:
       - echo Logging in to Amazon ECR...
       - aws --version
       - echo "default region:" $AWS_DEFAULT_REGION
-      - printf '[{"name":"test-build","repo":"%s"}]' $REPO_DOMAIN:$AWS_DEFAULT_REGION > imagedefinitions.json
       # - aws ecr get-login-password --region $AWS_DEFAULT_REGION | docker login --username AWS --password-stdin $REPO_DOMAIN
   # pre_build:
   #   commands:
   #     - echo Pulling Docker image...
   #     - docker pull $REPO_URI:latest
-  # build:
-  #   commands:
+  build:
+    commands:
   #     # - echo Nest Build phase started on `date`.
   #     # - npm run build
   #     # - echo Nest Build phase completed.
 
-  #     # - echo Test phase started.
+      - echo Test phase started.
+      - printf '[{"name":"test-build","repo":"%s"}]' $REPO_DOMAIN:$AWS_DEFAULT_REGION > imagedefinitions.json
   #     # - npm run test
   #     # - echo Test phase completed.
 
