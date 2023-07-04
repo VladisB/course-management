@@ -57,8 +57,8 @@ phases:
     commands:
       - echo Pulling Docker image...
       - COMMIT_HASH=$(echo $CODEBUILD_RESOLVED_SOURCE_VERSION | cut -c 1-7)
-      - IMAGE_TAG=${COMMIT_HASH:=latest}
-      - IMAGE_TAG_TESTING=${COMMIT_HASH:=testing}
+
+      - IMAGE_TAG_TESTING="${COMMIT_HASH:-testing}"
 
       - docker pull $REPO_URI:$IMAGE_TAG_TESTING
   build:
@@ -75,7 +75,7 @@ phases:
       - echo Running tests...
       - docker images
       - docker ps
-      - docker run $REPO_URI:$IMAGE_TAG_TESTING /bin/bash -c "npm i && npm run test"
+      - docker run $REPO_URI:$IMAGE_TAG_TESTING
 
 # artifacts:
 #   files: imagedefinitions.json
