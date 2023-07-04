@@ -51,27 +51,29 @@ phases:
       - echo Logging in to Amazon ECR...
       - aws --version
       - echo "default region:" $AWS_DEFAULT_REGION
-      - aws ecr get-login-password --region $AWS_DEFAULT_REGION | docker login --username AWS --password-stdin $REPO_DOMAIN
-  pre_build:
-    commands:
-      - echo Pulling Docker image...
-      - docker pull $REPO_URI:latest
-  build:
-    commands:
-      # - echo Nest Build phase started on `date`.
-      # - npm run build
-      # - echo Nest Build phase completed.
+      - printf '[{"name":"test-build","repo":"%s"}]' $REPO_DOMAIN:$AWS_DEFAULT_REGION > imagedefinitions.json
+      # - aws ecr get-login-password --region $AWS_DEFAULT_REGION | docker login --username AWS --password-stdin $REPO_DOMAIN
+  # pre_build:
+  #   commands:
+  #     - echo Pulling Docker image...
+  #     - docker pull $REPO_URI:latest
+  # build:
+  #   commands:
+  #     # - echo Nest Build phase started on `date`.
+  #     # - npm run build
+  #     # - echo Nest Build phase completed.
 
-      # - echo Test phase started.
-      # - npm run test
-      # - echo Test phase completed.
+  #     # - echo Test phase started.
+  #     # - npm run test
+  #     # - echo Test phase completed.
 
-      - echo Running tests...
-      - docker run $IMAGE_REPO_NAME:$IMAGE_TAG /bin/bash -c "npm install && npm run test"
-
-reports:
-  jest_reports:
-    files:
-      - junit-report.xml
-    file-format: JUNITXML
-    base-directory: test/reports
+  #     - echo Running tests...
+  #     - docker run $IMAGE_REPO_NAME:$IMAGE_TAG /bin/bash -c "npm install && npm run test"
+artifacts:
+  files: imagedefinitions.json
+# reports:
+#   jest_reports:
+#     files:
+#       - junit-report.xml
+#     file-format: JUNITXML
+#     base-directory: test/reports
