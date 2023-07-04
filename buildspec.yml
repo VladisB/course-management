@@ -50,6 +50,9 @@ phases:
       - docker build --target production -t $REPO_URI:latest .
       - docker tag $REPO_URI:latest $REPO_URI:$IMAGE_TAG_PROD
 
+      - docker build --target testing -t $REPO_URI:testing .
+      - docker tag $REPO_URI:testing $REPO_URI:$IMAGE_TAG_TESTING
+
       - echo Building the Docker image complited.
   post_build:
     commands:
