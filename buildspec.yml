@@ -1,11 +1,12 @@
+# buildspec file version
 version: 0.2
 
 env:
   secrets-manager:
     DOCKERHUB_TOKEN: "docker:token"
     DOCKERHUB_USERNAME: "docker:username"
-    REPO_DOMAIN: "course-management-api/prod:ecr_repo_domain"
-    REPO_URI: "course-management-api/prod:ecr_repo_uri"
+    REPO_DOMAIN: "course-management-api/prod:ECR_REPO_DOMAIN"
+    REPO_URI: "course-management-api/prod:ECR_REPO_URI"
 phases:
   install:
     runtime-versions:

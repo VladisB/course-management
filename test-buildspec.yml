@@ -23,16 +23,16 @@ env:
   secrets-manager:
     # Private environment variables:
     # App
-    APP_JWT: "course-management-api/prod:APP_JWT"
+    APP_JWT: "course-management-api/test:APP_JWT"
     # Postgres
 
-    PG_HOST: "course-management-api/prod:PG_HOST"
-    PG_PASSWORD: "course-management-api/prod:PG_PASSWORD"
-    PG_USER: "course-management-api/prod:PG_USER"
-    AWS_ACCESS_KEY_ID: "course-management-api/prod:AWS_ACCESS_KEY_ID"
-    AWS_SECRET_ACCESS_KEY: "course-management-api/prod:AWS_SECRET_ACCESS_KEY"
-    AWS_S3_REGION: "course-management-api/prod:AWS_S3_REGION"
-    AWS_APP_BUCKET_NAME: "course-management-api/prod:AWS_APP_BUCKET_NAME"
+    PG_HOST: "course-management-api/test:PG_HOST"
+    PG_PASSWORD: "course-management-api/test:PG_PASSWORD"
+    PG_USER: "course-management-api/test:PG_USER"
+    AWS_ACCESS_KEY_ID: "course-management-api/test:AWS_ACCESS_KEY_ID"
+    AWS_SECRET_ACCESS_KEY: "course-management-api/test:AWS_SECRET_ACCESS_KEY"
+    AWS_S3_REGION: "course-management-api/test:AWS_S3_REGION"
+    AWS_APP_BUCKET_NAME: "course-management-api/test:AWS_APP_BUCKET_NAME"
 
 
 phases:
