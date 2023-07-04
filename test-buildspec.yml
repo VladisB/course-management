@@ -74,7 +74,7 @@ phases:
       - echo Running tests...
       - docker images
       - docker ps
-      - docker run $IMAGE_REPO_NAME:IMAGE_TAG /bin/bash -c "npm install && npm run test"
+      - docker run $REPO_URI:IMAGE_TAG /bin/bash -c "npm ci && npm run test"
 
 # artifacts:
 #   files: imagedefinitions.json
