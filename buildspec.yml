@@ -44,11 +44,9 @@ phases:
       - echo nest build phase completed.
 
       - echo Building the Docker image.
-      - echo $REPO_URI
-      - echo $REPO_URI:latest $REPO_URI:$IMAGE_TAG
+      - echo tag $REPO_URI:$IMAGE_TAG
 
       - docker build -t $REPO_URI:latest .
-      - echo $REPO_URI:$IMAGE_TAG
       - docker tag $REPO_URI:latest $REPO_URI:$IMAGE_TAG
 
       - echo Building the Docker image complited.
@@ -56,7 +54,7 @@ phases:
     commands:
       - echo Build completed on `date`
 
-      - docker push $REPO_URI:latest
+      # - docker push $REPO_URI:latest
       - docker push $REPO_URI:$IMAGE_TAG
 
       - echo write definitions file...
