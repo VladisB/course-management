@@ -62,7 +62,27 @@ phases:
       - echo Running tests...
       - docker images
       - docker ps
-      - docker run -e $REPO_URI:$IMAGE_TAG_TESTING
+      # - PGPASSWORD='' psql -h localhost -p 5432 -U postgres -c 'CREATE DATABASE test_db;'
+
+      # Save environment variables to a file
+      - echo APP_PORT=$APP_PORT >> .testing.env
+      - echo APP_ACCESS_TOKEN_EXPIRES_IN=$APP_ACCESS_TOKEN_EXPIRES_IN >> .testing.env
+      - echo APP_REFRESH_TOKEN_EXPIRES_IN=$APP_REFRESH_TOKEN_EXPIRES_IN >> .testing.env
+      - echo APP_UPLOAD_RATE_LIMIT_TTL=$APP_UPLOAD_RATE_LIMIT_TTL >> .testing.env
+      - echo APP_UPLOAD_RATE_LIMIT=$APP_UPLOAD_RATE_LIMIT >> .testing.env
+      - echo APP_UPLOAD_FILE_SIZE_LIMIT_MB=$APP_UPLOAD_FILE_SIZE_LIMIT_MB >> .testing.env
+      - echo NODE_ENV=$NODE_ENV >> .testing.env
+      - echo DB_TYPE=$DB_TYPE >> .testing.env
+      - echo PG_HOST=$PG_HOST >> .testing.env
+      - echo PG_PORT=$PG_PORT >> .testing.env
+      - echo PG_USER=$PG_USER >> .testing.env
+      - echo PG_PASSWORD=$PG_PASSWORD >> .testing.env
+      - echo AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID >> .testing.env
+      - echo APP_JWT=$APP_JWT >> .testing.env
+      - echo AWS_S3_REGION=$AWS_S3_REGION >> .testing.env
+      - echo AWS_APP_BUCKET_NAME=$AWS_APP_BUCKET_NAME >> .testing.env
+
+      - docker run --env-file .testing.env $REPO_URI:$IMAGE_TAG_TESTING
 
 artifacts:
   files:
