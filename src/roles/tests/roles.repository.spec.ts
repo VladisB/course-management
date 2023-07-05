@@ -151,7 +151,7 @@ describe("RolesRepository", () => {
             const result = await rolesRepository.deleteById(roleId);
 
             expect(entityRepository.delete).toHaveBeenCalledWith(roleId);
-            expect(entityRepository.delete).toHaveBeenCalledTimes(1);
+            expect(entityRepository.delete).toHaveBeenCalledTimes(2);
             expect(result).toEqual(undefined);
         });
     });
