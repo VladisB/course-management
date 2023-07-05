@@ -33,8 +33,8 @@ env:
     AWS_SECRET_ACCESS_KEY: "course-management-api/test:AWS_SECRET_ACCESS_KEY"
     AWS_S3_REGION: "course-management-api/test:AWS_S3_REGION"
     AWS_APP_BUCKET_NAME: "course-management-api/test:AWS_APP_BUCKET_NAME"
-    REPO_DOMAIN: "course-management-api/prod:ECR_REPO_DOMAIN"
-    REPO_URI: "course-management-api/prod:ECR_REPO_URI"
+    REPO_DOMAIN: "course-management-api/test:ECR_REPO_DOMAIN"
+    REPO_URI: "course-management-api/test:ECR_REPO_URI"
 
 
 phases:
