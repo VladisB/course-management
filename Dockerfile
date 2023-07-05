@@ -1,15 +1,39 @@
+######################
+## DEVELOPMENT STAGE ##
+######################
+# Build the development image
 FROM node:18.16.0 AS development
 
 WORKDIR /app
 
 COPY package*.json ./
 
-RUN npm install
+RUN npm ci
 
 COPY . .
 
 # build the app to the dist folder
 RUN npm run build
+
+######################
+## TESTING STAGE ##
+######################
+# Build the testing image
+FROM node:18.16.0 AS testing
+
+# Set node env to production
+ARG NODE_ENV=testing
+ENV NODE_ENV=${NODE_ENV}
+
+WORKDIR /app
+
+# Copy all from development stage
+COPY --from=development /app .
+
+EXPOSE 8080
+
+ENTRYPOINT [ "npm" ]
+CMD [ "test" ]
 
 ######################
 ## PRODUCTION STAGE ##
@@ -30,6 +54,5 @@ EXPOSE 8080
 
 CMD [ "node", "dist/main" ]
 
-# docker build -t course-management-api .
 
 
