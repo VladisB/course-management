@@ -49,8 +49,7 @@ phases:
       - echo Logging in to Amazon ECR...
       - aws --version
       - echo "default region:" $AWS_DEFAULT_REGION
-      # - aws ecr get-login-password --region $AWS_DEFAULT_REGION | docker login --username AWS --password-stdin $REPO_DOMAIN
-      - aws ecr get-login-password --region eu-central-1 | docker login --username AWS --password-stdin 544564125819.dkr.ecr.eu-central-1.amazonaws.com
+      - aws ecr get-login-password --region eu-central-1 | docker login --username AWS --password-stdin $REPO_DOMAIN
   pre_build:
     commands:
       - echo Pulling Docker image...
@@ -71,6 +70,7 @@ artifacts:
   discard-paths: yes
   base-directory: test/reports
 
+# TODO: Update source
 reports:
   jest_reports:
     files:
