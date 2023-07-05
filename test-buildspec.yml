@@ -62,7 +62,7 @@ phases:
       - echo Running tests...
       - docker images
       - docker ps
-      - docker run $REPO_URI:$IMAGE_TAG_TESTING
+      - docker run -e $REPO_URI:$IMAGE_TAG_TESTING
 
 artifacts:
   files:

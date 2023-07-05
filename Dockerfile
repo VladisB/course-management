@@ -32,8 +32,8 @@ COPY --from=development /app .
 
 EXPOSE 8080
 
-ENTRYPOINT [ "npm" ]
-CMD [ "test" ]
+ENTRYPOINT [ "/bin/sh", "-c" ]
+CMD [ "npm test && npm run migration:run" ]
 
 ######################
 ## PRODUCTION STAGE ##
