@@ -39,8 +39,6 @@ env:
 
 phases:
   install:
-    # runtime-versions:
-    #   nodejs: 18.x
     commands:
       - echo Install phase started.
       - npm install -g npm
@@ -57,31 +55,21 @@ phases:
     commands:
       - echo Pulling Docker image...
       - COMMIT_HASH=$(echo $CODEBUILD_RESOLVED_SOURCE_VERSION | cut -c 1-7)
-
-      # - IMAGE_TAG_TESTING="${COMMIT_HASH:-testing}"
-
       - IMAGE_TAG_TESTING="${COMMIT_HASH}-testing"
-
 
       - docker pull $REPO_URI:$IMAGE_TAG_TESTING
   build:
     commands:
-      # - echo Nest Build phase started on `date`.
-      # - npm run build
-      # - echo Nest Build phase completed.
-
-      # - echo Test phase started.
-      # - printf '[{"name":"test-build","repo":"%s"}]' $REPO_DOMAIN:$AWS_DEFAULT_REGION > imagedefinitions.json
-      # - npm run test
-      # - echo Test phase completed.
-
       - echo Running tests...
       - docker images
       - docker ps
       - docker run $REPO_URI:$IMAGE_TAG_TESTING
 
-# artifacts:
-#   files: imagedefinitions.json
+artifacts:
+  files:
+    - 'test/reports/junit-report.xml'
+  discard-paths: yes
+  base-directory: test/reports
 
 reports:
   jest_reports:
