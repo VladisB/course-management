@@ -20,21 +20,37 @@ env:
     # S3 bucket
     AWS_S3_URL_EXPIRES_IN_MIN: "15"
 
-  secrets-manager:
-    # Private environment variables:
+    # Just for testing. TODO: Remove
     # App
-    APP_JWT: "course-management-api/test:APP_JWT"
+    APP_JWT: "someSecret22"
     # Postgres
 
-    PG_HOST: "course-management-api/test:PG_HOST"
-    PG_PASSWORD: "course-management-api/test:PG_PASSWORD"
-    PG_USER: "course-management-api/test:PG_USER"
-    AWS_ACCESS_KEY_ID: "course-management-api/test:AWS_ACCESS_KEY_ID"
-    AWS_SECRET_ACCESS_KEY: "course-management-api/test:AWS_SECRET_ACCESS_KEY"
-    AWS_S3_REGION: "course-management-api/test:AWS_S3_REGION"
-    AWS_APP_BUCKET_NAME: "course-management-api/test:AWS_APP_BUCKET_NAME"
-    REPO_DOMAIN: "course-management-api/test:ECR_REPO_DOMAIN"
-    REPO_URI: "course-management-api/test:ECR_REPO_URI"
+    PG_HOST: "c8nzf242stuo.eu-central-1.rds.amazonaws.com"
+    PG_DATABASE: "postgres"
+    PG_PASSWORD: "uvxgfw0XQB_wgu5xau"
+    PG_USER: "postgres"
+    AWS_ACCESS_KEY_ID: "AKIAX5SUNEB5RNXAN5VO"
+    AWS_SECRET_ACCESS_KEY: "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"
+    AWS_S3_REGION: "eu-central-1"
+    AWS_APP_BUCKET_NAME: "course-management-develop"
+    REPO_DOMAIN: "544564125819.dkr.ecr.eu-central-1.amazonaws.com"
+    REPO_URI: "544564125819.dkr.ecr.eu-central-1.amazonaws.com/course-mangement"
+
+  # secrets-manager:
+  #   # Private environment variables:
+  #   # App
+  #   APP_JWT: "course-management-api/test:APP_JWT"
+  #   # Postgres
+
+  #   PG_HOST: "course-management-api/test:PG_HOST"
+  #   PG_PASSWORD: "course-management-api/test:PG_PASSWORD"
+  #   PG_USER: "course-management-api/test:PG_USER"
+  #   AWS_ACCESS_KEY_ID: "course-management-api/test:AWS_ACCESS_KEY_ID"
+  #   AWS_SECRET_ACCESS_KEY: "course-management-api/test:AWS_SECRET_ACCESS_KEY"
+  #   AWS_S3_REGION: "course-management-api/test:AWS_S3_REGION"
+  #   AWS_APP_BUCKET_NAME: "course-management-api/test:AWS_APP_BUCKET_NAME"
+  #   REPO_DOMAIN: "course-management-api/test:ECR_REPO_DOMAIN"
+  #   REPO_URI: "course-management-api/test:ECR_REPO_URI"
 
 
 phases:
