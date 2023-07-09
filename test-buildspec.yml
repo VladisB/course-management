@@ -82,7 +82,7 @@ phases:
 
       # Create a test database
       - echo Running creation of test database...
-      - docker run --env-file .testing.env $REPO_URI:$IMAGE_TAG_TESTING -c "PGPASSWORD=$PG_PASSWORD psql -h $PG_HOST -p $PG_PORT -U postgres -c 'CREATE DATABASE IF NOT EXISTS test_db1;
+      - docker run --env-file .testing.env $REPO_URI:$IMAGE_TAG_TESTING -c "PGPASSWORD=$PG_PASSWORD psql -h $PG_HOST -p $PG_PORT -U postgres -c 'CREATE DATABASE IF NOT EXISTS test_db1;'"
       - echo Testing DB succesfully created.
 
       - docker run --env-file .testing.env $REPO_URI:$IMAGE_TAG_TESTING
