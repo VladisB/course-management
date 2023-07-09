@@ -48,11 +48,6 @@ phases:
       - echo "default region:" $AWS_DEFAULT_REGION
       - aws ecr get-login-password --region eu-central-1 | docker login --username AWS --password-stdin $REPO_DOMAIN
 
-      - echo Installing postgresql15
-      - dnf update -y
-      - dnf install postgresql15
-      - psql --version
-
       - echo Install phase completed.
   pre_build:
     commands:
@@ -66,11 +61,6 @@ phases:
       - echo Running tests...
       - docker images
       - docker ps
-
-      # Create a test database
-      - echo Running creation of test database...
-      - PGPASSWORD='' psql -h $PG_HOST -p $PG_PORT -U postgres -c 'CREATE DATABASE test_db1;'
-      - echo Testing DB succesfully created.
 
       # Save environment variables to a file
       - echo APP_PORT=$APP_PORT >> .testing.env
@@ -90,7 +80,13 @@ phases:
       - echo AWS_S3_REGION=$AWS_S3_REGION >> .testing.env
       - echo AWS_APP_BUCKET_NAME=$AWS_APP_BUCKET_NAME >> .testing.env
 
+      # Create a test database
+      - echo Running creation of test database...
+      - docker run --env-file .testing.env $REPO_URI:$IMAGE_TAG_TESTING -c "PGPASSWORD=$PG_PASSWORD psql -h $PG_HOST -p $PG_PORT -U postgres -c 'CREATE DATABASE IF NOT EXISTS test_db1;
+      - echo Testing DB succesfully created.
+
       - docker run --env-file .testing.env $REPO_URI:$IMAGE_TAG_TESTING
+      - echo Testing completed.
 
 artifacts:
   files:

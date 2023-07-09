@@ -30,6 +30,12 @@ WORKDIR /app
 # Copy all from development stage
 COPY --from=development /app .
 
+# Update packages
+RUN apt-get update
+
+# Install PostgreSQL Client
+RUN apt-get install -y postgresql-client
+
 EXPOSE 8080
 
 ENTRYPOINT [ "/bin/sh", "-c" ]
