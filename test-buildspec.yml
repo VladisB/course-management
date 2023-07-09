@@ -61,7 +61,14 @@ phases:
       - echo Running tests...
       - docker images
       - docker ps
-      - PGPASSWORD='' psql -h localhost -p 5432 -U postgres -c 'CREATE DATABASE test_db;'
+
+      # Create a test database
+      - sudo dnf update -y
+      - sudo dnf install postgresql15
+      - psql --version
+      - echo Running creation of test database...
+      - PGPASSWORD='' psql -h $PG_HOST -p $PG_PORT -U postgres -c 'CREATE DATABASE test_db1;'
+      - echo Testing DB succesfully created.
 
       # Save environment variables to a file
       - echo APP_PORT=$APP_PORT >> .testing.env
