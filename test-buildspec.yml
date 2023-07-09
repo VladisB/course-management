@@ -20,22 +20,6 @@ env:
     # S3 bucket
     AWS_S3_URL_EXPIRES_IN_MIN: "15"
 
-    # Just for testing. TODO: Remove
-    # App
-    # APP_JWT: "someSecret22"
-    # Postgres
-
-    # PG_HOST: "database-1.c8nzf242stuo.eu-central-1.rds.amazonaws.com"
-    # PG_DATABASE: "postgres"
-    # PG_PASSWORD: "uvxgfw0XQB_wgu5xau"
-    # PG_USER: "postgres"
-    # AWS_ACCESS_KEY_ID: "AKIAX5SUNEB5RNXAN5VO"
-    # AWS_SECRET_ACCESS_KEY: "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"
-    # AWS_S3_REGION: "eu-central-1"
-    # AWS_APP_BUCKET_NAME: "course-management-develop"
-    # REPO_DOMAIN: "544564125819.dkr.ecr.eu-central-1.amazonaws.com"
-    # REPO_URI: "544564125819.dkr.ecr.eu-central-1.amazonaws.com/course-mangement"
-
   secrets-manager:
     # Private environment variables:
     # App
@@ -58,7 +42,7 @@ phases:
   install:
     commands:
       - echo Install phase started.
-    
+
       - echo Logging in to Amazon ECR...
       - aws --version
       - echo "default region:" $AWS_DEFAULT_REGION
@@ -77,7 +61,7 @@ phases:
       - echo Running tests...
       - docker images
       - docker ps
-      # - PGPASSWORD='' psql -h localhost -p 5432 -U postgres -c 'CREATE DATABASE test_db;'
+      - PGPASSWORD='' psql -h localhost -p 5432 -U postgres -c 'CREATE DATABASE test_db;'
 
       # Save environment variables to a file
       - echo APP_PORT=$APP_PORT >> .testing.env
