@@ -48,6 +48,11 @@ phases:
       - echo "default region:" $AWS_DEFAULT_REGION
       - aws ecr get-login-password --region eu-central-1 | docker login --username AWS --password-stdin $REPO_DOMAIN
 
+      - echo Installing postgresql15
+      - dnf update -y
+      - dnf install postgresql15
+      - psql --version
+
       - echo Install phase completed.
   pre_build:
     commands:
@@ -63,9 +68,6 @@ phases:
       - docker ps
 
       # Create a test database
-      - dnf update -y
-      - dnf install postgresql15
-      - psql --version
       - echo Running creation of test database...
       - PGPASSWORD='' psql -h $PG_HOST -p $PG_PORT -U postgres -c 'CREATE DATABASE test_db1;'
       - echo Testing DB succesfully created.
