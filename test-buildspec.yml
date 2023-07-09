@@ -63,8 +63,8 @@ phases:
       - docker ps
 
       # Create a test database
-      - sudo dnf update -y
-      - sudo dnf install postgresql15
+      - dnf update -y
+      - dnf install postgresql15
       - psql --version
       - echo Running creation of test database...
       - PGPASSWORD='' psql -h $PG_HOST -p $PG_PORT -U postgres -c 'CREATE DATABASE test_db1;'
