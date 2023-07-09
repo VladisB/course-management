@@ -82,11 +82,16 @@ phases:
 
       # Create a test database
       - echo Running creation of test database...
-      - docker run --env-file .testing.env $REPO_URI:$IMAGE_TAG_TESTING -c "PGPASSWORD=$PG_PASSWORD psql -h $PG_HOST -p $PG_PORT -U postgres -c 'CREATE DATABASE testing_db;'"
+      - docker run --env-file .testing.env $REPO_URI:$IMAGE_TAG_TESTING -c "PGPASSWORD=$PG_PASSWORD psql -h $PG_HOST -p $PG_PORT -U postgres -c 'CREATE DATABASE $PG_DATABASE;'"
       - echo Testing DB succesfully created.
 
+      - echo Running tests...
       - docker run --env-file .testing.env $REPO_URI:$IMAGE_TAG_TESTING
       - echo Testing completed.
+
+      # Remove test database
+      - echo Running removal of test database...
+      - docker run --env-file .testing.env $REPO_URI:$IMAGE_TAG_TESTING -c "PGPASSWORD=$PG_PASSWORD psql -h $PG_HOST -p $PG_PORT -U postgres -c 'DROP DATABASE $PG_DATABASE;'"
 
 artifacts:
   files:
