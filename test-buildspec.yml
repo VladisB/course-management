@@ -87,6 +87,7 @@ phases:
 
       - echo Running tests...
       - docker run --env-file .testing.env $REPO_URI:$IMAGE_TAG_TESTING
+      - docker run --env-file .testing.env $REPO_URI:$IMAGE_TAG_TESTING -c "npm run test:e2e"
       - echo Testing completed.
 
       # Remove test database
