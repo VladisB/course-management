@@ -79,6 +79,6 @@ phases:
       - echo AWS_APP_BUCKET_NAME=$AWS_APP_BUCKET_NAME >> .prod.env
 
       - echo Running migrations...
-      - docker run --env-file .prod.env $REPO_URI:$IMAGE_TAG_PROD -c "npm ci && npm run migration:run"
+      - docker run --env-file .prod.env $REPO_URI:$IMAGE_TAG_PROD /bin/sh -c "npm run migration:run"
       - echo Migrations completed.
 
