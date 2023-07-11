@@ -53,7 +53,8 @@ phases:
     commands:
       - echo Pulling Docker image...
       - COMMIT_HASH=$(echo $CODEBUILD_RESOLVED_SOURCE_VERSION | cut -c 1-7)
-      - IMAGE_TAG_PROD="${COMMIT_HASH}-prod"
+      # - IMAGE_TAG_PROD="${COMMIT_HASH}-prod"
+      - IMAGE_TAG_PROD=${COMMIT_HASH:=latest}
 
       - docker pull $REPO_URI:$IMAGE_TAG_PROD
   build:
