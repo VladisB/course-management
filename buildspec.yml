@@ -36,7 +36,7 @@ phases:
 
       - IMAGE_TAG_PROD="${COMMIT_HASH}-prod"
       # - IMAGE_TAG_PROD=${COMMIT_HASH:=latest}
-      # - IMAGE_TAG_TESTING="${COMMIT_HASH}-testing"
+      - IMAGE_TAG_TESTING="${COMMIT_HASH}-testing"
 
       - echo Pre-Build phase completed.
   build:
@@ -52,8 +52,8 @@ phases:
       - docker build --target production -t $REPO_URI:IMAGE_TAG_PROD .
       - docker tag $REPO_URI:IMAGE_TAG_PROD $REPO_URI:$IMAGE_TAG_PROD
 
-      # - docker build --target testing -t $REPO_URI:IMAGE_TAG_TESTING .
-      # - docker tag $REPO_URI:IMAGE_TAG_TESTING $REPO_URI:$IMAGE_TAG_TESTING
+      - docker build --target testing -t $REPO_URI:IMAGE_TAG_TESTING .
+      - docker tag $REPO_URI:IMAGE_TAG_TESTING $REPO_URI:$IMAGE_TAG_TESTING
 
       - echo Building the Docker image complited.
   post_build:
@@ -61,7 +61,7 @@ phases:
       - echo Build completed on `date`
 
       - docker push $REPO_URI:$IMAGE_TAG_PROD
-      # - docker push $REPO_URI:$IMAGE_TAG_TESTING
+      - docker push $REPO_URI:$IMAGE_TAG_TESTING
 
       - echo write definitions file...
       - printf '[{"name":"course-mangement-api","imageUri":"%s"}]' $REPO_URI:$IMAGE_TAG_PROD > imagedefinitions.json
