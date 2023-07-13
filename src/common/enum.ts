@@ -20,6 +20,12 @@ export enum RoleName {
     Instructor = "instructor",
 }
 
+export enum PredefinedUser {
+    Admin = "admin@gmail.com",
+    Instructor = "instructor@gmail.com",
+    Student = "student@gmail.com",
+}
+
 export enum AppLimit {
     PassedLimit = 80,
 }

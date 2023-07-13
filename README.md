@@ -1,4 +1,4 @@
-# course-management
+# Course-management
  Course Management System API is an online management application. Its main purpose is to make efficient interaction between students and instructors in college during the period of submission of assignments and for getting appropriate feedback from instructors.
 
 # Functional requirements
@@ -160,4 +160,8 @@ docker-compose up -d;
 Otherways, you can run `bash ./rebuild.sh` to run all commands at once.
 
 By default app is running on port `3000`, base local address is: `http://localhost:3000`.
+
+# Cloud infrastructure
+
+<img src="./docs/img/cicd.png" alt="cicd" style="max-width:100%;">
 
