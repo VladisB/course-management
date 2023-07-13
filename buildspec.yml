@@ -16,7 +16,6 @@ phases:
       - npm install -g npm
       - npm install -g @nestjs/cli
       - npm ci
-      # - nohup /usr/local/bin/dockerd --host=unix:///var/run/docker.sock --host=tcp://127.0.0.1:2375 --storage-driver=overlay2 & timeout 15 sh -c "until docker info; do echo .; sleep 1; done"
       - echo Install phase completed.
   pre_build:
     commands:
@@ -33,9 +32,7 @@ phases:
       - aws ecr get-login-password --region eu-central-1 | docker login --username AWS --password-stdin $REPO_DOMAIN
 
       - COMMIT_HASH=$(echo $CODEBUILD_RESOLVED_SOURCE_VERSION | cut -c 1-7)
-
       - IMAGE_TAG_PROD="${COMMIT_HASH}-prod"
-      # - IMAGE_TAG_PROD=${COMMIT_HASH:=latest}
       - IMAGE_TAG_TESTING="${COMMIT_HASH}-testing"
 
       - echo Pre-Build phase completed.
