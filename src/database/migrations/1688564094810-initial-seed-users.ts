@@ -3,6 +3,7 @@ import { Role } from "@app/roles/entities/role.entity";
 import { User } from "@app/users/entities/user.entity";
 import { MigrationInterface, QueryRunner } from "typeorm";
 
+// TODO: move to env
 const testPassword = "testsdfsfdDSDD12@";
 
 // PURPOSE: Seed the database with initial data: roles and predefined users
