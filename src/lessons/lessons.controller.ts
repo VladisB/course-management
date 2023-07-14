@@ -35,8 +35,8 @@ export class LessonsController {
 
     @Post()
     @Roles(RoleName.Admin, RoleName.Instructor)
-    create(@Body() createLessonDto: CreateLessonDto): Promise<LessonViewModel> {
-        return this.lessonsService.createLesson(createLessonDto);
+    create(@Body() createLessonDto: CreateLessonDto, @GetUser() user: User): Promise<LessonViewModel> {
+        return this.lessonsService.createLesson(createLessonDto, user);
     }
 
     @Get()

@@ -81,12 +81,10 @@ export class LessonsRepository extends BaseRepository implements ILessonsReposit
         await this.entityRepository.delete(id);
     }
 
-    public async create(dto: CreateLessonDto, course: Course): Promise<Lesson> {
-        const lessonEntity = this.entityRepository.create({ ...dto, course });
+    public async create(entity: Lesson): Promise<Lesson> {
+        const { id } = await this.entityRepository.save(entity);
 
-        const lesson = await this.entityRepository.save(lessonEntity);
-
-        return await this.getById(lesson.id);
+        return await this.getById(id);
     }
 
     public async update(id: number, dto: UpdateLessonDto): Promise<Lesson> {
@@ -102,7 +100,7 @@ export class LessonsRepository extends BaseRepository implements ILessonsReposit
 }
 
 export abstract class ILessonsRepository extends IBaseRepository {
-    abstract create(dto: CreateLessonDto, course: Course): Promise<Lesson>;
+    abstract create(entity: Lesson): Promise<Lesson>;
     abstract deleteById(id: number): Promise<void>;
     abstract getAllQ(): SelectQueryBuilder<Lesson>;
     abstract getAllQByStudent(studentId: number): SelectQueryBuilder<Lesson>;

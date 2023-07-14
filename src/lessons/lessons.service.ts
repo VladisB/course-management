@@ -13,9 +13,10 @@ import { CreateLessonDto } from "./dto/create-lesson.dto";
 import { UpdateLessonDto } from "./dto/update-lesson.dto";
 import { Lesson } from "./entities/lesson.entity";
 import { ILessonsRepository } from "./lessons.repository";
-import { LessonsViewModelFactory } from "./model-factories";
+import { LessonModelFactory, LessonsViewModelFactory } from "./model-factories";
 import { LessonViewModel } from "./view-models";
 import { BaseErrorMessage } from "@common/enum";
+import { User } from "@app/users/entities/user.entity";
 
 @Injectable()
 export class LessonsService implements ILessonsService {
@@ -25,10 +26,18 @@ export class LessonsService implements ILessonsService {
         private readonly lessonsViewModelFactory: LessonsViewModelFactory,
     ) {}
 
-    public async createLesson(dto: CreateLessonDto): Promise<LessonViewModel> {
+    public async createLesson(dto: CreateLessonDto, user: User): Promise<LessonViewModel> {
         const course = await this.validateCreate(dto);
 
-        const lesson = await this.lessonsRepository.create(dto, course);
+        const newEntity = LessonModelFactory.create({
+            theme: dto.theme,
+            date: dto.date,
+            course,
+            createdAt: new Date(),
+            createdBy: user,
+        });
+
+        const lesson = await this.lessonsRepository.create(newEntity);
 
         return this.lessonsViewModelFactory.initLessonViewModel(lesson);
     }
@@ -199,7 +208,7 @@ export class LessonsService implements ILessonsService {
 }
 
 interface ILessonsService {
-    createLesson(dto: CreateLessonDto): Promise<LessonViewModel>;
+    createLesson(dto: CreateLessonDto,  creator: User): Promise<LessonViewModel>;
     deleteLesson(id: number): Promise<void>;
     getLesson(id: number): Promise<LessonViewModel>;
     getLessons(queryParams: QueryParamsDTO): Promise<DataListResponse<LessonViewModel>>;
