@@ -8,6 +8,7 @@ function mockQueryBuilder<T>(mockEntityList: any[]): Partial<SelectQueryBuilder<
         skip: jest.fn().mockReturnThis(),
         take: jest.fn().mockReturnThis(),
         getManyAndCount: jest.fn().mockResolvedValue([mockEntityList, mockEntityList.length]),
+        innerJoinAndSelect: jest.fn().mockReturnThis(),
     };
 }
 

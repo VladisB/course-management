@@ -39,15 +39,15 @@ export abstract class LessonModelFactory {
         theme,
         date,
         course,
-        // modifiedBy,
-        // modifiedAt,
+        modifiedBy,
+        modifiedAt,
     }: {
         id: number;
         theme: string;
         date: Date;
         course?: Course;
-        // modifiedBy?: User;
-        // modifiedAt?: Date;
+        modifiedBy?: User;
+        modifiedAt?: Date;
     }): Lesson {
         const entity = new Lesson();
 

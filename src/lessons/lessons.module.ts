@@ -4,7 +4,7 @@ import { LessonsController } from "./lessons.controller";
 import { ILessonsRepository, LessonsRepository } from "./lessons.repository";
 import { Lesson } from "./entities/lesson.entity";
 import { TypeOrmModule } from "@nestjs/typeorm";
-import { LessonsViewModelFactory } from "./model-factories";
+import { LessonViewModelFactory } from "./model-factories";
 import { CoursesModule } from "@app/courses/courses.module";
 
 @Module({
@@ -13,7 +13,7 @@ import { CoursesModule } from "@app/courses/courses.module";
     providers: [
         { provide: ILessonsRepository, useClass: LessonsRepository },
         LessonsService,
-        LessonsViewModelFactory,
+        LessonViewModelFactory,
     ],
     exports: [ILessonsRepository],
 })

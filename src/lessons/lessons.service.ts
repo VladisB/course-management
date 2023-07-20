@@ -13,7 +13,7 @@ import { CreateLessonDto } from "./dto/create-lesson.dto";
 import { UpdateLessonDto } from "./dto/update-lesson.dto";
 import { Lesson } from "./entities/lesson.entity";
 import { ILessonsRepository } from "./lessons.repository";
-import { LessonModelFactory, LessonsViewModelFactory } from "./model-factories";
+import { LessonModelFactory, LessonViewModelFactory } from "./model-factories";
 import { LessonViewModel } from "./view-models";
 import { BaseErrorMessage } from "@common/enum";
 import { User } from "@app/users/entities/user.entity";
@@ -23,7 +23,7 @@ export class LessonsService implements ILessonsService {
     constructor(
         private readonly lessonsRepository: ILessonsRepository,
         private readonly coursesRepository: ICoursesRepository,
-        private readonly lessonsViewModelFactory: LessonsViewModelFactory,
+        private readonly lessonViewModelFactory: LessonViewModelFactory,
     ) {}
 
     public async createLesson(dto: CreateLessonDto, user: User): Promise<LessonViewModel> {
@@ -39,7 +39,7 @@ export class LessonsService implements ILessonsService {
 
         const lesson = await this.lessonsRepository.create(newEntity);
 
-        return this.lessonsViewModelFactory.initLessonViewModel(lesson);
+        return this.lessonViewModelFactory.initLessonViewModel(lesson);
     }
 
     public async deleteLesson(id: number): Promise<void> {
@@ -55,7 +55,7 @@ export class LessonsService implements ILessonsService {
             throw new NotFoundException(BaseErrorMessage.NOT_FOUND);
         }
 
-        return this.lessonsViewModelFactory.initLessonViewModel(lesson);
+        return this.lessonViewModelFactory.initLessonViewModel(lesson);
     }
 
     public async getLessons(
@@ -71,7 +71,7 @@ export class LessonsService implements ILessonsService {
             config,
         );
 
-        const model = this.lessonsViewModelFactory.initLessonListViewModel(lessons);
+        const model = this.lessonViewModelFactory.initLessonListViewModel(lessons);
 
         return new DataListResponse<LessonViewModel>(model, count);
     }
@@ -89,7 +89,7 @@ export class LessonsService implements ILessonsService {
             query,
             config,
         );
-        const model = this.lessonsViewModelFactory.initLessonListViewModel(lessons);
+        const model = this.lessonViewModelFactory.initLessonListViewModel(lessons);
         return new DataListResponse<LessonViewModel>(model, count);
     }
 
@@ -107,17 +107,30 @@ export class LessonsService implements ILessonsService {
             config,
         );
 
-        const model = this.lessonsViewModelFactory.initLessonListViewModel(lessons);
+        const model = this.lessonViewModelFactory.initLessonListViewModel(lessons);
 
         return new DataListResponse<LessonViewModel>(model, count);
     }
 
-    public async updateLesson(id: number, dto: UpdateLessonDto): Promise<LessonViewModel> {
-        await this.validateUpdate(id);
+    public async updateLesson(
+        id: number,
+        dto: UpdateLessonDto,
+        user: User,
+    ): Promise<LessonViewModel> {
+        const course = await this.validateUpdate(id, dto);
 
-        const lesson = await this.lessonsRepository.update(id, dto);
+        const updatedEntity = LessonModelFactory.update({
+            id,
+            theme: dto.theme,
+            date: dto.date,
+            course,
+            modifiedAt: new Date(),
+            modifiedBy: user,
+        });
 
-        return this.lessonsViewModelFactory.initLessonViewModel(lesson);
+        const lesson = await this.lessonsRepository.update(updatedEntity);
+
+        return this.lessonViewModelFactory.initLessonViewModel(lesson);
     }
 
     private async validateCreate(dto: CreateLessonDto): Promise<Course> {
@@ -129,8 +142,14 @@ export class LessonsService implements ILessonsService {
         await this.checkIfExists(id);
     }
 
-    private async validateUpdate(id: number): Promise<void> {
+    private async validateUpdate(id: number, dto: UpdateLessonDto): Promise<Course> {
         await this.checkIfExists(id);
+
+        if (dto.theme) {
+            await this.checkIfExistsByTheme(dto.theme);
+        }
+
+        return dto.courseId ? await this.checkIfCourseExists(dto.courseId) : null;
     }
 
     private async checkIfCourseExists(id: number): Promise<Course> {
@@ -208,7 +227,7 @@ export class LessonsService implements ILessonsService {
 }
 
 interface ILessonsService {
-    createLesson(dto: CreateLessonDto,  creator: User): Promise<LessonViewModel>;
+    createLesson(dto: CreateLessonDto, creator: User): Promise<LessonViewModel>;
     deleteLesson(id: number): Promise<void>;
     getLesson(id: number): Promise<LessonViewModel>;
     getLessons(queryParams: QueryParamsDTO): Promise<DataListResponse<LessonViewModel>>;
@@ -220,5 +239,5 @@ interface ILessonsService {
         queryParams: QueryParamsDTO,
         instructorId: number,
     ): Promise<DataListResponse<LessonViewModel>>;
-    updateLesson(id: number, dto: UpdateLessonDto): Promise<LessonViewModel>;
+    updateLesson(id: number, dto: UpdateLessonDto, user: User): Promise<LessonViewModel>;
 }

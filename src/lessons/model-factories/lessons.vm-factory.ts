@@ -1,7 +1,7 @@
 import { Lesson } from "../entities/lesson.entity";
 import { LessonInstructorViewModel, LessonViewModel } from "../view-models";
 
-export class LessonsViewModelFactory implements ILessonsViewModelFactory {
+export class LessonViewModelFactory implements ILessonViewModelFactory {
     public initLessonViewModel(lesson: Lesson): LessonViewModel {
         const model: LessonViewModel = {
             id: 0,
@@ -64,7 +64,7 @@ export class LessonsViewModelFactory implements ILessonsViewModelFactory {
     }
 }
 
-interface ILessonsViewModelFactory {
+interface ILessonViewModelFactory {
     initLessonViewModel(lesson: Lesson): LessonViewModel;
     initLessonListViewModel(lesson: Lesson[]): LessonViewModel[];
 }

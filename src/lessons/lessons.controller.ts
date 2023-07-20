@@ -35,7 +35,10 @@ export class LessonsController {
 
     @Post()
     @Roles(RoleName.Admin, RoleName.Instructor)
-    create(@Body() createLessonDto: CreateLessonDto, @GetUser() user: User): Promise<LessonViewModel> {
+    create(
+        @Body() createLessonDto: CreateLessonDto,
+        @GetUser() user: User,
+    ): Promise<LessonViewModel> {
         return this.lessonsService.createLesson(createLessonDto, user);
     }
 
@@ -77,8 +80,9 @@ export class LessonsController {
     update(
         @Param("id", ParseIntPipe) id: number,
         @Body() updateLessonDto: UpdateLessonDto,
+        @GetUser() user: User,
     ): Promise<LessonViewModel> {
-        return this.lessonsService.updateLesson(id, updateLessonDto);
+        return this.lessonsService.updateLesson(id, updateLessonDto, user);
     }
 
     @Delete(":id")

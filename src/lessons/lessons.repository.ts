@@ -1,11 +1,9 @@
 import { Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
-import { Course } from "src/courses/entities/course.entity";
 import { Repository, SelectQueryBuilder } from "typeorm";
-import { CreateLessonDto } from "./dto/create-lesson.dto";
-import { UpdateLessonDto } from "./dto/update-lesson.dto";
 import { Lesson } from "./entities/lesson.entity";
 import { BaseRepository, IBaseRepository } from "@common/db/base.repository";
+import { BaseErrorMessage } from "@app/common/enum";
 
 @Injectable()
 export class LessonsRepository extends BaseRepository implements ILessonsRepository {
@@ -87,15 +85,16 @@ export class LessonsRepository extends BaseRepository implements ILessonsReposit
         return await this.getById(id);
     }
 
-    public async update(id: number, dto: UpdateLessonDto): Promise<Lesson> {
-        const lessonEntity = await this.entityRepository.preload({
-            id,
-            ...dto,
-        });
+    public async update(entity: Lesson): Promise<Lesson> {
+        try {
+            const { id } = await this.entityRepository.save(entity);
 
-        const lesson = await this.entityRepository.save(lessonEntity);
+            return await this.getById(id);
+        } catch (err) {
+            console.error("Error: ", err);
 
-        return await this.getById(lesson.id);
+            throw new Error(BaseErrorMessage.DB_ERROR);
+        }
     }
 }
 
@@ -107,5 +106,5 @@ export abstract class ILessonsRepository extends IBaseRepository {
     abstract getAllQByInstructor(instructorId: number): SelectQueryBuilder<Lesson>;
     abstract getById(id: number): Promise<Lesson>;
     abstract getByTheme(theme: string): Promise<Lesson>;
-    abstract update(id: number, dto: UpdateLessonDto): Promise<Lesson>;
+    abstract update(entity: Lesson): Promise<Lesson>;
 }
