@@ -24,6 +24,7 @@ export class AuthController {
     constructor(private authService: AuthService) {}
 
     @Post("/login")
+    @UsePipes(new ValidationPipe({ transform: true }))
     @HttpCode(200)
     async login(
         @Res({ passthrough: true }) res: Response,

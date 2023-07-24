@@ -4,7 +4,7 @@ import { Transform } from "class-transformer";
 export class AuthCredentialsDto {
     @IsString()
     @MinLength(4)
-    @MaxLength(25)
+    @MaxLength(100)
     @IsEmail()
     @Transform(({ value }) => value?.toLowerCase().trim())
     email: string;

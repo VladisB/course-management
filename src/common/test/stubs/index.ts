@@ -7,7 +7,13 @@ import {
     instructorRoleStub,
     unexistedRoleStub,
 } from "./role.stub";
-import { adminUserStub, instructorUserStub, studentUserStub } from "./user.stub";
+import {
+    adminUserStub,
+    e2eInstructorStub,
+    instructorUserStub,
+    studentUserStub,
+    unexistedUserStub,
+} from "./user.stub";
 
 export {
     rolesMock,
@@ -23,4 +29,6 @@ export {
     courseStub,
     lessonVMMockList,
     unexistedRoleStub,
+    unexistedUserStub,
+    e2eInstructorStub,
 };

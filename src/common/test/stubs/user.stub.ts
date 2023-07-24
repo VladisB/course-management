@@ -1,5 +1,7 @@
 import { User } from "@app/users/entities/user.entity";
-import { adminRoleStub, instructorRoleStub, studentRoleStub } from "./role.stub";
+import { adminRoleStub, instructorRoleStub, studentRoleStub, unexistedRoleStub } from "./role.stub";
+import { getRandomNumber } from "../utils";
+import { E2ETestData } from "@app/common/enum";
 
 const adminUserStub: User = new User();
 adminUserStub.id = 1;
@@ -25,4 +27,19 @@ instructorUserStub.lastName = "Doe";
 instructorUserStub.role = instructorRoleStub;
 instructorUserStub.group = null;
 
-export { adminUserStub, studentUserStub, instructorUserStub };
+const unexistedUserStub: User = new User();
+unexistedUserStub.id = 3;
+unexistedUserStub.email = "unexisted@unexisted.com";
+unexistedUserStub.firstName = "unexisted";
+unexistedUserStub.lastName = "Doe";
+unexistedUserStub.role = unexistedRoleStub;
+unexistedUserStub.group = null;
+
+const e2eInstructorStub: Partial<User> = {
+    email: `e2eInstructor${getRandomNumber()}@gmail.com`,
+    password: E2ETestData.password,
+    firstName: "John",
+    lastName: "Deer",
+};
+
+export { adminUserStub, studentUserStub, instructorUserStub, unexistedUserStub, e2eInstructorStub };
