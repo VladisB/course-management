@@ -13,7 +13,7 @@ import {
 export class CreateUserDto {
     @IsString()
     @MinLength(4)
-    @MaxLength(25)
+    @MaxLength(100)
     @IsEmail()
     @Transform(({ value }) => value?.toLowerCase().trim())
     email: string;

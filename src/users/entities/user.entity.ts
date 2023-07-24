@@ -2,7 +2,6 @@ import * as bcrypt from "bcryptjs";
 import {
     BaseEntity,
     BeforeInsert,
-    BeforeUpdate,
     Column,
     CreateDateColumn,
     Entity,
@@ -97,7 +96,6 @@ export class User extends BaseEntity {
     }
 
     @BeforeInsert()
-    @BeforeUpdate()
     nameToUpperCase() {
         this.email = this.email.toLowerCase();
     }

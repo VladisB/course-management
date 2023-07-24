@@ -19,6 +19,8 @@ import { QueryRunner } from "typeorm";
 import { UpdateUserDto } from "@app/users/dto/update-user.dto";
 import { User } from "@app/users/entities/user.entity";
 import { UserViewModel } from "@app/users/view-models";
+import { Role } from "@app/roles/entities/role.entity";
+import { UserModelFactory } from "@app/users/model-factories/user.factory";
 
 @Injectable()
 export class UsersManagementService implements IUsersManagementService {
@@ -32,24 +34,33 @@ export class UsersManagementService implements IUsersManagementService {
 
     //#region Public methods
 
-    public async createUser(dto: CreateUserDto): Promise<User> {
-        const [group] = await this.validateCreate(dto);
+    public async createUser(dto: CreateUserDto, user: User): Promise<User> {
+        const [group, role] = await this.validateCreate(dto);
 
         const transaction = await this.usersRepository.initTrx();
 
         try {
-            const roleId = dto.roleId
-                ? dto.roleId
-                : (await this.rolesRepository.getByName(RoleName.Student)).id;
-
             //TODO: add transaction
-            const user = await this.usersRepository.create(dto, roleId);
+            const newEntity = UserModelFactory.create({
+                email: dto.email,
+                password: dto.password,
+                firstName: dto.firstName,
+                lastName: dto.lastName,
+                role,
+                group,
+                createdBy: user,
+                createdAt: new Date(),
+            });
 
-            await this.trxAddStudentCourses(transaction, user.id, group);
+            const newUser = await this.usersRepository.create(newEntity);
+
+            if (group && role.name === RoleName.Student) {
+                await this.trxAddStudentCourses(transaction, newUser.id, group);
+            }
 
             await this.usersRepository.commitTrx(transaction);
 
-            return user;
+            return newUser;
         } catch (err) {
             console.error(err);
 
@@ -59,14 +70,27 @@ export class UsersManagementService implements IUsersManagementService {
         }
     }
 
-    public async updateUser(id: number, dto: UpdateUserDto): Promise<UserViewModel> {
-        const [group, user] = await this.validateUpdate(id, dto);
+    public async updateUser(id: number, dto: UpdateUserDto, user: User): Promise<UserViewModel> {
+        const [group, userEntity, role] = await this.validateUpdate(id, dto);
 
         const transaction = await this.usersRepository.initTrx();
 
         try {
-            await this.trxUpdateStudentCourses(transaction, id, group, user);
-            const model = await this.usersRepository.trxUpdate(transaction, id, dto);
+            await this.trxUpdateStudentCourses(transaction, id, group, userEntity);
+
+            const updatedEntity = UserModelFactory.update({
+                id,
+                email: dto.email,
+                password: dto.password,
+                firstName: dto.firstName,
+                lastName: dto.lastName,
+                role,
+                group,
+                modifiedBy: user,
+                modifiedAt: new Date(),
+            });
+
+            const model = await this.usersRepository.trxUpdate(transaction, updatedEntity);
 
             await this.usersRepository.commitTrx(transaction);
 
@@ -215,32 +239,32 @@ export class UsersManagementService implements IUsersManagementService {
 
     //#region Private methods
 
-    private async validateCreate(dto: CreateUserDto): Promise<readonly [Group]> {
+    private async validateCreate(dto: CreateUserDto): Promise<readonly [Group, Role]> {
         await this.checkIfUserExistByEmail(dto.email);
 
-        if (dto.roleId) {
-            await this.checkIfRoleExist(dto.roleId);
-        }
+        const role = dto.roleId
+            ? await this.checkIfRoleExist(dto.roleId)
+            : await this.rolesRepository.getByName(RoleName.Student);
 
         const group = dto.groupId && (await this.checkIfGroupNotExist(dto.groupId));
 
-        return [group];
+        return [group, role];
     }
 
-    private async validateUpdate(id: number, dto: UpdateUserDto): Promise<readonly [Group, User]> {
+    private async validateUpdate(
+        id: number,
+        dto: UpdateUserDto,
+    ): Promise<readonly [Group, User, Role]> {
         const user = await this.checkIfUserExistById(id);
 
         if (dto.email) {
             await this.checkIfUserExistByEmail(dto.email, id);
         }
 
-        if (dto.roleId) {
-            await this.checkIfRoleExist(dto.roleId);
-        }
-
         const group = dto.groupId && (await this.checkIfGroupNotExist(dto.groupId));
+        const role = dto.roleId && (await this.checkIfRoleExist(dto.roleId));
 
-        return [group, user];
+        return [group, user, role];
     }
 
     private async validateDelete(id: number): Promise<User> {
@@ -271,19 +295,26 @@ export class UsersManagementService implements IUsersManagementService {
         if (user) throw new ConflictException("Email is already taken");
     }
 
-    private async checkIfRoleExist(roleId: number): Promise<void> {
+    private async checkIfRoleExist(roleId: number): Promise<Role> {
         const role = await this.rolesRepository.getById(roleId);
 
         if (!role) throw new BadRequestException("Role not found");
+
+        return role;
     }
 
     //#endregion
 }
 
 export abstract class IUsersManagementService {
-    abstract createUser(dto: CreateUserDto): Promise<User>;
+    // TODO: Add migration to add createdBy
+    abstract createUser(dto: CreateUserDto, user?: User): Promise<User>;
     abstract deleteUser(id: number): Promise<void>;
     abstract getAllUsers(queryParams: QueryParamsDTO): Promise<DataListResponse<UserViewModel>>;
     abstract getUser(id: number): Promise<UserViewModel>;
-    abstract updateUser(id: number, updateUserDto: UpdateUserDto): Promise<UserViewModel>;
+    abstract updateUser(
+        id: number,
+        updateUserDto: UpdateUserDto,
+        user: User,
+    ): Promise<UserViewModel>;
 }

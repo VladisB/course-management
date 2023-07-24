@@ -1,7 +1,7 @@
 import { Role } from "../entities/role.entity";
 import { RoleViewModel } from "../view-models";
 
-export class RolesViewModelFactory implements IRolesViewModelFactory {
+export class RoleViewModelFactory implements IRoleViewModelFactory {
     public initRoleViewModel(role: Role): RoleViewModel {
         const model: RoleViewModel = {
             id: null,
@@ -40,7 +40,7 @@ export class RolesViewModelFactory implements IRolesViewModelFactory {
     }
 }
 
-export interface IRolesViewModelFactory {
+export interface IRoleViewModelFactory {
     initRoleViewModel(role: Role): RoleViewModel;
     initRoleListViewModel(roles: Role[]): RoleViewModel[];
 }

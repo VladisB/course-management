@@ -1,8 +1,6 @@
 import { Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { In, QueryRunner, Repository, SelectQueryBuilder } from "typeorm";
-import { CreateUserDto } from "./dto/create-user.dto";
-import { UpdateUserDto } from "./dto/update-user.dto";
 import { User } from "./entities/user.entity";
 import { BaseRepository, IBaseRepository } from "@common/db/base.repository";
 import { BaseErrorMessage, RoleName } from "@common/enum";
@@ -86,44 +84,20 @@ export class UsersRepository extends BaseRepository implements IUsersRepository 
         return userQuery;
     }
 
-    public async create(dto: CreateUserDto, roleId: number): Promise<User> {
-        const user = await this.entityRepository.create({
-            ...dto,
-            role: { id: roleId },
-            group: { id: dto.groupId },
-        });
-
-        const { id } = await user.save();
+    public async create(entity: User): Promise<User> {
+        const { id } = await this.entityRepository.save(entity);
 
         return await this.getById(id);
     }
 
-    public async update(id: number, dto: UpdateUserDto): Promise<User> {
-        const user = await this.entityRepository.preload({
-            id,
-            ...dto,
-            role: { id: dto.roleId },
-            group: { id: dto.groupId },
-        });
-
-        const { id: entityId } = await this.entityRepository.save(user);
+    public async update(entity: User): Promise<User> {
+        const { id: entityId } = await this.entityRepository.save(entity);
 
         return await this.getById(entityId);
     }
 
-    public async trxUpdate(
-        queryRunner: QueryRunner,
-        id: number,
-        dto: UpdateUserDto,
-    ): Promise<User> {
+    public async trxUpdate(queryRunner: QueryRunner, entity: User): Promise<User> {
         try {
-            const entity = await this.entityRepository.preload({
-                id,
-                ...dto,
-                role: { id: dto.roleId },
-                group: { id: dto.groupId },
-            });
-
             const { id: entityId } = await queryRunner.manager.save(entity);
 
             return await this.getById(entityId);
@@ -147,7 +121,7 @@ export class UsersRepository extends BaseRepository implements IUsersRepository 
 }
 
 export abstract class IUsersRepository extends IBaseRepository {
-    abstract create(dto: CreateUserDto, roleId: number): Promise<User>;
+    abstract create(entity: User): Promise<User>;
     abstract deleteById(id: number): Promise<void>;
     abstract getAllQ(): SelectQueryBuilder<User>;
     abstract getAllStudentsQ(): SelectQueryBuilder<User>;
@@ -155,7 +129,7 @@ export abstract class IUsersRepository extends IBaseRepository {
     abstract getById(id: number, roleName?: RoleName): Promise<User>;
     abstract getStudentById(id: number): Promise<User>;
     abstract getByIdList(idList: number[], roleId: number): Promise<User[]>;
-    abstract trxUpdate(queryRunner: QueryRunner, id: number, dto: UpdateUserDto): Promise<User>;
-    abstract update(id: number, dto: UpdateUserDto): Promise<User>;
+    abstract trxUpdate(queryRunner: QueryRunner, entity: User): Promise<User>;
+    abstract update(entity: User): Promise<User>;
     abstract updateRefreshToken(id: number, refreshToken: string | null): Promise<void>;
 }

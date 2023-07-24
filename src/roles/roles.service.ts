@@ -5,7 +5,7 @@ import { ApplyToQueryExtension } from "@common/query-extention";
 import { CreateRoleDto } from "./dto/create-role.dto";
 import { UpdateRoleDto } from "./dto/update-role.dto";
 import { Role } from "./entities/role.entity";
-import { RolesViewModelFactory } from "./model-factories/roles.vm-factory";
+import { RoleViewModelFactory } from "./model-factories/role.vm-factory";
 import { IRolesRepository } from "./roles.repository";
 import { RoleViewModel } from "./view-models";
 import { BaseErrorMessage } from "@common/enum";
@@ -16,7 +16,7 @@ import { User } from "src/users/entities/user.entity";
 export class RolesService implements IRolesService {
     constructor(
         private readonly rolesRepository: IRolesRepository,
-        private readonly rolesViewModelFactory: RolesViewModelFactory,
+        private readonly RoleViewModelFactory: RoleViewModelFactory,
     ) {}
 
     //#region Public methods
@@ -32,7 +32,7 @@ export class RolesService implements IRolesService {
 
         const role = await this.rolesRepository.create(newEntity);
 
-        return this.rolesViewModelFactory.initRoleViewModel(role);
+        return this.RoleViewModelFactory.initRoleViewModel(role);
     }
 
     public async getRoleByName(name: string): Promise<Role> {
@@ -44,7 +44,7 @@ export class RolesService implements IRolesService {
 
         if (!role) throw new NotFoundException(BaseErrorMessage.NOT_FOUND);
 
-        return this.rolesViewModelFactory.initRoleViewModel(role);
+        return this.RoleViewModelFactory.initRoleViewModel(role);
     }
 
     public async getRoles(queryParams: QueryParamsDTO): Promise<DataListResponse<RoleViewModel>> {
@@ -77,7 +77,7 @@ export class RolesService implements IRolesService {
             config,
         );
 
-        const model = this.rolesViewModelFactory.initRoleListViewModel(roles);
+        const model = this.RoleViewModelFactory.initRoleListViewModel(roles);
 
         return new DataListResponse<RoleViewModel>(model, count);
     }
@@ -94,7 +94,7 @@ export class RolesService implements IRolesService {
 
         const model = await this.rolesRepository.update(updatedEntity);
 
-        return this.rolesViewModelFactory.initRoleViewModel(model);
+        return this.RoleViewModelFactory.initRoleViewModel(model);
     }
 
     public async deleteRole(id: number): Promise<void> {

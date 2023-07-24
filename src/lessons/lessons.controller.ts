@@ -35,8 +35,11 @@ export class LessonsController {
 
     @Post()
     @Roles(RoleName.Admin, RoleName.Instructor)
-    create(@Body() createLessonDto: CreateLessonDto): Promise<LessonViewModel> {
-        return this.lessonsService.createLesson(createLessonDto);
+    create(
+        @Body() createLessonDto: CreateLessonDto,
+        @GetUser() user: User,
+    ): Promise<LessonViewModel> {
+        return this.lessonsService.createLesson(createLessonDto, user);
     }
 
     @Get()
@@ -65,7 +68,6 @@ export class LessonsController {
         return result;
     }
 
-    // NOTE: It's not nessaary, but here I may need to add some kind of filter to get only lessons that are related to the user
     @Get(":id")
     @Roles(RoleName.Admin, RoleName.Instructor, RoleName.Student)
     async findOne(@Param("id", ParseIntPipe) id: number): Promise<LessonViewModel> {
@@ -77,8 +79,9 @@ export class LessonsController {
     update(
         @Param("id", ParseIntPipe) id: number,
         @Body() updateLessonDto: UpdateLessonDto,
+        @GetUser() user: User,
     ): Promise<LessonViewModel> {
-        return this.lessonsService.updateLesson(id, updateLessonDto);
+        return this.lessonsService.updateLesson(id, updateLessonDto, user);
     }
 
     @Delete(":id")

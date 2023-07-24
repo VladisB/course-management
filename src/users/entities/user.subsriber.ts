@@ -16,12 +16,18 @@ export class UserSubscriber implements EntitySubscriberInterface<User> {
         const updatedUser: User = event.entity as User;
         const databaseUser: User | undefined = event.databaseEntity;
 
-        const isPasswordEquals =
-            databaseUser && (await databaseUser.validateRawPassword(updatedUser.password));
+        if (updatedUser.password !== undefined && updatedUser.password === "") {
+            const isPasswordEquals =
+                databaseUser && (await databaseUser.validateRawPassword(updatedUser.password));
 
-        if (databaseUser && isPasswordEquals === false) {
-            updatedUser.salt = await bcrypt.genSalt();
-            updatedUser.password = await bcrypt.hash(updatedUser.password, updatedUser.salt);
+            if (databaseUser && isPasswordEquals === false) {
+                updatedUser.salt = await bcrypt.genSalt();
+                updatedUser.password = await bcrypt.hash(updatedUser.password, updatedUser.salt);
+            }
+        }
+
+        if (updatedUser.email) {
+            updatedUser.email = updatedUser.email.toLowerCase();
         }
     }
 }

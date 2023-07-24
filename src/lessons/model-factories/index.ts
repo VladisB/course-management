@@ -1,3 +1,4 @@
-import { LessonsViewModelFactory } from "./lessons.vm-factory";
+import { LessonModelFactory } from "./lesson.factory";
+import { LessonViewModelFactory } from "./lessons.vm-factory";
 
-export { LessonsViewModelFactory };
+export { LessonViewModelFactory, LessonModelFactory };
