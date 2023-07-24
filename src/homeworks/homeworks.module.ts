@@ -1,4 +1,3 @@
-import { APP_GUARD } from "@nestjs/core";
 import { ConfigModule, ConfigService } from "@nestjs/config";
 import { FilesModule } from "@app/files/files.module";
 import { Homework } from "./entities/homework.entity";
@@ -8,7 +7,7 @@ import { HomeworksRepository, IHomeworksRepository } from "./homeworks.repositor
 import { HomeworksService } from "./homeworks.service";
 import { LessonsModule } from "@app/lessons/lessons.module";
 import { Module } from "@nestjs/common";
-import { ThrottlerGuard, ThrottlerModule } from "@nestjs/throttler";
+import { ThrottlerModule } from "@nestjs/throttler";
 import { TypeOrmModule } from "@nestjs/typeorm";
 import { UsersModule } from "@app/users/users.module";
 
@@ -36,10 +35,6 @@ import { UsersModule } from "@app/users/users.module";
         {
             useClass: HomeworksRepository,
             provide: IHomeworksRepository,
-        },
-        {
-            provide: APP_GUARD,
-            useClass: ThrottlerGuard,
         },
     ],
 })
