@@ -3,6 +3,7 @@ import { InjectRepository } from "@nestjs/typeorm";
 import { Repository, SelectQueryBuilder } from "typeorm";
 import { Faculty } from "./entities/faculty.entity";
 import { BaseRepository, IBaseRepository } from "@common/db/base.repository";
+import { BaseErrorMessage } from "@app/common/enum";
 
 @Injectable()
 export class FacultiesRepository extends BaseRepository implements IFacultiesRepository {
@@ -46,7 +47,13 @@ export class FacultiesRepository extends BaseRepository implements IFacultiesRep
     }
 
     public async update(entity: Faculty): Promise<Faculty> {
-        return await this.entityRepository.save(entity);
+        try {
+            return await this.entityRepository.save(entity);
+        } catch (err) {
+            console.error("Error: ", err);
+
+            throw new Error(BaseErrorMessage.DB_ERROR);
+        }
     }
 }
 
