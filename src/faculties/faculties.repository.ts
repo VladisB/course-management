@@ -1,8 +1,6 @@
 import { Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Repository, SelectQueryBuilder } from "typeorm";
-import { CreateFacultyDto } from "./dto/create-faculty.dto";
-import { UpdateFacultyDto } from "./dto/update-faculty.dto";
 import { Faculty } from "./entities/faculty.entity";
 import { BaseRepository, IBaseRepository } from "@common/db/base.repository";
 
@@ -43,27 +41,20 @@ export class FacultiesRepository extends BaseRepository implements IFacultiesRep
         });
     }
 
-    public async create(dto: CreateFacultyDto): Promise<Faculty> {
-        const faculty = this.entityRepository.create(dto);
-
-        return this.entityRepository.save(faculty);
+    public async create(entity: Faculty): Promise<Faculty> {
+        return this.entityRepository.save(entity);
     }
 
-    public async update(id: number, dto: UpdateFacultyDto): Promise<Faculty> {
-        const role = await this.entityRepository.preload({
-            id,
-            ...dto,
-        });
-
-        return await this.entityRepository.save(role);
+    public async update(entity: Faculty): Promise<Faculty> {
+        return await this.entityRepository.save(entity);
     }
 }
 
 export abstract class IFacultiesRepository extends IBaseRepository {
-    abstract create(dto: CreateFacultyDto): Promise<Faculty>;
+    abstract create(entity: Faculty): Promise<Faculty>;
     abstract deleteById(id: number): Promise<void>;
     abstract getAllQ(): SelectQueryBuilder<Faculty>;
     abstract getById(id: number): Promise<Faculty>;
     abstract getByName(name: string): Promise<Faculty>;
-    abstract update(id: number, dto: UpdateFacultyDto): Promise<Faculty>;
+    abstract update(entity: Faculty): Promise<Faculty>;
 }

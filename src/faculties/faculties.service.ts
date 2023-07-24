@@ -3,12 +3,13 @@ import { CreateFacultyDto } from "./dto/create-faculty.dto";
 import { IFacultiesRepository } from "./faculties.repository";
 import { Faculty } from "./entities/faculty.entity";
 import { FacultyViewModel } from "./view-models";
-import { FacultiesViewModelFactory } from "./model-factories";
+import { FacultiesViewModelFactory, FacultyModelFactory } from "./model-factories";
 import { DataListResponse } from "@common/db/data-list-response";
 import { ColumnType, QueryParamsDTO } from "@common/dto/query-params.dto";
 import { ApplyToQueryExtension } from "@common/query-extention";
 import { UpdateFacultyDto } from "./dto/update-faculty.dto";
 import { BaseErrorMessage } from "@common/enum";
+import { User } from "@app/users/entities/user.entity";
 
 @Injectable()
 export class FacultiesService implements IFacultiesService {
@@ -17,10 +18,16 @@ export class FacultiesService implements IFacultiesService {
         private readonly facultiesViewModelFactory: FacultiesViewModelFactory,
     ) {}
 
-    public async createFaculty(dto: CreateFacultyDto): Promise<FacultyViewModel> {
+    public async createFaculty(dto: CreateFacultyDto, user: User): Promise<FacultyViewModel> {
         await this.validateCreate(dto);
 
-        const faculty = await this.facultiesRepository.create(dto);
+        const newEntity = FacultyModelFactory.create({
+            name: dto.name,
+            createdBy: user,
+            createdAt: new Date(),
+        });
+
+        const faculty = await this.facultiesRepository.create(newEntity);
 
         return this.facultiesViewModelFactory.initFacultyViewModel(faculty);
     }
@@ -72,11 +79,18 @@ export class FacultiesService implements IFacultiesService {
 
     public async updateFaculty(
         id: number,
-        updateFacultyDto: UpdateFacultyDto,
+        dto: UpdateFacultyDto,
+        user: User,
     ): Promise<FacultyViewModel> {
-        await this.validateUpdate(id, updateFacultyDto);
+        await this.validateUpdate(id, dto);
 
-        const faculty = await this.facultiesRepository.update(id, updateFacultyDto);
+        const updatedEntity = FacultyModelFactory.create({
+            name: dto.name,
+            createdBy: user,
+            createdAt: new Date(),
+        });
+
+        const faculty = await this.facultiesRepository.update(updatedEntity);
 
         return this.facultiesViewModelFactory.initFacultyViewModel(faculty);
     }
@@ -118,8 +132,12 @@ export class FacultiesService implements IFacultiesService {
 }
 
 interface IFacultiesService {
-    createFaculty(dto: CreateFacultyDto): Promise<FacultyViewModel>;
+    createFaculty(dto: CreateFacultyDto, user: User): Promise<FacultyViewModel>;
     getFaculties(queryParams: QueryParamsDTO): Promise<DataListResponse<FacultyViewModel>>;
     getFaculty(id: number): Promise<FacultyViewModel>;
-    updateFaculty(id: number, updateFacultyDto: UpdateFacultyDto): Promise<FacultyViewModel>;
+    updateFaculty(
+        id: number,
+        updateFacultyDto: UpdateFacultyDto,
+        user: User,
+    ): Promise<FacultyViewModel>;
 }
