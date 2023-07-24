@@ -1,3 +1,4 @@
+// TODO: refactor this file
 import { CreateRoleDto } from "@app/roles/dto/create-role.dto";
 import { UpdateRoleDto } from "@app/roles/dto/update-role.dto";
 import { INestApplication } from "@nestjs/common";
@@ -5,6 +6,9 @@ import * as request from "supertest";
 import { E2ETestData, PredefinedUser, RoutePath } from "../enum";
 import { Role } from "@app/roles/entities/role.entity";
 import { e2eInstructorStub } from "./stubs";
+import { CreateLessonDto } from "@app/lessons/dto/create-lesson.dto";
+import { CourseViewModel } from "@app/courses/view-models";
+import { UpdateLessonDto } from "@app/lessons/dto/update-lesson.dto";
 
 const authLogin = async ({
     email,
@@ -21,6 +25,25 @@ const authLogin = async ({
     });
 
     return result;
+};
+
+const createE2ELesson = async ({
+    app,
+    accessToken,
+    courseId,
+}: {
+    app: INestApplication;
+    accessToken: string;
+    courseId: number;
+}): Promise<request.Response> => {
+    return await request(app.getHttpServer())
+        .post(RoutePath.Lessons)
+        .set("Authorization", `Bearer ${accessToken}`)
+        .send({
+            courseId,
+            date: new Date().toISOString(),
+            theme: "E2E Test lesson" + getRandomNumber(),
+        });
 };
 
 const checkStatusCode = (res: any, expectedStatus: any = 200): any => {
@@ -40,10 +63,22 @@ const checkStatusCode = (res: any, expectedStatus: any = 200): any => {
     `);
 };
 
-const getRandomNumber = (limit = 1000) => Math.floor(Math.random() * limit);
+const getRandomNumber = (limit = 10000) => Math.floor(Math.random() * limit);
 
 const createRoleDto = (randomNumber: number): CreateRoleDto => ({
     name: "newrole_" + randomNumber,
+});
+
+const createLessonDto = (randomNumber: number, courseId: number): CreateLessonDto => ({
+    theme: "new_theme_" + randomNumber,
+    date: new Date(),
+    courseId,
+});
+
+const updateLessonDto = (randomNumber: number, courseId: number): UpdateLessonDto => ({
+    theme: "upd_theme_" + randomNumber,
+    date: new Date(),
+    courseId,
 });
 
 const updateRoleDto = (randomNumber: number): UpdateRoleDto => ({
@@ -55,7 +90,8 @@ const initE2ETestData = async (
 ): Promise<{
     adminToken: string;
     instructorToken: string;
-    studentToeken: string;
+    studentToken: string;
+    course: CourseViewModel;
 }> => {
     // Login as admin
     const adminLogin = await authLogin({
@@ -127,42 +163,39 @@ const initE2ETestData = async (
     checkStatusCode(groupResult, 201);
 
     // Create a course
-    const courseResult = await request(app.getHttpServer())
+    const course = await request(app.getHttpServer())
         .post(RoutePath.Courses)
         .set("Authorization", `Bearer ${accessTokenAdmin}`)
         .send({
             name: "E2E Test course" + getRandomNumber(),
         });
-    checkStatusCode(courseResult, 201);
+    checkStatusCode(course, 201);
 
     // Assign instructor to course
     const courseInstructorResult = await request(app.getHttpServer())
         .post(RoutePath.CourseInstructors)
         .set("Authorization", `Bearer ${accessTokenAdmin}`)
         .send({
-            courseId: courseResult.body.id,
+            courseId: course.body.id,
             instructorIdList: [instructor.body.id],
         });
     checkStatusCode(courseInstructorResult, 201);
 
     // Create a lesson
-    const lessonResult = await request(app.getHttpServer())
-        .post(RoutePath.Lessons)
-        .set("Authorization", `Bearer ${accessTokenAdmin}`)
-        .send({
-            courseId: courseResult.body.id,
-            date: new Date().toISOString(),
-            theme: "E2E Test lesson" + getRandomNumber(),
-        });
+    await createE2ELesson({
+        app,
+        accessToken: accessTokenAdmin,
+        courseId: course.body.id,
+    });
 
     // Update group. Assign course to group
-    const groupUpdateResult = await request(app.getHttpServer())
+    const groupUpdated = await request(app.getHttpServer())
         .patch(`${RoutePath.Groups}/${groupResult.body.id}`)
         .set("Authorization", `Bearer ${accessTokenAdmin}`)
         .send({
-            courseIdList: [courseResult.body.id],
+            courseIdList: [course.body.id],
         });
-    checkStatusCode(groupUpdateResult, 200);
+    checkStatusCode(groupUpdated, 200);
 
     // Assign student to group
     const updatedStudent = await request(app.getHttpServer())
@@ -176,7 +209,8 @@ const initE2ETestData = async (
     return {
         adminToken: accessTokenAdmin,
         instructorToken: accessTokenInstructor,
-        studentToeken: accessTokenStudent,
+        studentToken: accessTokenStudent,
+        course: course.body,
     };
 };
 
@@ -187,4 +221,7 @@ export {
     updateRoleDto,
     authLogin,
     initE2ETestData,
+    createLessonDto,
+    updateLessonDto,
+    createE2ELesson,
 };

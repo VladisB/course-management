@@ -68,7 +68,6 @@ export class LessonsController {
         return result;
     }
 
-    // NOTE: It's not nessaary, but here I may need to add some kind of filter to get only lessons that are related to the user
     @Get(":id")
     @Roles(RoleName.Admin, RoleName.Instructor, RoleName.Student)
     async findOne(@Param("id", ParseIntPipe) id: number): Promise<LessonViewModel> {
