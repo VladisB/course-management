@@ -1,4 +1,5 @@
 import { Faculty } from "@app/faculties/entities/faculty.entity";
+import { FacultyViewModel } from "@app/faculties/view-models";
 
 const facultyCSStub = new Faculty();
 facultyCSStub.id = 1;
@@ -10,4 +11,7 @@ facultyCEStub.name = "Computer engineering";
 
 const facultiesMockList = [facultyCSStub, facultyCEStub];
 
-export { facultiesMockList, facultyCSStub, facultyCEStub };
+const facultyVMStub = new FacultyViewModel();
+const facultyVMMockList: FacultyViewModel[] = [facultyVMStub];
+
+export { facultiesMockList, facultyCSStub, facultyCEStub, facultyVMMockList };
