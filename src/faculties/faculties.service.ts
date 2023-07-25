@@ -72,7 +72,7 @@ export class FacultiesService implements IFacultiesService {
     public async getFaculty(id: number): Promise<FacultyViewModel> {
         const faculty = await this.facultiesRepository.getById(id);
 
-        if (!faculty) throw new NotFoundException(`Faculty not found.`);
+        if (!faculty) throw new NotFoundException(BaseErrorMessage.NOT_FOUND);
 
         return this.facultiesViewModelFactory.initFacultyViewModel(faculty);
     }
@@ -84,10 +84,11 @@ export class FacultiesService implements IFacultiesService {
     ): Promise<FacultyViewModel> {
         await this.validateUpdate(id, dto);
 
-        const updatedEntity = FacultyModelFactory.create({
+        const updatedEntity = FacultyModelFactory.update({
+            id,
             name: dto.name,
-            createdBy: user,
-            createdAt: new Date(),
+            modifiedBy: user,
+            modifiedAt: new Date(),
         });
 
         const faculty = await this.facultiesRepository.update(updatedEntity);

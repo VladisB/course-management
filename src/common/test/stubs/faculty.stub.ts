@@ -8,6 +8,6 @@ const facultyCEStub = new Faculty();
 facultyCEStub.id = 2;
 facultyCEStub.name = "Computer engineering";
 
-const facultiesMock = [facultyCSStub, facultyCEStub];
+const facultiesMockList = [facultyCSStub, facultyCEStub];
 
-export { facultiesMock, facultyCSStub, facultyCEStub };
+export { facultiesMockList, facultyCSStub, facultyCEStub };
