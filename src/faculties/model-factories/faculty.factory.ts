@@ -19,11 +19,11 @@ export abstract class FacultyModelFactory {
 
         entity.name = name;
 
-        // entity.createdBy = createdBy;
+        entity.createdBy = createdBy;
         entity.createdAt = createdAt;
-        // entity.modifiedBy = modifiedBy ?? createdBy;
-        // entity.modifiedAt = modifiedAt ?? createdAt;
-        entity.updatedAt = modifiedAt ?? createdAt;
+        entity.modifiedBy = modifiedBy ?? createdBy;
+        entity.modifiedAt = modifiedAt ?? createdAt;
+        entity.modifiedAt = modifiedAt ?? createdAt;
 
         return entity;
     }
@@ -36,8 +36,8 @@ export abstract class FacultyModelFactory {
     }: {
         id: number;
         name?: string;
-        modifiedBy?: User;
-        modifiedAt?: Date;
+        modifiedBy: User;
+        modifiedAt: Date;
     }): Faculty {
         const entity = new Faculty();
 
@@ -47,10 +47,8 @@ export abstract class FacultyModelFactory {
             entity.name = name;
         }
 
-        // entity.modifiedBy = modifiedBy;
-        // entity.modifiedAt = modifiedAt;
-
-        entity.updatedAt = modifiedAt;
+        entity.modifiedBy = modifiedBy;
+        entity.modifiedAt = modifiedAt;
 
         return entity;
     }
