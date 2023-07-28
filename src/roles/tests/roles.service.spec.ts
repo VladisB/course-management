@@ -6,7 +6,7 @@ import { IRolesRepository } from "../roles.repository";
 import { QueryParamsDTO } from "@app/common/dto/query-params.dto";
 import { Role } from "../entities/role.entity";
 import { RolesService } from "../roles.service";
-import { RolesViewModelFactory } from "../model-factories";
+import { RoleViewModelFactory } from "../model-factories";
 import { SelectQueryBuilder } from "typeorm";
 import { Test } from "@nestjs/testing";
 import { UpdateRoleDto } from "../dto/update-role.dto";
@@ -20,7 +20,7 @@ const queryBuilderMock = mockQueryBuilder<Role>(rolesMock);
 describe("RolesService", () => {
     let rolesService: RolesService;
     let rolesRepository: IRolesRepository;
-    let rolesViewModelFactory: RolesViewModelFactory;
+    let rolesViewModelFactory: RoleViewModelFactory;
     let queryBuilder: Partial<SelectQueryBuilder<Role>>;
     let user: User;
 
@@ -32,13 +32,13 @@ describe("RolesService", () => {
                     provide: IRolesRepository,
                     useValue: mockRolesRepository(),
                 },
-                { provide: RolesViewModelFactory, useClass: RolesViewModelFactory },
+                { provide: RoleViewModelFactory, useClass: RoleViewModelFactory },
             ],
         }).compile();
 
         rolesService = module.get<RolesService>(RolesService);
         rolesRepository = module.get(IRolesRepository);
-        rolesViewModelFactory = module.get(RolesViewModelFactory);
+        rolesViewModelFactory = module.get(RoleViewModelFactory);
         queryBuilder = queryBuilderMock;
         user = new User();
 

@@ -24,6 +24,8 @@ import { Strategies } from "@app/auth/strategies.enum";
 import { UpdateUserDto } from "@app/users/dto/update-user.dto";
 import { CreateUserDto } from "@app/users/dto/create-user.dto";
 import { IUsersViewModelFactory } from "@app/users/model-factories";
+import { GetUser } from "@app/auth/get-user.decorator";
+import { User } from "@app/users/entities/user.entity";
 
 @Controller("users-management")
 @Roles(RoleName.Admin)
@@ -36,8 +38,8 @@ export class UsersController {
 
     @Post()
     @UsePipes(new ValidationPipe({ transform: true }))
-    async create(@Body() userDto: CreateUserDto): Promise<UserViewModel> {
-        const model = await this.usersManagementService.createUser(userDto);
+    async create(@Body() userDto: CreateUserDto, @GetUser() user: User): Promise<UserViewModel> {
+        const model = await this.usersManagementService.createUser(userDto, user);
 
         return this.usersViewModelFactory.initUserViewModel(model);
     }
@@ -57,8 +59,9 @@ export class UsersController {
     update(
         @Param("id", ParseIntPipe) id: number,
         @Body() updateUserDto: UpdateUserDto,
+        @GetUser() user: User,
     ): Promise<UserViewModel> {
-        return this.usersManagementService.updateUser(id, updateUserDto);
+        return this.usersManagementService.updateUser(id, updateUserDto, user);
     }
 
     // TODO: Update validation rules. Check if user has related entities.

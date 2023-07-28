@@ -5,7 +5,7 @@ import { Role } from "../entities/role.entity";
 import { Repository } from "typeorm";
 import { Test, TestingModule } from "@nestjs/testing";
 import { createMock } from "@golevelup/ts-jest";
-import { RolesViewModelFactory } from "../model-factories";
+import { RoleViewModelFactory } from "../model-factories";
 
 describe("RolesModule", () => {
     const entityRepositoryToken = getRepositoryToken(Role);
@@ -16,7 +16,7 @@ describe("RolesModule", () => {
             providers: [
                 RolesService,
                 { provide: IRolesRepository, useClass: RolesRepository },
-                RolesViewModelFactory,
+                RoleViewModelFactory,
                 {
                     provide: entityRepositoryToken,
                     useValue: createMock<Repository<Role>>(),
@@ -41,12 +41,12 @@ describe("RolesModule", () => {
         expect(moduleRef.get(IRolesRepository)).toBeInstanceOf(RolesRepository);
     });
 
-    it("should have RolesViewModelFactory as provider", async () => {
+    it("should have RoleViewModelFactory as provider", async () => {
         expect(moduleRef.get(IRolesRepository)).toBeInstanceOf(RolesRepository);
     });
 
     it("should have RolesController as controller", async () => {
-        expect(moduleRef.get(RolesViewModelFactory)).toBeInstanceOf(RolesViewModelFactory);
+        expect(moduleRef.get(RoleViewModelFactory)).toBeInstanceOf(RoleViewModelFactory);
     });
 });
 

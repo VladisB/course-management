@@ -23,6 +23,8 @@ import { Strategies } from "@app/auth/strategies.enum";
 import { RoleName } from "@common/enum";
 import { RolesGuard } from "@app/roles/roles.guard";
 import { Roles } from "@app/roles/roles-auth.decorator";
+import { GetUser } from "@app/auth/get-user.decorator";
+import { User } from "@app/users/entities/user.entity";
 
 @UseGuards(AuthGuard(Strategies.JWT), RolesGuard)
 @UsePipes(new ValidationPipe({ transform: true }))
@@ -32,8 +34,8 @@ export class FacultiesController {
 
     @Post()
     @Roles(RoleName.Admin)
-    create(@Body() dto: CreateFacultyDto): Promise<FacultyViewModel> {
-        return this.facultyService.createFaculty(dto);
+    create(@Body() dto: CreateFacultyDto, @GetUser() user: User): Promise<FacultyViewModel> {
+        return this.facultyService.createFaculty(dto, user);
     }
 
     @Get()
@@ -53,8 +55,9 @@ export class FacultiesController {
     update(
         @Param("id", ParseIntPipe) id: number,
         @Body() updateFacultyDto: UpdateFacultyDto,
+        @GetUser() user: User,
     ): Promise<FacultyViewModel> {
-        return this.facultyService.updateFaculty(id, updateFacultyDto);
+        return this.facultyService.updateFaculty(id, updateFacultyDto, user);
     }
 
     @Delete(":id")

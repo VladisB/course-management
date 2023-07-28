@@ -2,7 +2,7 @@ import { Module } from "@nestjs/common";
 import { TypeOrmModule } from "@nestjs/typeorm";
 import { ApplyToQueryExtension } from "@common/query-extention";
 import { Role } from "./entities/role.entity";
-import { RolesViewModelFactory } from "./model-factories/roles.vm-factory";
+import { RoleViewModelFactory } from "./model-factories/role.vm-factory";
 import { RolesController } from "./roles.controller";
 import { IRolesRepository, RolesRepository } from "./roles.repository";
 import { RolesService } from "./roles.service";
@@ -12,7 +12,7 @@ import { RolesService } from "./roles.service";
     providers: [
         RolesService,
         { provide: IRolesRepository, useClass: RolesRepository },
-        RolesViewModelFactory,
+        RoleViewModelFactory,
     ],
     controllers: [RolesController],
     exports: [RolesService, IRolesRepository],

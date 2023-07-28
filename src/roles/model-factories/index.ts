@@ -1,4 +1,4 @@
 import { RoleModelFactory } from "./role.factory";
-import { RolesViewModelFactory } from "./roles.vm-factory";
+import { RoleViewModelFactory } from "./role.vm-factory";
 
-export { RolesViewModelFactory, RoleModelFactory };
+export { RoleViewModelFactory, RoleModelFactory };

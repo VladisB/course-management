@@ -27,6 +27,7 @@ import { Roles } from "@app/roles/roles-auth.decorator";
 import { RolesGuard } from "@app/roles/roles.guard";
 import { Strategies } from "@app/auth/strategies.enum";
 import { User } from "@app/users/entities/user.entity";
+import { ThrottlerGuard } from "@nestjs/throttler";
 
 @UseGuards(AuthGuard(Strategies.JWT), RolesGuard)
 @UsePipes(new ValidationPipe({ transform: true }))
@@ -35,6 +36,7 @@ export class HomeworksController {
     constructor(private readonly homeworksService: HomeworksService) {}
 
     @Post()
+    @UseGuards(ThrottlerGuard)
     @UseInterceptors(FileInterceptor("file"))
     @Roles(RoleName.Student)
     create(

@@ -29,6 +29,7 @@ env:
     PG_HOST: "course-management-api/test:PG_HOST"
     PG_PASSWORD: "course-management-api/test:PG_PASSWORD"
     PG_USER: "course-management-api/test:PG_USER"
+    PG_DATABASE: "course-management-api/test:PG_DATABASE"
     AWS_ACCESS_KEY_ID: "course-management-api/test:AWS_ACCESS_KEY_ID"
     AWS_SECRET_ACCESS_KEY: "course-management-api/test:AWS_SECRET_ACCESS_KEY"
     AWS_S3_REGION: "course-management-api/test:AWS_S3_REGION"
@@ -41,15 +42,13 @@ phases:
   install:
     commands:
       - echo Install phase started.
-      - npm install -g npm
-      - npm install -g @nestjs/cli
-      - npm ci
-      - echo Install phase completed.
 
       - echo Logging in to Amazon ECR...
       - aws --version
       - echo "default region:" $AWS_DEFAULT_REGION
       - aws ecr get-login-password --region eu-central-1 | docker login --username AWS --password-stdin $REPO_DOMAIN
+
+      - echo Install phase completed.
   pre_build:
     commands:
       - echo Pulling Docker image...
@@ -62,7 +61,38 @@ phases:
       - echo Running tests...
       - docker images
       - docker ps
-      - docker run $REPO_URI:$IMAGE_TAG_TESTING
+
+      # Save environment variables to a file
+      - echo APP_PORT=$APP_PORT >> .testing.env
+      - echo APP_ACCESS_TOKEN_EXPIRES_IN=$APP_ACCESS_TOKEN_EXPIRES_IN >> .testing.env
+      - echo APP_REFRESH_TOKEN_EXPIRES_IN=$APP_REFRESH_TOKEN_EXPIRES_IN >> .testing.env
+      - echo APP_UPLOAD_RATE_LIMIT_TTL=$APP_UPLOAD_RATE_LIMIT_TTL >> .testing.env
+      - echo APP_UPLOAD_RATE_LIMIT=$APP_UPLOAD_RATE_LIMIT >> .testing.env
+      - echo APP_UPLOAD_FILE_SIZE_LIMIT_MB=$APP_UPLOAD_FILE_SIZE_LIMIT_MB >> .testing.env
+      - echo NODE_ENV=$NODE_ENV >> .testing.env
+      - echo DB_TYPE=$DB_TYPE >> .testing.env
+      - echo PG_HOST=$PG_HOST >> .testing.env
+      - echo PG_PORT=$PG_PORT >> .testing.env
+      - echo PG_USER=$PG_USER >> .testing.env
+      - echo PG_PASSWORD=$PG_PASSWORD >> .testing.env
+      - echo AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID >> .testing.env
+      - echo APP_JWT=$APP_JWT >> .testing.env
+      - echo AWS_S3_REGION=$AWS_S3_REGION >> .testing.env
+      - echo AWS_APP_BUCKET_NAME=$AWS_APP_BUCKET_NAME >> .testing.env
+
+      # Create a test database
+      - echo Running creation of test database...
+      - docker run --env-file .testing.env $REPO_URI:$IMAGE_TAG_TESTING -c "PGPASSWORD=$PG_PASSWORD psql -h $PG_HOST -p $PG_PORT -U postgres -c \"CREATE DATABASE \\\"$PG_DATABASE\\\";\""
+      - echo Testing DB succesfully created.
+
+      - echo Running tests...
+      - docker run --env-file .testing.env $REPO_URI:$IMAGE_TAG_TESTING
+      - docker run --env-file .testing.env $REPO_URI:$IMAGE_TAG_TESTING -c "npm run test:e2e"
+      - echo Testing completed.
+
+      # Remove test database
+      - echo Running removal of test database...
+      - docker run --env-file .testing.env $REPO_URI:$IMAGE_TAG_TESTING -c "PGPASSWORD=$PG_PASSWORD psql -h $PG_HOST -p $PG_PORT -U postgres -c \"DROP DATABASE \\\"$PG_DATABASE\\\";\""
 
 artifacts:
   files:
