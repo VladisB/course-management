@@ -1,4 +1,5 @@
 import { courseMockList, courseStub } from "./course.stub";
+import { facultiesMockList, facultyCEStub, facultyCSStub, facultyVMMockList } from "./faculty.stub";
 import { lessonMockList, lessonStub, lessonVMMockList } from "./lesson.stub";
 import {
     rolesMock,
@@ -31,4 +32,8 @@ export {
     unexistedRoleStub,
     unexistedUserStub,
     e2eInstructorStub,
+    facultiesMockList,
+    facultyCSStub,
+    facultyCEStub,
+    facultyVMMockList,
 };
