@@ -2,10 +2,9 @@ import { RolesService } from "../roles.service";
 import { IRolesRepository, RolesRepository } from "../roles.repository";
 import { getRepositoryToken } from "@nestjs/typeorm";
 import { Role } from "../entities/role.entity";
-import { Repository } from "typeorm";
 import { Test, TestingModule } from "@nestjs/testing";
-import { createMock } from "@golevelup/ts-jest";
 import { RoleViewModelFactory } from "../model-factories";
+import { mockRolesRepository } from "./mocks";
 
 describe("RolesModule", () => {
     const entityRepositoryToken = getRepositoryToken(Role);
@@ -19,7 +18,7 @@ describe("RolesModule", () => {
                 RoleViewModelFactory,
                 {
                     provide: entityRepositoryToken,
-                    useValue: createMock<Repository<Role>>(),
+                    useValue: mockRolesRepository(),
                 },
             ],
         }).compile();

@@ -1,11 +1,11 @@
 import { Test } from "@nestjs/testing";
 import { getRepositoryToken } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
-import { createMock } from "@golevelup/ts-jest";
 import { BaseErrorMessage } from "@app/common/enum";
 import { FacultiesRepository } from "../faculties.repository";
 import { Faculty } from "../entities/faculty.entity";
 import { facultyCSStub } from "@app/common/test/stubs";
+import { mockFacultiesRepository } from "./mocks";
 
 const tableName = "faculty";
 
@@ -20,7 +20,7 @@ describe("FaclutiesRepository", () => {
                 FacultiesRepository,
                 {
                     provide: entityRepositoryToken,
-                    useValue: createMock<Repository<Faculty>>(),
+                    useValue: mockFacultiesRepository(),
                 },
             ],
         }).compile();
