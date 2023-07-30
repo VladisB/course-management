@@ -14,7 +14,7 @@ export class StudentCoursesRepository extends BaseRepository implements IStudent
         @InjectRepository(StudentCourses)
         private readonly entityRepository: Repository<StudentCourses>,
     ) {
-        super(entityRepository.manager.queryRunner);
+        super(entityRepository.manager.connection.createQueryRunner());
     }
 
     public async trxBulkDelete(queryRunner: QueryRunner, idList: number[]): Promise<void> {

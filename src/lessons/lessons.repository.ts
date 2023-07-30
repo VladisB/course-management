@@ -13,7 +13,7 @@ export class LessonsRepository extends BaseRepository implements ILessonsReposit
         @InjectRepository(Lesson)
         private readonly entityRepository: Repository<Lesson>,
     ) {
-        super(entityRepository.manager.queryRunner);
+        super(entityRepository.manager.connection.createQueryRunner());
     }
 
     getAllQByStudent(studentId: number): SelectQueryBuilder<Lesson> {

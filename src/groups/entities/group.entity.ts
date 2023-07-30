@@ -11,7 +11,7 @@ import {
 } from "typeorm";
 import { Faculty } from "../../faculties/entities/faculty.entity";
 import { User } from "../../users/entities/user.entity";
-import { GroupCourses } from "./group-to-course.entity";
+import { GroupCourses } from "./group-courses.entity";
 
 @Entity()
 export class Group extends BaseEntity {

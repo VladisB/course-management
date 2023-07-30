@@ -1,6 +1,6 @@
 import { Course } from "@app/courses/entities/course.entity";
 import { Faculty } from "@app/faculties/entities/faculty.entity";
-import { GroupCourses } from "@app/groups/entities/group-to-course.entity";
+import { GroupCourses } from "@app/groups/entities/group-courses.entity";
 import { Group } from "@app/groups/entities/group.entity";
 import { Lesson } from "@app/lessons/entities/lesson.entity";
 import { MigrationInterface, QueryRunner } from "typeorm";
