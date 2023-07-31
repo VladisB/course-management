@@ -31,6 +31,10 @@ export class Group extends BaseEntity {
     @OneToMany(() => GroupCourses, (groupCourses) => groupCourses.group)
     groupCourses: GroupCourses[];
 
+    @ManyToOne(() => User, { nullable: false })
+    @JoinColumn({ name: "created_by" })
+    public createdBy: User;
+
     @CreateDateColumn({
         type: "timestamp",
         default: () => "CURRENT_TIMESTAMP(6)",
@@ -38,11 +42,15 @@ export class Group extends BaseEntity {
     })
     public createdAt: Date;
 
+    @ManyToOne(() => User, { nullable: false })
+    @JoinColumn({ name: "modified_by" })
+    public modifiedBy: User;
+
     @UpdateDateColumn({
         type: "timestamp",
         default: () => "CURRENT_TIMESTAMP(6)",
         onUpdate: "CURRENT_TIMESTAMP(6)",
-        name: "updated_at",
+        name: "modified_at",
     })
-    public updatedAt: Date;
+    public modifiedAt: Date;
 }

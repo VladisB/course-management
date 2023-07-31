@@ -27,7 +27,7 @@ const mockLessonsRepository = () => ({
 });
 
 const mockCoursesRepository = () => ({
-    create: jest.fn().mockImplementation((entity: Lesson) => {
+    create: jest.fn().mockImplementation((entity: Course) => {
         entity.id = 1;
         return Promise.resolve(entity);
     }),

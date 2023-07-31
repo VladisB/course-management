@@ -69,9 +69,15 @@ export class GroupsRepository extends BaseRepository implements IGroupsRepositor
     }
 
     public async update(entity: Group): Promise<Group> {
-        const { id: groupId } = await this.entityRepository.save(entity);
+        try {
+            const { id: groupId } = await this.entityRepository.save(entity);
 
-        return await this.getById(groupId);
+            return await this.getById(groupId);
+        } catch (err) {
+            console.error("Error: ", err);
+
+            throw new Error(BaseErrorMessage.DB_ERROR);
+        }
     }
 
     async trxUpdate(queryRunner: QueryRunner, entity: Group): Promise<Group> {

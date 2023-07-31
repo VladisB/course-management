@@ -23,11 +23,11 @@ export abstract class GroupModelFactory {
         entity.name = name;
         entity.faculty = faculty;
 
-        // entity.createdBy = createdBy;
+        entity.createdBy = createdBy;
         entity.createdAt = createdAt;
-        // entity.modifiedBy = modifiedBy ?? createdBy;
-        // entity.modifiedAt = modifiedAt ?? createdAt;
-        entity.updatedAt = modifiedAt ?? createdAt;
+        entity.modifiedBy = modifiedBy ?? createdBy;
+        entity.modifiedAt = modifiedAt ?? createdAt;
+        entity.modifiedAt = modifiedAt ?? createdAt;
 
         return entity;
     }
@@ -57,9 +57,9 @@ export abstract class GroupModelFactory {
             entity.faculty = faculty;
         }
 
-        // entity.modifiedBy = modifiedBy;
-        // entity.modifiedAt = modifiedAt;
-        entity.updatedAt = modifiedAt;
+        entity.modifiedBy = modifiedBy;
+        entity.modifiedAt = modifiedAt;
+        entity.modifiedAt = modifiedAt;
 
         return entity;
     }

@@ -1,4 +1,9 @@
-import { ConflictException, Injectable, NotFoundException } from "@nestjs/common";
+import {
+    BadRequestException,
+    ConflictException,
+    Injectable,
+    NotFoundException,
+} from "@nestjs/common";
 import { IFacultiesRepository } from "@app/faculties/faculties.repository";
 import { Faculty } from "@app/faculties/entities/faculty.entity";
 import { CreateGroupDto } from "./dto/create-group.dto";
@@ -92,7 +97,7 @@ export class GroupsService implements IGroupsService {
     public async getGroup(id: number): Promise<GroupViewModel> {
         const group = await this.groupsRepository.getById(id);
 
-        if (!group) throw new NotFoundException(`Group not found.`);
+        if (!group) throw new NotFoundException(BaseErrorMessage.NOT_FOUND);
 
         return this.groupsViewModelFactory.initGroupViewModel(group);
     }
@@ -202,7 +207,7 @@ export class GroupsService implements IGroupsService {
         const courses = await this.coursesRepository.getByIdList(dto.courseIdList);
 
         if (courses.length !== dto.courseIdList.length)
-            throw new NotFoundException(`Course not found.`);
+            throw new BadRequestException(`Course(s) not found.`);
 
         return courses;
     }

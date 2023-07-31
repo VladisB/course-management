@@ -96,6 +96,7 @@
         "collectCoverageFrom": [
             "**/*.(t|j)s",
             "!<rootDir>/database/**/*.ts",
+            "!<rootDir>/**/tests/*.ts",
             "!<rootDir>/config/**/*.ts"
         ],
         "coverageDirectory": "../coverage",

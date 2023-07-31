@@ -75,14 +75,6 @@ export class GroupCoursesRepository extends BaseRepository implements IGroupCour
         return;
     }
 
-    public async deleteByGroupId(groupId: number): Promise<void> {
-        await this.entityRepository.delete({
-            groupId,
-        });
-
-        return;
-    }
-
     public async trxDeleteByGroupId(queryRunner: QueryRunner, groupId: number): Promise<void> {
         await queryRunner.manager.delete(GroupCourses, {
             groupId,
@@ -98,7 +90,6 @@ export abstract class IGroupCoursesRepository extends IBaseRepository {
     abstract trxGetAllByGroupId(queryRunner: QueryRunner, groupId: number): Promise<GroupCourses[]>;
     abstract deleteById(id: number): Promise<void>;
     abstract trxDeleteByGroupId(queryRunner: QueryRunner, groupId: number): Promise<void>;
-    abstract deleteByGroupId(groupId: number): Promise<void>;
     abstract create(entity: GroupCourses): Promise<GroupCourses>;
     abstract bulkCreate(entityList: GroupCourses[]): Promise<GroupCourses[]>;
     abstract trxBulkCreate(
