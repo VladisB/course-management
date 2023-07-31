@@ -1,4 +1,4 @@
-import { GroupCourses } from "@app/groups/entities/group-to-course.entity";
+import { GroupCourses } from "@app/groups/entities/group-courses.entity";
 import {
     BaseEntity,
     Column,

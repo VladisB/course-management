@@ -1,5 +1,7 @@
 import { courseMockList, courseStub } from "./course.stub";
 import { facultiesMockList, facultyCEStub, facultyCSStub, facultyVMMockList } from "./faculty.stub";
+import { groupCoursesMockList, groupCoursesStub } from "./group-courses.stub";
+import { groupMockList, groupStub, groupVMMockList, groupVMStub } from "./group.stub";
 import { lessonMockList, lessonStub, lessonVMMockList } from "./lesson.stub";
 import {
     rolesMock,
@@ -36,4 +38,10 @@ export {
     facultyCSStub,
     facultyCEStub,
     facultyVMMockList,
+    groupMockList,
+    groupStub,
+    groupVMStub,
+    groupCoursesMockList,
+    groupCoursesStub,
+    groupVMMockList,
 };

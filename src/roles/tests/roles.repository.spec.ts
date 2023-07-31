@@ -3,9 +3,9 @@ import { getRepositoryToken } from "@nestjs/typeorm";
 import { RolesRepository } from "../roles.repository";
 import { Role } from "../entities/role.entity";
 import { Repository } from "typeorm";
-import { createMock } from "@golevelup/ts-jest";
 import { adminRoleStub } from "@app/common/test/stubs";
 import { BaseErrorMessage, RoleName } from "@app/common/enum";
+import { mockRolesRepository } from "./mocks";
 
 describe("RolesRepository", () => {
     let rolesRepository: RolesRepository;
@@ -18,7 +18,7 @@ describe("RolesRepository", () => {
                 RolesRepository,
                 {
                     provide: entityRepositoryToken,
-                    useValue: createMock<Repository<Role>>(),
+                    useValue: mockRolesRepository(),
                 },
             ],
         }).compile();

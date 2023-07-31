@@ -1,12 +1,12 @@
 import { Test } from "@nestjs/testing";
 import { getRepositoryToken } from "@nestjs/typeorm";
 import { Repository, SelectQueryBuilder } from "typeorm";
-import { createMock } from "@golevelup/ts-jest";
 import { lessonMockList, lessonStub } from "@app/common/test/stubs";
 import { BaseErrorMessage } from "@app/common/enum";
 import { LessonsRepository } from "../lessons.repository";
 import { Lesson } from "../entities/lesson.entity";
 import { mockQueryBuilder } from "@app/common/test/mocks";
+import { mockLessonsRepository } from "./mocks";
 
 const tableName = "lesson";
 const queryBuilderMock = mockQueryBuilder<Lesson>(lessonMockList);
@@ -23,7 +23,7 @@ describe("LessonsRepository", () => {
                 LessonsRepository,
                 {
                     provide: entityRepositoryToken,
-                    useValue: createMock<Repository<Lesson>>(),
+                    useValue: mockLessonsRepository(),
                 },
             ],
         }).compile();

@@ -14,6 +14,15 @@ const mockFacultiesRepository = () => ({
     update: jest.fn().mockImplementation((entity: Faculty) => {
         return Promise.resolve(entity);
     }),
+    manager: {
+        connection: {
+            createQueryRunner: jest.fn(),
+        },
+    },
+    delete: jest.fn().mockResolvedValue(null),
+    save: jest.fn().mockResolvedValue(null),
+    createQueryBuilder: jest.fn(),
+    findOne: jest.fn().mockResolvedValue(null),
 });
 
 export { mockFacultiesRepository };

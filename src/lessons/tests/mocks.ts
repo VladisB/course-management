@@ -15,10 +15,19 @@ const mockLessonsRepository = () => ({
     update: jest.fn().mockImplementation((entity: Lesson) => {
         return Promise.resolve(entity);
     }),
+    delete: jest.fn().mockResolvedValue(null),
+    save: jest.fn().mockResolvedValue(null),
+    findOne: jest.fn().mockResolvedValue(null),
+    createQueryBuilder: jest.fn(),
+    manager: {
+        connection: {
+            createQueryRunner: jest.fn(),
+        },
+    },
 });
 
 const mockCoursesRepository = () => ({
-    create: jest.fn().mockImplementation((entity: Lesson) => {
+    create: jest.fn().mockImplementation((entity: Course) => {
         entity.id = 1;
         return Promise.resolve(entity);
     }),
@@ -29,6 +38,11 @@ const mockCoursesRepository = () => ({
     update: jest.fn().mockImplementation((entity: Course) => {
         return Promise.resolve(entity);
     }),
+    manager: {
+        connection: {
+            createQueryRunner: jest.fn(),
+        },
+    },
 });
 
 export { mockLessonsRepository, mockCoursesRepository };

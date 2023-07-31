@@ -23,6 +23,8 @@ import { DataListResponse } from "@common/db/data-list-response";
 import { UpdateGroupDto } from "./dto/update-group.dto";
 import { Strategies } from "@app/auth/strategies.enum";
 import { RoleName } from "@common/enum";
+import { GetUser } from "@app/auth/get-user.decorator";
+import { User } from "@app/users/entities/user.entity";
 
 @UseGuards(AuthGuard(Strategies.JWT), RolesGuard)
 @UsePipes(new ValidationPipe({ transform: true }))
@@ -32,8 +34,8 @@ export class GroupsController {
 
     @Post()
     @Roles(RoleName.Admin)
-    create(@Body() dto: CreateGroupDto): Promise<GroupViewModel> {
-        return this.groupsService.createGroup(dto);
+    create(@Body() dto: CreateGroupDto, @GetUser() user: User): Promise<GroupViewModel> {
+        return this.groupsService.createGroup(dto, user);
     }
 
     @Get()
@@ -53,8 +55,9 @@ export class GroupsController {
     update(
         @Param("id", ParseIntPipe) id: number,
         @Body() updateGroupDto: UpdateGroupDto,
+        @GetUser() user: User,
     ): Promise<GroupViewModel> {
-        return this.groupsService.updateGroup(id, updateGroupDto);
+        return this.groupsService.updateGroup(id, updateGroupDto, user);
     }
 
     @Delete(":id")
