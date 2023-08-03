@@ -3,8 +3,7 @@ import { InjectRepository } from "@nestjs/typeorm";
 import { QueryRunner, Repository, SelectQueryBuilder } from "typeorm";
 import { BaseRepository, IBaseRepository } from "@common/db/base.repository";
 import { LessonGrades } from "./entities/lesson-grade.entity";
-import { CreateLessonGradeDto } from "./dto/create-lesson-grade.dto";
-import { UpdateLessonGradeDto } from "./dto/update-lesson-grade.dto";
+import { BaseErrorMessage } from "@app/common/enum";
 
 @Injectable()
 export class LessonGradesRepository extends BaseRepository implements ILessonGradesRepository {
@@ -111,79 +110,46 @@ export class LessonGradesRepository extends BaseRepository implements ILessonGra
         await queryRunner.manager.delete(LessonGrades, id);
     }
 
-    public async create(dto: CreateLessonGradeDto, createdBy: number): Promise<LessonGrades> {
-        const lessonGradesEntity = this.entityRepository.create({
-            ...dto,
-            lesson: { id: dto.lessonId },
-            student: { id: dto.studentId },
-            createdBy: { id: createdBy },
-            modifiedBy: { id: createdBy },
-        });
-
-        const lessonGrade = await this.entityRepository.save(lessonGradesEntity);
+    public async create(entity: LessonGrades): Promise<LessonGrades> {
+        const lessonGrade = await this.entityRepository.save(entity);
 
         return await this.getById(lessonGrade.id);
     }
 
-    public async trxCreate(
-        queryRunner: QueryRunner,
-        dto: CreateLessonGradeDto,
-        createdBy: number,
-    ): Promise<LessonGrades> {
-        const lessonGradesEntity = queryRunner.manager.create(LessonGrades, {
-            ...dto,
-            lesson: { id: dto.lessonId },
-            student: { id: dto.studentId },
-            createdBy: { id: createdBy },
-            modifiedBy: { id: createdBy },
-        });
-
-        const lessonGrade = await queryRunner.manager.save(lessonGradesEntity);
+    public async trxCreate(queryRunner: QueryRunner, entity: LessonGrades): Promise<LessonGrades> {
+        const lessonGrade = await queryRunner.manager.save(entity);
 
         return await this.trxGetById(queryRunner, lessonGrade.id);
     }
 
-    public async trxUpdate(
-        queryRunner: QueryRunner,
-        id: number,
-        dto: UpdateLessonGradeDto,
-        modifiedBy: number,
-    ): Promise<LessonGrades> {
-        const lessonGradesEntity = await queryRunner.manager.preload(LessonGrades, {
-            id,
-            ...dto,
-            modifiedBy: { id: modifiedBy },
-        });
+    public async trxUpdate(queryRunner: QueryRunner, entity: LessonGrades): Promise<LessonGrades> {
+        try {
+            const { id } = await queryRunner.manager.save(entity);
 
-        const lessonGrade = await queryRunner.manager.save(lessonGradesEntity);
+            return await this.trxGetById(queryRunner, id);
+        } catch (err) {
+            console.error("Error: ", err);
 
-        return await this.trxGetById(queryRunner, lessonGrade.id);
+            throw new Error(BaseErrorMessage.DB_ERROR);
+        }
     }
 
-    public async update(
-        id: number,
-        dto: UpdateLessonGradeDto,
-        modifiedBy: number,
-    ): Promise<LessonGrades> {
-        const lessonGradesEntity = await this.entityRepository.preload({
-            id,
-            ...dto,
-            modifiedBy: { id: modifiedBy },
-        });
+    public async update(entity: LessonGrades): Promise<LessonGrades> {
+        try {
+            const { id } = await this.entityRepository.save(entity);
 
-        const lessonGrade = await this.entityRepository.save(lessonGradesEntity);
+            return await this.getById(id);
+        } catch (err) {
+            console.error("Error: ", err);
 
-        return await this.getById(lessonGrade.id);
+            throw new Error(BaseErrorMessage.DB_ERROR);
+        }
     }
 }
 
 export abstract class ILessonGradesRepository extends IBaseRepository {
-    abstract trxCreate(
-        queryRunner: QueryRunner,
-        dto: CreateLessonGradeDto,
-        createdBy: number,
-    ): Promise<LessonGrades>;
-    abstract create(dto: CreateLessonGradeDto, createdBy: number): Promise<LessonGrades>;
+    abstract trxCreate(queryRunner: QueryRunner, entity: LessonGrades): Promise<LessonGrades>;
+    abstract create(entity: LessonGrades): Promise<LessonGrades>;
     abstract deleteById(id: number): Promise<void>;
     abstract trxDeleteById(queryRunner: QueryRunner, id: number): Promise<void>;
     abstract trxGetById(queryRunner: QueryRunner, id: number): Promise<LessonGrades>;
@@ -196,15 +162,6 @@ export abstract class ILessonGradesRepository extends IBaseRepository {
         courseId: number,
         studentId: number,
     ): Promise<LessonGrades[]>;
-    abstract update(
-        id: number,
-        dto: UpdateLessonGradeDto,
-        modifiedBy: number,
-    ): Promise<LessonGrades>;
-    abstract trxUpdate(
-        queryRunner: QueryRunner,
-        id: number,
-        dto: UpdateLessonGradeDto,
-        modifiedBy: number,
-    ): Promise<LessonGrades>;
+    abstract update(entity: LessonGrades): Promise<LessonGrades>;
+    abstract trxUpdate(queryRunner: QueryRunner, entity: LessonGrades): Promise<LessonGrades>;
 }

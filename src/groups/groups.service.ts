@@ -191,6 +191,7 @@ export class GroupsService implements IGroupsService {
         return [courses, faculty];
     }
 
+    // TODO: Check validation rules
     private async validateDelete(id: number): Promise<Group> {
         return await this.checkifExist(id);
     }

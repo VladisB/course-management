@@ -46,7 +46,6 @@ export class StudentCoursesController {
 
     @Get(":id")
     findOne(@Param("id", ParseIntPipe) id: number): Promise<StudentCoursesViewModel> {
-        console.log("id", id);
         return this.studentCoursesService.getStudentCourse(id);
     }
 

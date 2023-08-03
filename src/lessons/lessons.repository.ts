@@ -1,6 +1,6 @@
 import { Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
-import { Repository, SelectQueryBuilder } from "typeorm";
+import { QueryRunner, Repository, SelectQueryBuilder } from "typeorm";
 import { Lesson } from "./entities/lesson.entity";
 import { BaseRepository, IBaseRepository } from "@common/db/base.repository";
 import { BaseErrorMessage } from "@app/common/enum";
@@ -16,18 +16,29 @@ export class LessonsRepository extends BaseRepository implements ILessonsReposit
         super(entityRepository.manager.connection.createQueryRunner());
     }
 
-    getAllQByStudent(studentId: number): SelectQueryBuilder<Lesson> {
-        const userQuery = this.entityRepository
+    public async trxGetAllByCourseId(
+        queryRunner: QueryRunner,
+        courseId: number,
+    ): Promise<Lesson[]> {
+        return await queryRunner.manager.find(Lesson, {
+            where: {
+                course: { id: courseId },
+            },
+        });
+    }
+
+    public getAllQByStudent(studentId: number): SelectQueryBuilder<Lesson> {
+        const query = this.entityRepository
             .createQueryBuilder(this.tableName)
             .innerJoinAndSelect("lesson.course", "course")
             .innerJoinAndSelect("course.studentCourses", "studentCourses")
             .where("studentCourses.studentId = :studentId", { studentId });
 
-        return userQuery;
+        return query;
     }
 
-    getAllQByInstructor(instructorId: number): SelectQueryBuilder<Lesson> {
-        const userQuery = this.entityRepository
+    public getAllQByInstructor(instructorId: number): SelectQueryBuilder<Lesson> {
+        const query = this.entityRepository
             .createQueryBuilder(this.tableName)
             .innerJoinAndSelect("lesson.course", "course")
             .innerJoin("course.courseInstructors", "filteredCourseInstructors")
@@ -40,15 +51,15 @@ export class LessonsRepository extends BaseRepository implements ILessonsReposit
             )
             .innerJoinAndSelect("courseInstructors.instructor", "user");
 
-        return userQuery;
+        return query;
     }
 
     public getAllQ(): SelectQueryBuilder<Lesson> {
-        const userQuery = this.entityRepository
+        const query = this.entityRepository
             .createQueryBuilder(this.tableName)
             .innerJoinAndSelect("lesson.course", "course");
 
-        return userQuery;
+        return query;
     }
 
     public async getById(id: number): Promise<Lesson> {
@@ -104,6 +115,7 @@ export abstract class ILessonsRepository extends IBaseRepository {
     abstract getAllQ(): SelectQueryBuilder<Lesson>;
     abstract getAllQByStudent(studentId: number): SelectQueryBuilder<Lesson>;
     abstract getAllQByInstructor(instructorId: number): SelectQueryBuilder<Lesson>;
+    abstract trxGetAllByCourseId(queryRunner: QueryRunner, courseId: number): Promise<Lesson[]>;
     abstract getById(id: number): Promise<Lesson>;
     abstract getByTheme(theme: string): Promise<Lesson>;
     abstract update(entity: Lesson): Promise<Lesson>;
