@@ -255,7 +255,7 @@ describe("AppController (e2e)", () => {
         describe("/roles/:id (DELETE)", () => {
             it("Successfully delete a specific role as an Admin", async () => {
                 const id = lastCreatedRoleId;
-                console.log("DELTED", id);
+
                 await request(app.getHttpServer())
                     .delete(`${RoutePath.Roles}/${id}`)
                     .set("Authorization", `Bearer ${accessTokenAdmin}`)
@@ -360,10 +360,6 @@ describe("AppController (e2e)", () => {
                 const randomNumber = getRandomNumber(1000);
 
                 const dto = createLessonDto(randomNumber, newCourse.id);
-                console.log({
-                    accessTokenAdmin,
-                    accessTokenInstructor,
-                });
 
                 const { body } = await request(app.getHttpServer())
                     .post(RoutePath.Lessons)

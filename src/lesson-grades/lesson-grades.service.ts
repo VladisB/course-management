@@ -61,10 +61,6 @@ export class LessonGradesService implements ILessonGradesService {
     public async deleteGrade(id: number): Promise<void> {
         const [grade, student] = await this.validateDelete(id);
 
-        if (!grade) {
-            throw new NotFoundException(BaseErrorMessage.NOT_FOUND);
-        }
-
         const transaction = await this.lessonGradesRepository.initTrx();
 
         try {
@@ -255,7 +251,7 @@ export class LessonGradesService implements ILessonGradesService {
     }
 
     private async validateDelete(id: number): Promise<readonly [LessonGrades, User]> {
-        const grade = await this.lessonGradesRepository.getById(id);
+        const grade = await this.checkIfGradeExists(id);
         const student = await this.checkIfStudentExists(grade.student.id);
 
         return [grade, student];
@@ -283,16 +279,18 @@ export class LessonGradesService implements ILessonGradesService {
         const grade = await this.lessonGradesRepository.getByLesson(dto.lessonId, dto.studentId);
 
         if (grade && grade.id !== idToIgnore) {
-            throw new BadRequestException("Provided grade already exists");
+            throw new BadRequestException("Grade for this lesson and student already exists");
         }
     }
 
-    private async checkIfGradeExists(id: number): Promise<void> {
+    private async checkIfGradeExists(id: number): Promise<LessonGrades> {
         const grade = await this.lessonGradesRepository.getById(id);
 
         if (!grade) {
             throw new NotFoundException(BaseErrorMessage.NOT_FOUND);
         }
+
+        return grade;
     }
 
     private async checkIfLessonExists(id: number): Promise<Lesson> {

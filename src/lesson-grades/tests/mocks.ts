@@ -22,6 +22,7 @@ const mockLessonGradesRepository = () => ({
     createQueryBuilder: jest.fn(),
     trxCreate: jest.fn(),
     trxGetAllByCourse: jest.fn(),
+    trxDeleteById: jest.fn(),
     manager: {
         connection: {
             createQueryRunner: jest.fn(),

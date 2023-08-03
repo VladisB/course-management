@@ -34,7 +34,10 @@ export class LessonGradesController {
     constructor(private readonly lessonGradesService: LessonGradesService) {}
 
     @Post()
-    create(@GetUser() user: User, @Body() createLessonGradeDto: CreateLessonGradeDto) {
+    create(
+        @Body() createLessonGradeDto: CreateLessonGradeDto,
+        @GetUser() user: User,
+    ): Promise<LessonGradeViewModel> {
         return this.lessonGradesService.createGrade(createLessonGradeDto, user);
     }
 
@@ -51,8 +54,8 @@ export class LessonGradesController {
     @Patch(":id")
     update(
         @Param("id", ParseIntPipe) id: number,
-        @GetUser() user: User,
         @Body() updateLessonGradeDto: UpdateLessonGradeDto,
+        @GetUser() user: User,
     ) {
         return this.lessonGradesService.updateGrade(id, updateLessonGradeDto, user);
     }

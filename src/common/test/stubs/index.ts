@@ -9,7 +9,7 @@ import {
     studentCoursesLGStub,
     studentLGStub,
 } from "./lesson-grades.stub";
-import { lessonMockList, lessonStub, lessonVMMockList } from "./lesson.stub";
+import { lessonMockList, lessonStub, lessonStubCS, lessonVMMockList } from "./lesson.stub";
 import {
     rolesMock,
     adminRoleStub,
@@ -56,4 +56,5 @@ export {
     lessonGradesMockList,
     studentLGStub,
     studentCoursesLGStub,
+    lessonStubCS,
 };

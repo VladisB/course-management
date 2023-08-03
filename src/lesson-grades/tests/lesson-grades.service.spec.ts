@@ -6,16 +6,14 @@ import { SelectQueryBuilder } from "typeorm";
 import { Test } from "@nestjs/testing";
 import { User } from "@app/users/entities/user.entity";
 import {
-    courseMockList,
-    courseStub,
+    lessonGradeVMMockList,
     lessonGradesMockList,
     lessonGradesStub,
     lessonMockList,
     lessonStub,
-    lessonVMMockList,
+    lessonStubCS,
     studentCoursesLGStub,
     studentLGStub,
-    studentUserStub,
 } from "@app/common/test/stubs";
 import { mockQueryBuilder } from "@common/test/mocks";
 import { LessonGrades } from "../entities/lesson-grade.entity";
@@ -32,16 +30,17 @@ import { ILessonsRepository } from "@app/lessons/lessons.repository";
 import { CreateLessonGradeDto } from "../dto/create-lesson-grade.dto";
 import { IUsersRepository } from "@app/users/users.repository";
 import { IStudentCoursesRepository } from "@app/student-courses/student-courses.repository";
+import e from "express";
+import { UpdateLessonGradeDto } from "../dto/update-lesson-grade.dto";
 
 const queryBuilderMock = mockQueryBuilder<LessonGrades>(lessonMockList);
-const queryBuilderMockEmpty = mockQueryBuilder<LessonGrades>(lessonMockList);
 
 describe("LessonGradesService", () => {
     let lessonGradesService: LessonGradesService;
     let lessonRepository: ILessonsRepository;
     let userRepository: IUsersRepository;
     let lessonGradesRepository: ILessonGradesRepository;
-    let lessonViewModelFactory: LessonGradesViewModelFactory;
+    let lessonGradesViewModelFactory: LessonGradesViewModelFactory;
     let studentCoursesRepository: IStudentCoursesRepository;
     let queryBuilder: Partial<SelectQueryBuilder<LessonGrades>>;
     let user: User;
@@ -75,7 +74,7 @@ describe("LessonGradesService", () => {
         lessonRepository = module.get(ILessonsRepository);
         userRepository = module.get(IUsersRepository);
         studentCoursesRepository = module.get(IStudentCoursesRepository);
-        lessonViewModelFactory = module.get(LessonGradesViewModelFactory);
+        lessonGradesViewModelFactory = module.get(LessonGradesViewModelFactory);
 
         queryBuilder = queryBuilderMock;
         user = new User();
@@ -98,7 +97,7 @@ describe("LessonGradesService", () => {
     });
 
     it("lessonViewModelFactory should be defined", () => {
-        expect(lessonViewModelFactory).toBeDefined();
+        expect(lessonGradesViewModelFactory).toBeDefined();
     });
 
     describe("create a grade", () => {
@@ -119,7 +118,9 @@ describe("LessonGradesService", () => {
                 studentCoursesLGStub,
             );
             jest.spyOn(lessonRepository, "trxGetAllByCourseId").mockResolvedValue(lessonMockList);
+
             const result = await lessonGradesService.createGrade(dto, user);
+
             expect(result).toEqual({
                 id: expect.any(Number),
                 studentId: expect.any(Number),
@@ -131,306 +132,346 @@ describe("LessonGradesService", () => {
                 createdAt: expect.any(Date),
             });
         });
-        //     // it("should throw an error if lesson already exists", async () => {
-        //     //     const dto: CreateLessonGradesDto = {
-        //     //         theme: "test",
-        //     //         date: new Date(),
-        //     //         courseId: 1,
-        //     //     };
-        //     //     jest.spyOn(lessonGradesRepository, "getByTheme").mockResolvedValue(lessonStub);
-        //     //     await expect(lessonGradesService.createLessonGrades(dto, user)).rejects.toThrowError(
-        //     //         new ConflictException("LessonGrades with this theme already exists"),
-        //     //     );
-        //     // });
-        //     // it("should throw an error if course doesn't exists", async () => {
-        //     //     const dto: CreateLessonGradesDto = {
-        //     //         theme: "test",
-        //     //         date: new Date(),
-        //     //         courseId: 1,
-        //     //     };
-        //     //     await expect(lessonGradesService.createLessonGrades(dto, user)).rejects.toThrowError(
-        //     //         new BadRequestException("Provided course does not exist"),
-        //     //     );
-        //     // });
+
+        it("should throw an error if lesson grade already exists", async () => {
+            const dto: CreateLessonGradeDto = {
+                lessonId: 1,
+                studentId: 1,
+                grade: 100,
+            };
+
+            jest.spyOn(lessonGradesRepository, "getByLesson").mockResolvedValue(lessonGradesStub);
+
+            await expect(lessonGradesService.createGrade(dto, user)).rejects.toThrowError(
+                new ConflictException("Grade for this lesson and student already exists"),
+            );
+        });
+
+        it("should throw an error if lesson doesn't exists", async () => {
+            const dto: CreateLessonGradeDto = {
+                lessonId: 1,
+                studentId: 1,
+                grade: 100,
+            };
+
+            await expect(lessonGradesService.createGrade(dto, user)).rejects.toThrowError(
+                new BadRequestException("Provided lesson not found"),
+            );
+        });
+
+        it("should throw an error if student doesn't exists", async () => {
+            const dto: CreateLessonGradeDto = {
+                lessonId: 1,
+                studentId: 1,
+                grade: 100,
+            };
+
+            jest.spyOn(lessonRepository, "getById").mockResolvedValue(lessonStub);
+
+            await expect(lessonGradesService.createGrade(dto, user)).rejects.toThrowError(
+                new BadRequestException("Provided student not found"),
+            );
+        });
+
+        it("should call rollback if throw an error ", async () => {
+            const dto: CreateLessonGradeDto = {
+                lessonId: 1,
+                studentId: 1,
+                grade: 100,
+            };
+
+            jest.spyOn(lessonGradesRepository, "getByLesson").mockResolvedValue(null);
+            jest.spyOn(lessonRepository, "getById").mockResolvedValue(lessonStub);
+            jest.spyOn(userRepository, "getStudentById").mockResolvedValue(studentLGStub);
+            jest.spyOn(lessonGradesRepository, "trxCreate").mockResolvedValue(lessonGradesStub);
+            jest.spyOn(lessonGradesRepository, "trxGetAllByCourse").mockResolvedValue(
+                lessonGradesMockList,
+            );
+            jest.spyOn(studentCoursesRepository, "trxGetByCourseAndStudent").mockResolvedValue(
+                studentCoursesLGStub,
+            );
+            jest.spyOn(lessonRepository, "trxGetAllByCourseId").mockResolvedValue(null);
+            jest.spyOn(console, "error").mockImplementation((err) => err);
+
+            try {
+                await lessonGradesService.createGrade(dto, user);
+
+                expect(lessonGradesService.createGrade).toHaveBeenCalledTimes(1);
+            } catch (err) {
+                expect(console.error).toHaveBeenCalled();
+                expect(lessonGradesRepository.rollbackTrx).toHaveBeenCalledTimes(1);
+            }
+        });
     });
 
-    // describe("get lesson by id", () => {
-    //     it("should return lesson", async () => {
-    //         const repoSpy = jest
-    //             .spyOn(lessonGradesRepository, "getById")
-    //             .mockResolvedValue(lessonStub);
-    //         const lessonId = 1;
+    describe("get lesson grade by id", () => {
+        it("should return lesson grade", async () => {
+            const repoSpy = jest
+                .spyOn(lessonGradesRepository, "getById")
+                .mockResolvedValue(lessonGradesStub);
+            const id = 1;
 
-    //         expect(await lessonGradesService.getLessonGrades(lessonId)).toEqual({
-    //             id: expect.any(Number),
-    //             courseId: expect.any(Number),
-    //             course: courseStub.name,
-    //             date: expect.any(Date),
-    //             instructorList: expect.any(Array),
-    //             theme: lessonStub.theme,
-    //         });
-    //         expect(repoSpy).toBeCalledWith(lessonId);
-    //     });
+            expect(await lessonGradesService.getGrade(id)).toEqual({
+                id: expect.any(Number),
+                studentId: expect.any(Number),
+                studentName: expect.any(String),
+                studentLastName: expect.any(String),
+                grade: expect.any(Number),
+                createdBy: expect.any(String),
+                modifiedBy: expect.any(String),
+                createdAt: expect.any(Date),
+            });
+            expect(repoSpy).toBeCalledWith(id);
+        });
 
-    //     it("should throw NotFoundException if lesson does not exist", async () => {
-    //         const lessonId = 99;
-    //         expect(lessonGradesService.getLessonGrades(lessonId)).rejects.toThrow(
-    //             new NotFoundException(BaseErrorMessage.NOT_FOUND),
-    //         );
-    //         expect(lessonGradesRepository.getById).toHaveBeenCalledWith(lessonId);
-    //     });
-    // });
+        it("should throw NotFoundException if lesson grade does not exist", async () => {
+            const id = 99;
+            expect(lessonGradesService.getGrade(id)).rejects.toThrow(
+                new NotFoundException(BaseErrorMessage.NOT_FOUND),
+            );
+            expect(lessonGradesRepository.getById).toHaveBeenCalledWith(id);
+        });
+    });
 
-    // describe("delete lesson by id", () => {
-    //     it("should delete lesson", async () => {
-    //         const repoSpy = jest
-    //             .spyOn(lessonGradesRepository, "getById")
-    //             .mockResolvedValue(lessonStub);
-    //         const id = 1;
+    describe("delete lesson grade by id", () => {
+        it("should delete lesson grade", async () => {
+            const repoSpy = jest
+                .spyOn(lessonGradesRepository, "getById")
+                .mockResolvedValue(lessonGradesStub);
 
-    //         expect(lessonGradesService.deleteLessonGrades(id)).resolves.toBeUndefined();
-    //         expect(repoSpy).toBeCalledWith(id);
-    //     });
+            jest.spyOn(lessonGradesRepository, "trxDeleteById").mockResolvedValue(null);
+            jest.spyOn(userRepository, "getStudentById").mockResolvedValue(studentLGStub);
+            jest.spyOn(lessonGradesRepository, "trxGetAllByCourse").mockResolvedValue(
+                lessonGradesMockList,
+            );
+            jest.spyOn(studentCoursesRepository, "trxGetByCourseAndStudent").mockResolvedValue(
+                studentCoursesLGStub,
+            );
+            jest.spyOn(lessonRepository, "trxGetAllByCourseId").mockResolvedValue(lessonMockList);
 
-    //     it("should throw NotFoundException if lesson to delete does not exist", async () => {
-    //         const id = 99;
+            const id = 1;
 
-    //         await expect(lessonGradesService.deleteLessonGrades(id)).rejects.toThrow(
-    //             new NotFoundException(BaseErrorMessage.NOT_FOUND),
-    //         );
-    //         expect(lessonGradesRepository.getById).toHaveBeenCalledWith(id);
-    //     });
-    // });
+            const result = await lessonGradesService.deleteGrade(id);
 
-    // describe("get all lessons from the repository", () => {
-    //     it("should return a list of lessons", async () => {
-    //         const queryParams: QueryParamsDTO = {};
+            expect(result).toBeUndefined();
+            expect(repoSpy).toBeCalledWith(id);
+        });
 
-    //         jest.spyOn(lessonGradesRepository, "getAllQ").mockReturnValue(
-    //             queryBuilderMock as unknown as SelectQueryBuilder<LessonGrades>,
-    //         );
-    //         jest.spyOn(ApplyToQueryExtension, "applyToQuery").mockResolvedValue([
-    //             lessonMockList,
-    //             lessonMockList.length,
-    //         ]);
-    //         jest.spyOn(lessonViewModelFactory, "initLessonGradesListViewModel").mockReturnValue(
-    //             lessonVMMockList,
-    //         );
+        it("should call rollback ir thown an error", async () => {
+            const repoSpy = jest
+                .spyOn(lessonGradesRepository, "getById")
+                .mockResolvedValue(lessonGradesStub);
 
-    //         const result = await lessonGradesService.getLessonGradess(queryParams);
+            jest.spyOn(lessonGradesRepository, "trxDeleteById").mockResolvedValue(null);
+            jest.spyOn(userRepository, "getStudentById").mockResolvedValue(studentLGStub);
+            jest.spyOn(lessonGradesRepository, "trxGetAllByCourse").mockResolvedValue(
+                lessonGradesMockList,
+            );
+            jest.spyOn(studentCoursesRepository, "trxGetByCourseAndStudent").mockResolvedValue(
+                studentCoursesLGStub,
+            );
+            jest.spyOn(console, "error").mockImplementation((err) => err);
 
-    //         const resultThemes = result.records.map((item) => item.theme);
-    //         const mockThemes = lessonMockList.map((role) => role.theme);
+            const id = 1;
 
-    //         expect(result.totalRecords).toEqual(lessonMockList.length);
-    //         expect(resultThemes).toEqual(mockThemes);
-    //     });
+            try {
+                const result = await lessonGradesService.deleteGrade(id);
 
-    //     it("should return a empty list of roles", async () => {
-    //         const queryParams: QueryParamsDTO = {};
+                expect(result).toBeUndefined();
+                expect(repoSpy).toBeCalledWith(id);
+            } catch (err) {
+                expect(console.error).toHaveBeenCalled();
+                expect(lessonGradesRepository.rollbackTrx).toHaveBeenCalledTimes(1);
+            }
+        });
 
-    //         jest.spyOn(lessonGradesRepository, "getAllQ").mockReturnValue(
-    //             queryBuilderMock as unknown as SelectQueryBuilder<LessonGrades>,
-    //         );
+        it("should throw NotFoundException if lesson grade to delete does not exist", async () => {
+            const id = 99;
 
-    //         jest.spyOn(ApplyToQueryExtension, "applyToQuery").mockResolvedValue([[], 0]);
-    //         jest.spyOn(lessonViewModelFactory, "initLessonGradesListViewModel").mockReturnValue([]);
+            await expect(lessonGradesService.deleteGrade(id)).rejects.toThrow(
+                new NotFoundException(BaseErrorMessage.NOT_FOUND),
+            );
+            expect(lessonGradesRepository.getById).toHaveBeenCalledWith(id);
+        });
+    });
 
-    //         const result = await lessonGradesService.getLessonGradess(queryParams);
+    describe("get all lesson grades from the repository", () => {
+        it("should return a list of lesson grades", async () => {
+            const queryParams: QueryParamsDTO = {};
 
-    //         expect(result.totalRecords).toEqual(0);
-    //         expect(result.records).toEqual([]);
-    //     });
-    // });
+            jest.spyOn(lessonGradesRepository, "getAllQ").mockReturnValue(
+                queryBuilderMock as unknown as SelectQueryBuilder<LessonGrades>,
+            );
+            jest.spyOn(ApplyToQueryExtension, "applyToQuery").mockResolvedValue([
+                lessonGradesMockList,
+                lessonGradesMockList.length,
+            ]);
+            jest.spyOn(
+                lessonGradesViewModelFactory,
+                "initLessonGradeListViewModel",
+            ).mockReturnValue(lessonGradeVMMockList);
 
-    // describe("get all Student lessons from the repository", () => {
-    //     it("should return a list of Student lessons", async () => {
-    //         const queryParams: QueryParamsDTO = {};
-    //         const studentId = 2;
+            const result = await lessonGradesService.getAllGrades(queryParams);
 
-    //         jest.spyOn(lessonGradesRepository, "getAllQByStudent").mockReturnValue(
-    //             queryBuilderMock as unknown as SelectQueryBuilder<LessonGrades>,
-    //         );
-    //         jest.spyOn(ApplyToQueryExtension, "applyToQuery").mockResolvedValue([
-    //             lessonMockList,
-    //             lessonMockList.length,
-    //         ]);
-    //         jest.spyOn(lessonViewModelFactory, "initLessonGradesListViewModel").mockReturnValue(
-    //             lessonVMMockList,
-    //         );
+            expect(result.totalRecords).toEqual(lessonGradesMockList.length);
+        });
 
-    //         const result = await lessonGradesService.getStudentLessonGradess(
-    //             queryParams,
-    //             studentId,
-    //         );
+        it("should return a empty list of roles", async () => {
+            const queryParams: QueryParamsDTO = {};
 
-    //         const resultThemes = result.records.map((item) => item.theme);
-    //         const mockThemes = lessonMockList.map((role) => role.theme);
+            jest.spyOn(lessonGradesRepository, "getAllQ").mockReturnValue(
+                queryBuilderMock as unknown as SelectQueryBuilder<LessonGrades>,
+            );
 
-    //         expect(result.totalRecords).toEqual(lessonMockList.length);
-    //         expect(resultThemes).toEqual(mockThemes);
-    //         expect(lessonGradesRepository.getAllQByStudent).toHaveBeenCalledWith(studentId);
-    //     });
+            jest.spyOn(ApplyToQueryExtension, "applyToQuery").mockResolvedValue([[], 0]);
+            jest.spyOn(
+                lessonGradesViewModelFactory,
+                "initLessonGradeListViewModel",
+            ).mockReturnValue([]);
 
-    //     it("should return a empty list of roles", async () => {
-    //         const queryParams: QueryParamsDTO = {};
+            const result = await lessonGradesService.getAllGrades(queryParams);
 
-    //         jest.spyOn(lessonGradesRepository, "getAllQByStudent").mockReturnValue(
-    //             queryBuilderMockEmpty as unknown as SelectQueryBuilder<LessonGrades>,
-    //         );
+            expect(result.totalRecords).toEqual(0);
+            expect(result.records).toEqual([]);
+        });
+    });
 
-    //         jest.spyOn(ApplyToQueryExtension, "applyToQuery").mockResolvedValue([[], 0]);
-    //         jest.spyOn(lessonViewModelFactory, "initLessonGradesListViewModel").mockReturnValue([]);
+    describe("update lesson grade", () => {
+        it("should return an updated lesson grade", async () => {
+            const id = 1;
 
-    //         const result = await lessonGradesService.getLessonGradess(queryParams);
+            const dto: UpdateLessonGradeDto = {
+                grade: 90,
+                lessonId: 1,
+                studentId: 1,
+            };
 
-    //         expect(result.totalRecords).toEqual(0);
-    //         expect(result.records).toEqual([]);
-    //     });
-    // });
+            jest.spyOn(lessonGradesRepository, "getById").mockResolvedValue(lessonGradesStub);
+            jest.spyOn(lessonRepository, "getById").mockResolvedValue(lessonStub);
+            jest.spyOn(userRepository, "getStudentById").mockResolvedValue(studentLGStub);
+            jest.spyOn(lessonGradesRepository, "trxUpdate").mockResolvedValue(lessonGradesStub);
+            jest.spyOn(lessonGradesRepository, "trxGetAllByCourse").mockResolvedValue(
+                lessonGradesMockList,
+            );
+            jest.spyOn(studentCoursesRepository, "trxGetByCourseAndStudent").mockResolvedValue(
+                studentCoursesLGStub,
+            );
+            jest.spyOn(lessonRepository, "trxGetAllByCourseId").mockResolvedValue(lessonMockList);
 
-    // describe("get all Instructor lessons from the repository", () => {
-    //     it("should return a list of Instructor lessons", async () => {
-    //         const queryParams: QueryParamsDTO = {};
-    //         const studentId = 2;
+            const result = await lessonGradesService.updateGrade(id, dto, user);
 
-    //         jest.spyOn(lessonGradesRepository, "getAllQByInstructor").mockReturnValue(
-    //             queryBuilderMockEmpty as unknown as SelectQueryBuilder<LessonGrades>,
-    //         );
-    //         jest.spyOn(ApplyToQueryExtension, "applyToQuery").mockResolvedValue([
-    //             lessonMockList,
-    //             lessonMockList.length,
-    //         ]);
-    //         jest.spyOn(lessonViewModelFactory, "initLessonGradesListViewModel").mockReturnValue(
-    //             lessonVMMockList,
-    //         );
+            expect(result).toEqual({
+                id: expect.any(Number),
+                studentId: expect.any(Number),
+                studentName: expect.any(String),
+                studentLastName: expect.any(String),
+                grade: expect.any(Number),
+                createdBy: expect.any(String),
+                modifiedBy: expect.any(String),
+                createdAt: expect.any(Date),
+            });
+        });
 
-    //         const result = await lessonGradesService.getInstructorLessonGradess(
-    //             queryParams,
-    //             studentId,
-    //         );
+        it("should call rollback if thrown an error", async () => {
+            const id = 1;
 
-    //         const resultThemes = result.records.map((item) => item.theme);
-    //         const mockThemes = lessonMockList.map((role) => role.theme);
+            const dto: UpdateLessonGradeDto = {
+                grade: 90,
+                lessonId: 1,
+                studentId: 1,
+            };
 
-    //         expect(result.totalRecords).toEqual(lessonMockList.length);
-    //         expect(resultThemes).toEqual(mockThemes);
-    //         expect(lessonGradesRepository.getAllQByInstructor).toHaveBeenCalledWith(studentId);
-    //     });
+            jest.spyOn(lessonGradesRepository, "getById").mockResolvedValue(lessonGradesStub);
+            jest.spyOn(lessonRepository, "getById").mockResolvedValue(lessonStub);
+            jest.spyOn(userRepository, "getStudentById").mockResolvedValue(studentLGStub);
+            jest.spyOn(lessonGradesRepository, "trxUpdate").mockResolvedValue(lessonGradesStub);
+            jest.spyOn(lessonGradesRepository, "trxGetAllByCourse").mockResolvedValue(
+                lessonGradesMockList,
+            );
+            jest.spyOn(studentCoursesRepository, "trxGetByCourseAndStudent").mockResolvedValue(
+                studentCoursesLGStub,
+            );
 
-    //     it("should return a empty list of lessons", async () => {
-    //         const queryParams: QueryParamsDTO = {};
+            try {
+                const result = await lessonGradesService.updateGrade(id, dto, user);
 
-    //         jest.spyOn(lessonGradesRepository, "getAllQByStudent").mockReturnValue(
-    //             queryBuilderMockEmpty as unknown as SelectQueryBuilder<LessonGrades>,
-    //         );
+                expect(result).toEqual({
+                    id: expect.any(Number),
+                    studentId: expect.any(Number),
+                    studentName: expect.any(String),
+                    studentLastName: expect.any(String),
+                    grade: expect.any(Number),
+                    createdBy: expect.any(String),
+                    modifiedBy: expect.any(String),
+                    createdAt: expect.any(Date),
+                });
+            } catch (err) {
+                expect(console.error).toHaveBeenCalled();
+                expect(lessonGradesRepository.rollbackTrx).toHaveBeenCalledTimes(1);
+            }
+        });
 
-    //         jest.spyOn(ApplyToQueryExtension, "applyToQuery").mockResolvedValue([[], 0]);
-    //         jest.spyOn(lessonViewModelFactory, "initLessonGradesListViewModel").mockReturnValue([]);
+        it("should throw an error if lesson doesn't exists", async () => {
+            const id = 1;
 
-    //         const result = await lessonGradesService.getLessonGradess(queryParams);
+            const dto: UpdateLessonGradeDto = {
+                lessonId: 1,
+                studentId: 1,
+                grade: 100,
+            };
+            jest.spyOn(lessonGradesRepository, "getById").mockResolvedValue(lessonGradesStub);
 
-    //         expect(result.totalRecords).toEqual(0);
-    //         expect(result.records).toEqual([]);
-    //     });
-    // });
+            await expect(lessonGradesService.updateGrade(id, dto, user)).rejects.toThrowError(
+                new BadRequestException("Provided lesson not found"),
+            );
+        });
 
-    // describe("update lesson", () => {
-    //     it("should return an updated lesson", async () => {
-    //         const courseId = 1;
-    //         const lessonId = 1;
+        it("should throw an error if provided student is not assigned to the lessons course", async () => {
+            const id = 1;
 
-    //         const dto: UpdateLessonGradesDto = {
-    //             theme: "updated theme",
-    //             date: new Date(),
-    //             courseId,
-    //         };
+            const dto: UpdateLessonGradeDto = {
+                lessonId: 1,
+                studentId: 1,
+                grade: 100,
+            };
 
-    //         jest.spyOn(lessonGradesRepository, "getById").mockResolvedValue(
-    //             lessonMockList.find((r) => r.id === lessonId),
-    //         );
-    //         jest.spyOn(coursesRepository, "getById").mockResolvedValue(
-    //             courseMockList.find((r) => r.id === courseId),
-    //         );
+            jest.spyOn(lessonGradesRepository, "getById").mockResolvedValue(lessonGradesStub);
+            jest.spyOn(lessonRepository, "getById").mockResolvedValue(lessonStubCS);
+            jest.spyOn(userRepository, "getStudentById").mockResolvedValue(studentLGStub);
 
-    //         const result = await lessonGradesService.updateLessonGrades(lessonId, dto, user);
+            await expect(lessonGradesService.updateGrade(id, dto, user)).rejects.toThrowError(
+                new BadRequestException("Provided student is not assigned to the lessons course"),
+            );
+        });
 
-    //         expect(result).toEqual({
-    //             id: lessonId,
-    //             courseId: courseId,
-    //             theme: dto.theme,
-    //             course: courseMockList.find((r) => r.id === courseId).name,
-    //             date: expect.any(Date),
-    //             instructorList: expect.any(Array),
-    //         });
-    //     });
+        it("should throw an error if student doesn't exists", async () => {
+            const id = 1;
 
-    //     it("should throw Error if provided course doesn't exist", async () => {
-    //         const courseId = 999;
+            const dto: CreateLessonGradeDto = {
+                lessonId: 1,
+                studentId: 1,
+                grade: 100,
+            };
 
-    //         const dto: UpdateLessonGradesDto = {
-    //             theme: "updated theme",
-    //             date: new Date(),
-    //             courseId,
-    //         };
+            jest.spyOn(lessonGradesRepository, "getById").mockResolvedValue(lessonGradesStub);
+            jest.spyOn(lessonRepository, "getById").mockResolvedValue(lessonStub);
 
-    //         const lessonId = 1;
+            await expect(lessonGradesService.updateGrade(id, dto, user)).rejects.toThrowError(
+                new BadRequestException("Provided student not found"),
+            );
+        });
 
-    //         jest.spyOn(lessonGradesRepository, "getById").mockResolvedValue(
-    //             lessonMockList.find((r) => r.id === lessonId),
-    //         );
+        it("should throw NotFoundException since updated lesson grade not found", async () => {
+            const dto: UpdateLessonGradeDto = {
+                grade: 90,
+            };
 
-    //         await expect(
-    //             lessonGradesService.updateLessonGrades(lessonId, dto, user),
-    //         ).rejects.toThrow(new BadRequestException("Provided course does not exist"));
+            const id = 99;
 
-    //         expect(coursesRepository.getById).toHaveBeenCalledWith(courseId);
-    //     });
-
-    //     it("should throw Error if provided theme is not unique", async () => {
-    //         const courseId = 1;
-
-    //         const dto: UpdateLessonGradesDto = {
-    //             theme: "Test theme",
-    //             date: new Date(),
-    //             courseId,
-    //         };
-
-    //         const lessonId = 1;
-
-    //         jest.spyOn(lessonGradesRepository, "getById").mockResolvedValue(
-    //             lessonMockList.find((r) => r.id === lessonId),
-    //         );
-
-    //         jest.spyOn(coursesRepository, "getById").mockResolvedValue(
-    //             courseMockList.find((r) => r.id === courseId),
-    //         );
-
-    //         const lesson = lessonMockList.find((r) => r.theme === dto.theme);
-
-    //         jest.spyOn(lessonGradesRepository, "getByTheme").mockResolvedValue(lesson);
-
-    //         await expect(
-    //             lessonGradesService.updateLessonGrades(lessonId, dto, user),
-    //         ).rejects.toThrow(new ConflictException("LessonGrades with this theme already exists"));
-
-    //         expect(lessonGradesRepository.getByTheme).toHaveBeenCalledWith(dto.theme);
-    //         expect(lessonGradesRepository.getById).toHaveBeenCalledWith(lessonId);
-    //     });
-
-    //     it("should throw NotFoundException since updated lesson not found", async () => {
-    //         const dto: UpdateLessonGradesDto = {
-    //             theme: "updated theme",
-    //             date: new Date(),
-    //             courseId: 1,
-    //         };
-
-    //         const lessonId = 99;
-
-    //         expect(lessonGradesService.updateLessonGrades(lessonId, dto, user)).rejects.toThrow(
-    //             new NotFoundException(BaseErrorMessage.NOT_FOUND),
-    //         );
-    //         expect(lessonGradesRepository.getById).toHaveBeenCalledWith(lessonId);
-    //     });
-    // });
+            expect(lessonGradesService.updateGrade(id, dto, user)).rejects.toThrow(
+                new NotFoundException(BaseErrorMessage.NOT_FOUND),
+            );
+            expect(lessonGradesRepository.getById).toHaveBeenCalledWith(id);
+        });
+    });
 });
