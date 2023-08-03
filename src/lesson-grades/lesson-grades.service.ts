@@ -16,6 +16,7 @@ import { QueryRunner } from "typeorm";
 import { UpdateLessonGradeDto } from "./dto/update-lesson-grade.dto";
 import { User } from "@app/users/entities/user.entity";
 import { StudentCoursesModelFactory } from "@app/student-courses/model-factories/student-courses.factory";
+import { LessonGradesModelFactory } from "./model-factories/lesson-grades.factory";
 
 @Injectable()
 export class LessonGradesService implements ILessonGradesService {
@@ -28,20 +29,21 @@ export class LessonGradesService implements ILessonGradesService {
     ) {}
 
     //#region Public methods
-    public async createGrade(
-        dto: CreateLessonGradeDto,
-        createdBy: User,
-    ): Promise<LessonGradeViewModel> {
+    public async createGrade(dto: CreateLessonGradeDto, user: User): Promise<LessonGradeViewModel> {
         const [lesson, student] = await this.validateCreate(dto);
 
         const transaction = await this.lessonGradesRepository.initTrx();
 
         try {
-            const grade = await this.lessonGradesRepository.trxCreate(
-                transaction,
-                dto,
-                createdBy.id,
-            );
+            const newEntity = LessonGradesModelFactory.create({
+                lesson,
+                student,
+                grade: dto.grade,
+                createdBy: user,
+                createdAt: new Date(),
+            });
+
+            const grade = await this.lessonGradesRepository.trxCreate(transaction, newEntity);
             await this.trxUpdateFinalGrade(transaction, student, lesson.course.id);
 
             await this.lessonGradesRepository.commitTrx(transaction);
@@ -169,19 +171,23 @@ export class LessonGradesService implements ILessonGradesService {
     public async updateGrade(
         id: number,
         dto: UpdateLessonGradeDto,
-        modifiedBy: User,
+        user: User,
     ): Promise<LessonGradeViewModel> {
-        const student = await this.validateUpdate(id, dto);
+        const [lesson, student] = await this.validateUpdate(id, dto);
 
         const transaction = await this.lessonGradesRepository.initTrx();
 
         try {
-            const grade = await this.lessonGradesRepository.trxUpdate(
-                transaction,
+            const updatedEntity = LessonGradesModelFactory.update({
                 id,
-                dto,
-                modifiedBy.id,
-            );
+                lesson,
+                student,
+                grade: dto.grade,
+                modifiedBy: user,
+                modifiedAt: new Date(),
+            });
+
+            const grade = await this.lessonGradesRepository.trxUpdate(transaction, updatedEntity);
             await this.trxUpdateFinalGrade(transaction, student, grade.lesson.course.id);
 
             await this.lessonGradesRepository.commitTrx(transaction);
@@ -219,7 +225,13 @@ export class LessonGradesService implements ILessonGradesService {
             student.id,
         );
 
-        const passedMark = finalGrade >= AppLimit.PassedLimit;
+        const lessonsByCourse = await this.lessonsRepository.trxGetAllByCourseId(
+            transaction,
+            courseId,
+        );
+
+        const passedMark =
+            finalGrade >= AppLimit.PassedLimit && gradesByCourse.length === lessonsByCourse.length;
 
         const updatedEntity = StudentCoursesModelFactory.update({
             id: studentCourse.id,
@@ -249,7 +261,10 @@ export class LessonGradesService implements ILessonGradesService {
         return [grade, student];
     }
 
-    private async validateUpdate(id: number, dto: UpdateLessonGradeDto): Promise<User> {
+    private async validateUpdate(
+        id: number,
+        dto: UpdateLessonGradeDto,
+    ): Promise<readonly [Lesson, User]> {
         await this.checkIfGradeExists(id);
         const lesson = dto.lessonId && (await this.checkIfLessonExists(dto.lessonId));
         const student = dto.studentId && (await this.checkIfStudentExists(dto.studentId));
@@ -258,7 +273,7 @@ export class LessonGradesService implements ILessonGradesService {
             await this.checkIfStudentAssignedToLessonsCourse(student, lesson);
         }
 
-        return student;
+        return [lesson, student];
     }
 
     private async checkIfGradeNotExists(

@@ -49,8 +49,8 @@ export class LessonGrades extends BaseEntity {
         type: "timestamp",
         default: () => "CURRENT_TIMESTAMP(6)",
         onUpdate: "CURRENT_TIMESTAMP(6)",
-        name: "updated_at",
+        name: "modified_at",
         nullable: false,
     })
-    public updatedAt: Date;
+    public modifiedAt: Date;
 }
