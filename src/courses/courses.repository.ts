@@ -79,11 +79,9 @@ export class CoursesRepository extends BaseRepository implements ICoursesReposit
         });
     }
 
-    public async create(dto: CreateCourseDto): Promise<Course> {
+    public async create(entity: Course): Promise<Course> {
         try {
-            const course = this.courseEntityRepository.create(dto);
-
-            const { id } = await this.courseEntityRepository.save(course);
+            const { id } = await this.courseEntityRepository.save(entity);
 
             return await this.getById(id);
         } catch (err) {
@@ -93,11 +91,9 @@ export class CoursesRepository extends BaseRepository implements ICoursesReposit
         }
     }
 
-    public async trxCreate(queryRunner: QueryRunner, dto: CreateCourseDto): Promise<Course> {
-        const course = this.courseEntityRepository.create(dto);
-
+    public async trxCreate(queryRunner: QueryRunner, entity: Course): Promise<Course> {
         try {
-            const newCourse = await queryRunner.manager.save(course);
+            const newCourse = await queryRunner.manager.save(entity);
 
             return newCourse;
         } catch (err) {
@@ -107,14 +103,9 @@ export class CoursesRepository extends BaseRepository implements ICoursesReposit
         }
     }
 
-    public async update(id: number, dto: UpdateCourseDto): Promise<Course> {
+    public async update(entity: Course): Promise<Course> {
         try {
-            const course = await this.courseEntityRepository.preload({
-                id,
-                ...dto,
-            });
-
-            return await this.courseEntityRepository.save(course);
+            return await this.courseEntityRepository.save(entity);
         } catch (err) {
             console.error("Error: ", err);
 
@@ -122,18 +113,9 @@ export class CoursesRepository extends BaseRepository implements ICoursesReposit
         }
     }
 
-    public async trxUpdate(
-        queryRunner: QueryRunner,
-        id: number,
-        dto: UpdateCourseDto,
-    ): Promise<Course> {
+    public async trxUpdate(queryRunner: QueryRunner, entity: Course): Promise<Course> {
         try {
-            const course = await this.courseEntityRepository.preload({
-                id,
-                ...dto,
-            });
-
-            const newCourse = await queryRunner.manager.save(course);
+            const newCourse = await queryRunner.manager.save(entity);
 
             return newCourse;
         } catch (err) {
@@ -146,15 +128,15 @@ export class CoursesRepository extends BaseRepository implements ICoursesReposit
 
 @Injectable()
 export abstract class ICoursesRepository extends IBaseRepository {
-    abstract create(dto: CreateCourseDto): Promise<Course>;
+    abstract create(entity: Course): Promise<Course>;
     abstract deleteById(id: number): Promise<void>;
     abstract getAllQ(): SelectQueryBuilder<Course>;
     abstract getAllByStudentId(studentId: number): Promise<Course[]>;
     abstract getById(id: number): Promise<Course>;
     abstract getByIdList(idList: number[]): Promise<Course[]>;
     abstract getByName(name: string): Promise<Course>;
-    abstract trxCreate(queryRunner: QueryRunner, dto: CreateCourseDto): Promise<Course>;
-    abstract trxUpdate(queryRunner: QueryRunner, id: number, dto: UpdateCourseDto): Promise<Course>;
-    abstract update(id: number, dto: UpdateCourseDto): Promise<Course>;
+    abstract trxCreate(queryRunner: QueryRunner, entity: Course): Promise<Course>;
+    abstract trxUpdate(queryRunner: QueryRunner, entity: Course): Promise<Course>;
+    abstract update(entity: Course): Promise<Course>;
     abstract isAssignedToGroup(id: number): Promise<boolean>;
 }

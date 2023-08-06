@@ -9,6 +9,8 @@ import { UpdateCourseDto } from "./dto/update-course.dto";
 import { Course } from "./entities/course.entity";
 import { CoursesViewModelFactory } from "./model-factories";
 import { BaseErrorMessage } from "@app/common/enum";
+import { CourseModelFactory } from "./model-factories/course.factory";
+import { User } from "@app/users/entities/user.entity";
 
 @Injectable()
 export class CoursesService implements ICoursesService {
@@ -17,10 +19,16 @@ export class CoursesService implements ICoursesService {
         private readonly coursesViewModelFactory: CoursesViewModelFactory,
     ) {}
 
-    public async createCourse(dto: CreateCourseDto): Promise<CourseViewModel> {
+    public async createCourse(dto: CreateCourseDto, user: User): Promise<CourseViewModel> {
         await this.validateCreate(dto);
 
-        const course = await this.coursesRepository.create(dto);
+        const newEntity = CourseModelFactory.create({
+            name: dto.name,
+            createdBy: user,
+            createdAt: new Date(),
+        });
+
+        const course = await this.coursesRepository.create(newEntity);
 
         return this.coursesViewModelFactory.initCourseViewModel(course);
     }
@@ -78,10 +86,21 @@ export class CoursesService implements ICoursesService {
         return this.coursesViewModelFactory.initCourseViewModel(course);
     }
 
-    public async updateCourse(id: number, dto: UpdateCourseDto): Promise<CourseViewModel> {
+    public async updateCourse(
+        id: number,
+        dto: UpdateCourseDto,
+        user: User,
+    ): Promise<CourseViewModel> {
         await this.validateUpdate(id, dto);
 
-        const course = await this.coursesRepository.update(id, dto);
+        const updatedEntity = CourseModelFactory.update({
+            id,
+            name: dto.name,
+            modifiedBy: user,
+            modifiedAt: new Date(),
+        });
+
+        const course = await this.coursesRepository.update(updatedEntity);
 
         return this.coursesViewModelFactory.initCourseViewModel(course);
     }
@@ -125,8 +144,12 @@ export class CoursesService implements ICoursesService {
 }
 
 interface ICoursesService {
-    createCourse(dto: CreateCourseDto): Promise<CourseViewModel>;
+    createCourse(dto: CreateCourseDto, user: User): Promise<CourseViewModel>;
     getCourse(id: number): Promise<CourseViewModel>;
     getCourses(queryParams: QueryParamsDTO): Promise<DataListResponse<CourseViewModel>>;
-    updateCourse(id: number, updateCourseDto: UpdateCourseDto): Promise<CourseViewModel>;
+    updateCourse(
+        id: number,
+        updateCourseDto: UpdateCourseDto,
+        user: User,
+    ): Promise<CourseViewModel>;
 }

@@ -222,13 +222,12 @@ describe("GroupsService", () => {
 
     describe("update group", () => {
         it("should return an updated group", async () => {
-            const courseId = 1;
             const groupId = 1;
 
             const dto: UpdateGroupDto = {
                 name: "updated name",
                 facultyId: 1,
-                courseIdList: [courseId],
+                courseIdList: courseMockList.map((r) => r.id),
             };
 
             const groupToUpdate = groupMockList.find((r) => r.id === groupId);
@@ -239,9 +238,6 @@ describe("GroupsService", () => {
             );
             jest.spyOn(coursesRepository, "getByIdList").mockResolvedValue(courseMockList);
             jest.spyOn(facultiesRepository, "getById").mockResolvedValue(facultyCEStub);
-            jest.spyOn(coursesRepository, "getById").mockResolvedValue(
-                courseMockList.find((r) => r.id === courseId),
-            );
             jest.spyOn(groupsRepository, "getById").mockResolvedValue(groupToUpdate);
 
             const result = await groupsService.updateGroup(groupId, dto, user);
@@ -280,11 +276,9 @@ describe("GroupsService", () => {
         });
 
         it("should throw Error if provided faculty doesn't exist", async () => {
-            const courseId = 999;
-
             const dto: UpdateGroupDto = {
                 name: "updated name",
-                courseIdList: [courseId],
+                courseIdList: courseMockList.map((r) => r.id),
                 facultyId: 99,
             };
 
