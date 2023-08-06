@@ -69,17 +69,7 @@ export class CourseInstructorsRepository
         return await this.getById(id);
     }
 
-    public async bulkCreate(
-        courseId: number,
-        instructorsIds: number[],
-    ): Promise<CourseInstructors[]> {
-        const enteties = instructorsIds.map((id) =>
-            this.entityRepository.create({
-                course: { id: courseId },
-                instructor: { id },
-            }),
-        );
-
+    public async bulkCreate(enteties: CourseInstructors[]): Promise<CourseInstructors[]> {
         const entityList = await this.entityRepository.save(enteties);
 
         return await this.getByIdList(entityList.map((entity) => entity.id));
@@ -87,16 +77,8 @@ export class CourseInstructorsRepository
 
     public async trxBulkCreate(
         queryRunner: QueryRunner,
-        courseId: number,
-        instructorsIds: number[],
+        enteties: CourseInstructors[],
     ): Promise<CourseInstructors[]> {
-        const enteties = instructorsIds.map((id) =>
-            this.entityRepository.create({
-                course: { id: courseId },
-                instructor: { id },
-            }),
-        );
-
         return await queryRunner.manager.save(enteties);
     }
 
@@ -153,7 +135,7 @@ export class CourseInstructorsRepository
 }
 
 export abstract class ICourseInstructorsRepository extends IBaseRepository {
-    abstract bulkCreate(courseId: number, instructorsIds: number[]): Promise<CourseInstructors[]>;
+    abstract bulkCreate(enteties: CourseInstructors[]): Promise<CourseInstructors[]>;
     abstract create(courseId: number, instructorId: number): Promise<CourseInstructors>;
     abstract deleteById(id: number): Promise<void>;
     abstract getAllQ(): SelectQueryBuilder<CourseInstructors>;
@@ -166,8 +148,7 @@ export abstract class ICourseInstructorsRepository extends IBaseRepository {
     abstract getByIdWithFullDetails(id: number): Promise<CourseInstructors>;
     abstract trxBulkCreate(
         queryRunner: QueryRunner,
-        courseId: number,
-        instructorsIds: number[],
+        enteties: CourseInstructors[],
     ): Promise<CourseInstructors[]>;
     abstract trxDeleteByIdList(queryRunner: QueryRunner, idList: number[]): Promise<void>;
     abstract trxGetAllByCourseId(

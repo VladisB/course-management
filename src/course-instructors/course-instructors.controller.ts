@@ -21,6 +21,8 @@ import {
     CourseInstructorsViewModel,
 } from "./view-models";
 import { CreateCourseInstructorsDto } from "./dto/create-course-instructors.dto";
+import { User } from "@app/users/entities/user.entity";
+import { GetUser } from "@app/auth/get-user.decorator";
 
 // @UseGuards(AuthGuard(Strategies.JWT), RolesGuard)
 @UsePipes(new ValidationPipe({ transform: true }))
@@ -29,8 +31,11 @@ export class CoursesController {
     constructor(private courseInstructorsService: CourseInstructorsService) {}
 
     @Post()
-    create(@Body() dto: CreateCourseInstructorsDto): Promise<CourseInstructorsViewModel> {
-        return this.courseInstructorsService.createCourseInstructors(dto);
+    create(
+        @Body() dto: CreateCourseInstructorsDto,
+        @GetUser() user: User,
+    ): Promise<CourseInstructorsViewModel> {
+        return this.courseInstructorsService.createCourseInstructors(dto, user);
     }
 
     @Get()
@@ -49,8 +54,9 @@ export class CoursesController {
     update(
         @Param("id", ParseIntPipe) id: number,
         @Body() dto: PUTUpdateCourseDto,
+        @GetUser() user: User,
     ): Promise<CourseInstructorsViewModel> {
-        return this.courseInstructorsService.updateCourseInstructors(id, dto);
+        return this.courseInstructorsService.updateCourseInstructors(id, dto, user);
     }
 
     @Delete(":id")
