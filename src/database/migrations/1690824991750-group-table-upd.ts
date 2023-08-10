@@ -18,8 +18,9 @@ export class GroupTableUpd1690824991750 implements MigrationInterface {
             `ALTER TABLE "group" ADD CONSTRAINT "FK_0425fab3b1100812aeb67727e70" FOREIGN KEY ("modified_by") REFERENCES "user"("id") ON DELETE NO ACTION ON UPDATE NO ACTION`,
         );
 
-        const userRepository = queryRunner.manager.getRepository("user");
-        const user = await userRepository.findOne({ where: { email: PredefinedUser.Admin } });
+        const user = await queryRunner
+            .query(`SELECT * FROM "user" WHERE "email" = $1 LIMIT 1`, [PredefinedUser.Admin])
+            .then((res) => res[0]);
 
         if (!user) {
             throw new Error("System user not found");
