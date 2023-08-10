@@ -63,6 +63,14 @@ export class User extends BaseEntity {
     @OneToMany(() => StudentCourses, (studentCourses) => studentCourses.student)
     studentCourses: StudentCourses[];
 
+    @ManyToOne(() => User, { nullable: true })
+    @JoinColumn({ name: "created_by" })
+    public createdBy: User;
+
+    @ManyToOne(() => User, { nullable: true })
+    @JoinColumn({ name: "modified_by" })
+    public modifiedBy: User;
+
     @CreateDateColumn({
         type: "timestamp",
         default: () => "CURRENT_TIMESTAMP(6)",
@@ -74,9 +82,9 @@ export class User extends BaseEntity {
         type: "timestamp",
         default: () => "CURRENT_TIMESTAMP(6)",
         onUpdate: "CURRENT_TIMESTAMP(6)",
-        name: "updated_at",
+        name: "modified_at",
     })
-    public updatedAt: Date;
+    public modifiedAt: Date;
 
     async validatePassword(password: string): Promise<boolean> {
         const hash = await bcrypt.hash(password, this.salt);
