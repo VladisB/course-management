@@ -1,30 +1,28 @@
 import { User } from "@app/users/entities/user.entity";
-import { Lesson } from "../entities/lesson.entity";
 import { Course } from "@app/courses/entities/course.entity";
+import { CourseInstructors } from "../entities/course-instructors.entity";
 
-export abstract class LessonModelFactory {
+export abstract class CourseInstructorModelFactory {
     public static create({
-        theme,
-        date,
         course,
+        instructor,
         createdBy,
         createdAt,
         modifiedBy = createdBy,
         modifiedAt = createdAt,
     }: {
-        theme: string;
-        date: Date;
         course: Course;
+        instructor: User;
         createdBy: User;
         createdAt: Date;
         modifiedBy?: User;
         modifiedAt?: Date;
-    }): Lesson {
-        const entity = new Lesson();
+    }): CourseInstructors {
+        const entity = new CourseInstructors();
 
-        entity.theme = theme;
-        entity.date = date;
         entity.course = course;
+        entity.instructor = instructor;
+
         entity.createdBy = createdBy;
         entity.createdAt = createdAt;
         entity.modifiedBy = modifiedBy ?? createdBy;
@@ -35,25 +33,29 @@ export abstract class LessonModelFactory {
 
     public static update({
         id,
-        theme,
-        date,
         course,
+        instructor,
         modifiedBy,
         modifiedAt,
     }: {
         id: number;
-        theme: string;
-        date: Date;
         course?: Course;
+        instructor?: User;
         modifiedBy?: User;
         modifiedAt?: Date;
-    }): Lesson {
-        const entity = new Lesson();
+    }): CourseInstructors {
+        const entity = new CourseInstructors();
 
         entity.id = id;
-        entity.date = date;
-        entity.theme = theme;
-        entity.course = course;
+
+        if (course) {
+            entity.course = course;
+        }
+
+        if (instructor) {
+            entity.instructor = instructor;
+        }
+
         entity.modifiedBy = modifiedBy;
         entity.modifiedAt = modifiedAt;
 

@@ -13,7 +13,7 @@ import {
 } from "@nestjs/common";
 import { DataListResponse } from "@common/db/data-list-response";
 import { QueryParamsDTO } from "@common/dto/query-params.dto";
-import { PUTUpdateCourseDto } from "./dto/put-update-course-instructors.dto";
+import { PUTUpdateCourseInstructorsDto } from "./dto/put-update-course-instructors.dto";
 import { CourseInstructorsService } from "./course-instructors.service";
 import {
     CourseInstructorViewModel,
@@ -21,16 +21,21 @@ import {
     CourseInstructorsViewModel,
 } from "./view-models";
 import { CreateCourseInstructorsDto } from "./dto/create-course-instructors.dto";
+import { User } from "@app/users/entities/user.entity";
+import { GetUser } from "@app/auth/get-user.decorator";
 
 // @UseGuards(AuthGuard(Strategies.JWT), RolesGuard)
 @UsePipes(new ValidationPipe({ transform: true }))
 @Controller("course-instructors")
-export class CoursesController {
+export class CourseInstructorsController {
     constructor(private courseInstructorsService: CourseInstructorsService) {}
 
     @Post()
-    create(@Body() dto: CreateCourseInstructorsDto): Promise<CourseInstructorsViewModel> {
-        return this.courseInstructorsService.createCourseInstructors(dto);
+    create(
+        @Body() dto: CreateCourseInstructorsDto,
+        @GetUser() user: User,
+    ): Promise<CourseInstructorsViewModel> {
+        return this.courseInstructorsService.createCourseInstructors(dto, user);
     }
 
     @Get()
@@ -48,9 +53,10 @@ export class CoursesController {
     @Put(":id")
     update(
         @Param("id", ParseIntPipe) id: number,
-        @Body() dto: PUTUpdateCourseDto,
+        @Body() dto: PUTUpdateCourseInstructorsDto,
+        @GetUser() user: User,
     ): Promise<CourseInstructorsViewModel> {
-        return this.courseInstructorsService.updateCourseInstructors(id, dto);
+        return this.courseInstructorsService.updateCourseInstructors(id, dto, user);
     }
 
     @Delete(":id")

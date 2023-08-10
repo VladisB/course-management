@@ -8,21 +8,21 @@ import { DataListResponse } from "@common/db/data-list-response";
 import { ColumnType, QueryParamsDTO } from "@common/dto/query-params.dto";
 import { ApplyToQueryExtension } from "@common/query-extention";
 import { ICoursesRepository } from "@app/courses/courses.repository";
-import { CourseInstructors } from "@app/courses/entities/course-to-instructor.entity";
 import { Course } from "@app/courses/entities/course.entity";
 import { IRolesRepository } from "@app/roles/roles.repository";
 import { User } from "@app/users/entities/user.entity";
 import { IUsersRepository } from "@app/users/users.repository";
 import { ICourseInstructorsRepository } from "./course-instructors.repository";
 import { CreateCourseInstructorsDto } from "./dto/create-course-instructors.dto";
-import { PUTUpdateCourseDto } from "./dto/put-update-course-instructors.dto";
-import { CourseInstructorsViewModelFactory } from "./model-factories";
+import { PUTUpdateCourseInstructorsDto } from "./dto/put-update-course-instructors.dto";
+import { CourseInstructorModelFactory, CourseInstructorsViewModelFactory } from "./model-factories";
 import {
     CourseInstructorViewModel,
     CourseInstructorsListViewModel,
     CourseInstructorsViewModel,
 } from "./view-models";
 import { BaseErrorMessage, RoleName } from "@common/enum";
+import { CourseInstructors } from "./entities/course-instructors.entity";
 
 @Injectable()
 export class CourseInstructorsService implements ICourseInstructorsService {
@@ -36,13 +36,20 @@ export class CourseInstructorsService implements ICourseInstructorsService {
 
     public async createCourseInstructors(
         dto: CreateCourseInstructorsDto,
+        user: User,
     ): Promise<CourseInstructorsViewModel> {
-        await this.validateCreate(dto);
+        const [instructors, course] = await this.validateCreate(dto);
 
-        const courseInstructors = await this.courseInstructorsRepository.bulkCreate(
-            dto.courseId,
-            dto.instructorIdList,
+        const newEntities = instructors.map((instructor) =>
+            CourseInstructorModelFactory.create({
+                course,
+                instructor,
+                createdAt: new Date(),
+                createdBy: user,
+            }),
         );
+
+        const courseInstructors = await this.courseInstructorsRepository.bulkCreate(newEntities);
 
         return this.courseInstructorsViewModelFactory.initCourseInstructorsViewModel(
             courseInstructors,
@@ -131,9 +138,10 @@ export class CourseInstructorsService implements ICourseInstructorsService {
 
     public async updateCourseInstructors(
         id: number,
-        dto: PUTUpdateCourseDto,
+        dto: PUTUpdateCourseInstructorsDto,
+        user: User,
     ): Promise<CourseInstructorsViewModel> {
-        await this.validateUpdate(id, dto);
+        const [instructors, course] = await this.validateUpdate(id, dto);
 
         const transaction = await this.courseInstructorsRepository.initTrx();
 
@@ -148,11 +156,16 @@ export class CourseInstructorsService implements ICourseInstructorsService {
                 courseInstructors.map((cInstructor) => cInstructor.id),
             );
 
-            await this.courseInstructorsRepository.trxBulkCreate(
-                transaction,
-                dto.courseId,
-                dto.instructorIdList,
+            const newEntities = instructors.map((instructor) =>
+                CourseInstructorModelFactory.create({
+                    course,
+                    instructor,
+                    createdAt: new Date(),
+                    createdBy: user,
+                }),
             );
+
+            await this.courseInstructorsRepository.trxBulkCreate(transaction, newEntities);
 
             await this.courseInstructorsRepository.commitTrx(transaction);
 
@@ -162,7 +175,7 @@ export class CourseInstructorsService implements ICourseInstructorsService {
         } catch (err) {
             console.error(err);
 
-            await this.coursesRepository.rollbackTrx(transaction);
+            await this.courseInstructorsRepository.rollbackTrx(transaction);
 
             throw err;
         }
@@ -174,10 +187,14 @@ export class CourseInstructorsService implements ICourseInstructorsService {
         await this.courseInstructorsRepository.deleteById(courseInstructors.id);
     }
 
-    private async validateCreate(dto: CreateCourseInstructorsDto): Promise<void> {
-        await this.checkIfInstructorsExists(dto.instructorIdList);
-        await this.checkifCourseExist(dto.courseId);
+    private async validateCreate(
+        dto: CreateCourseInstructorsDto,
+    ): Promise<readonly [User[], Course]> {
+        const instructors = await this.checkIfInstructorsExists(dto.instructorIdList);
+        const course = await this.checkifCourseExist(dto.courseId);
         await this.checkIfExistsByDetails(dto.instructorIdList, dto.courseId);
+
+        return [instructors, course];
     }
 
     private async validateDelete(id: number): Promise<CourseInstructors> {
@@ -187,10 +204,15 @@ export class CourseInstructorsService implements ICourseInstructorsService {
         return courseInstructors;
     }
 
-    private async validateUpdate(id: number, dto: PUTUpdateCourseDto): Promise<void> {
+    private async validateUpdate(
+        id: number,
+        dto: PUTUpdateCourseInstructorsDto,
+    ): Promise<readonly [User[], Course]> {
         await this.checkIfExists(id);
-        await this.checkIfInstructorsExists(dto.instructorIdList);
-        await this.checkifCourseExist(dto.courseId);
+        const instructors = await this.checkIfInstructorsExists(dto.instructorIdList);
+        const course = await this.checkifCourseExist(dto.courseId);
+
+        return [instructors, course];
     }
 
     private async checkIfCoursesHaveInstructors(
@@ -254,7 +276,10 @@ export class CourseInstructorsService implements ICourseInstructorsService {
 }
 
 interface ICourseInstructorsService {
-    createCourseInstructors(dto: CreateCourseInstructorsDto): Promise<CourseInstructorsViewModel>;
+    createCourseInstructors(
+        dto: CreateCourseInstructorsDto,
+        user: User,
+    ): Promise<CourseInstructorsViewModel>;
     deleteCourseInstructors(id: number): Promise<void>;
     getCourseInstructors(
         queryParams: QueryParamsDTO,
@@ -262,6 +287,7 @@ interface ICourseInstructorsService {
     getCourseInstructor(id: number): Promise<CourseInstructorViewModel>;
     updateCourseInstructors(
         id: number,
-        dto: PUTUpdateCourseDto,
+        dto: PUTUpdateCourseInstructorsDto,
+        user: User,
     ): Promise<CourseInstructorsViewModel>;
 }

@@ -14,10 +14,10 @@ import {
 import { IsEmail } from "class-validator";
 import { Role } from "@app/roles/entities/role.entity";
 import { Group } from "@app/groups/entities/group.entity";
-import { CourseInstructors } from "@app/courses/entities/course-to-instructor.entity";
 import { StudentCourses } from "@app/student-courses/entities/student-courses.entity";
 import { LessonGrades } from "@app/lesson-grades/entities/lesson-grade.entity";
 import { Homework } from "@app/homeworks/entities/homework.entity";
+import { CourseInstructors } from "@app/course-instructors/entities/course-instructors.entity";
 
 @Entity()
 export class User extends BaseEntity {
@@ -63,6 +63,14 @@ export class User extends BaseEntity {
     @OneToMany(() => StudentCourses, (studentCourses) => studentCourses.student)
     studentCourses: StudentCourses[];
 
+    @ManyToOne(() => User, { nullable: true })
+    @JoinColumn({ name: "created_by" })
+    public createdBy: User;
+
+    @ManyToOne(() => User, { nullable: true })
+    @JoinColumn({ name: "modified_by" })
+    public modifiedBy: User;
+
     @CreateDateColumn({
         type: "timestamp",
         default: () => "CURRENT_TIMESTAMP(6)",
@@ -74,9 +82,9 @@ export class User extends BaseEntity {
         type: "timestamp",
         default: () => "CURRENT_TIMESTAMP(6)",
         onUpdate: "CURRENT_TIMESTAMP(6)",
-        name: "updated_at",
+        name: "modified_at",
     })
-    public updatedAt: Date;
+    public modifiedAt: Date;
 
     async validatePassword(password: string): Promise<boolean> {
         const hash = await bcrypt.hash(password, this.salt);

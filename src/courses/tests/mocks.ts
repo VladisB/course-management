@@ -17,11 +17,16 @@ const mockCoursesRepository = () => ({
     getAllQ: jest.fn().mockResolvedValue(null),
     getById: jest.fn().mockResolvedValue(null),
     deleteById: jest.fn().mockResolvedValue(null),
+    isAssignedToGroup: jest.fn().mockResolvedValue(null),
     manager: {
         connection: {
             createQueryRunner: jest.fn(),
         },
     },
+    initTrx: jest.fn(),
+    rollbackTrx: jest.fn(),
+    trxUpdate: jest.fn(),
+    commitTrx: jest.fn(),
 });
 
 export { mockCoursesRepository };
