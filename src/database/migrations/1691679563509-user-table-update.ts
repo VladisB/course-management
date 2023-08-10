@@ -18,8 +18,9 @@ export class UserTableUpdate1691679563509 implements MigrationInterface {
             `ALTER TABLE "user" ADD CONSTRAINT "FK_60919e8ebef42a386bfc3940861" FOREIGN KEY ("modified_by") REFERENCES "user"("id") ON DELETE NO ACTION ON UPDATE NO ACTION`,
         );
 
-        const userRepository = queryRunner.manager.getRepository("user");
-        const user = await userRepository.findOne({ where: { email: PredefinedUser.Admin } });
+        const user = await queryRunner
+            .query(`SELECT * FROM "user" WHERE "email" = $1 LIMIT 1`, [PredefinedUser.Admin])
+            .then((res) => res[0]);
 
         if (!user) {
             throw new Error("System user not found");

@@ -5,8 +5,9 @@ export class CourseInstructorTableUpdate1691672045624 implements MigrationInterf
     name = "CourseInstructorTableUpdate1691672045624";
 
     public async up(queryRunner: QueryRunner): Promise<void> {
-        const userRepository = queryRunner.manager.getRepository("user");
-        const user = await userRepository.findOne({ where: { email: PredefinedUser.Admin } });
+        const user = await queryRunner
+            .query(`SELECT * FROM "user" WHERE "email" = $1 LIMIT 1`, [PredefinedUser.Admin])
+            .then((res) => res[0]);
 
         if (!user) {
             throw new Error("System user not found");

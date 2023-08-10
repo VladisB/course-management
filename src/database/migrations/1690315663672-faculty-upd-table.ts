@@ -12,8 +12,9 @@ export class FacultyUpdTable1690315663672 implements MigrationInterface {
             `ALTER TABLE "faculty" ADD "modifiedAt" TIMESTAMP NOT NULL DEFAULT ('now'::text)::timestamp(6) with time zone`,
         );
 
-        const userRepository = queryRunner.manager.getRepository("user");
-        const user = await userRepository.findOne({ where: { email: PredefinedUser.Admin } });
+        const user = await queryRunner
+            .query(`SELECT * FROM "user" WHERE "email" = $1 LIMIT 1`, [PredefinedUser.Admin])
+            .then((res) => res[0]);
 
         if (!user) {
             throw new Error("System user not found");
