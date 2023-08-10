@@ -1,6 +1,7 @@
 import { Course } from "@app/courses/entities/course.entity";
 import { Homework } from "@app/homeworks/entities/homework.entity";
 import { LessonGrades } from "@app/lesson-grades/entities/lesson-grade.entity";
+import { User } from "@app/users/entities/user.entity";
 import {
     BaseEntity,
     Column,
@@ -24,7 +25,7 @@ export class Lesson extends BaseEntity {
     @Column()
     public date: Date;
 
-    @ManyToOne(() => Course, (course) => course.groupCourses)
+    @ManyToOne(() => Course, (course) => course.groupCourses, { nullable: false })
     @JoinColumn({ name: "course_id" })
     public course: Course;
 
@@ -33,6 +34,14 @@ export class Lesson extends BaseEntity {
 
     @OneToMany(() => Homework, (Homework) => Homework.lesson)
     public homeworks: Homework[];
+
+    @ManyToOne(() => User, { nullable: false })
+    @JoinColumn({ name: "created_by" })
+    public createdBy: User;
+
+    @ManyToOne(() => User, { nullable: false })
+    @JoinColumn({ name: "modified_by" })
+    public modifiedBy: User;
 
     @CreateDateColumn({
         type: "timestamp",
@@ -45,7 +54,7 @@ export class Lesson extends BaseEntity {
         type: "timestamp",
         default: () => "CURRENT_TIMESTAMP(6)",
         onUpdate: "CURRENT_TIMESTAMP(6)",
-        name: "updated_at",
+        name: "modified_at",
     })
-    public updatedAt: Date;
+    public modifiedAt: Date;
 }

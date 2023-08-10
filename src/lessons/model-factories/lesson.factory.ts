@@ -25,11 +25,10 @@ export abstract class LessonModelFactory {
         entity.theme = theme;
         entity.date = date;
         entity.course = course;
-        // entity.createdBy = createdBy;
+        entity.createdBy = createdBy;
         entity.createdAt = createdAt;
-        // entity.modifiedBy = modifiedBy ?? createdBy;
-        // entity.modifiedAt = modifiedAt ?? createdAt;
-        entity.updatedAt = modifiedAt ?? createdAt;
+        entity.modifiedBy = modifiedBy ?? createdBy;
+        entity.modifiedAt = modifiedAt ?? createdAt;
 
         return entity;
     }
@@ -55,9 +54,8 @@ export abstract class LessonModelFactory {
         entity.date = date;
         entity.theme = theme;
         entity.course = course;
-
-        // entity.modifiedBy = modifiedBy;
-        // entity.modifiedAt = modifiedAt;
+        entity.modifiedBy = modifiedBy;
+        entity.modifiedAt = modifiedAt;
 
         return entity;
     }
