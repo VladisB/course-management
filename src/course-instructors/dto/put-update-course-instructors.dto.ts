@@ -1,3 +1,3 @@
 import { CreateCourseInstructorsDto } from "./create-course-instructors.dto";
 
-export class PUTUpdateCourseDto extends CreateCourseInstructorsDto {}
+export class PUTUpdateCourseInstructorsDto extends CreateCourseInstructorsDto {}

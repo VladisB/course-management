@@ -14,10 +14,10 @@ import {
 import { IsEmail } from "class-validator";
 import { Role } from "@app/roles/entities/role.entity";
 import { Group } from "@app/groups/entities/group.entity";
-import { CourseInstructors } from "@app/courses/entities/course-to-instructor.entity";
 import { StudentCourses } from "@app/student-courses/entities/student-courses.entity";
 import { LessonGrades } from "@app/lesson-grades/entities/lesson-grade.entity";
 import { Homework } from "@app/homeworks/entities/homework.entity";
+import { CourseInstructors } from "@app/course-instructors/entities/course-instructors.entity";
 
 @Entity()
 export class User extends BaseEntity {

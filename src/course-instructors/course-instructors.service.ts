@@ -8,14 +8,13 @@ import { DataListResponse } from "@common/db/data-list-response";
 import { ColumnType, QueryParamsDTO } from "@common/dto/query-params.dto";
 import { ApplyToQueryExtension } from "@common/query-extention";
 import { ICoursesRepository } from "@app/courses/courses.repository";
-import { CourseInstructors } from "@app/courses/entities/course-to-instructor.entity";
 import { Course } from "@app/courses/entities/course.entity";
 import { IRolesRepository } from "@app/roles/roles.repository";
 import { User } from "@app/users/entities/user.entity";
 import { IUsersRepository } from "@app/users/users.repository";
 import { ICourseInstructorsRepository } from "./course-instructors.repository";
 import { CreateCourseInstructorsDto } from "./dto/create-course-instructors.dto";
-import { PUTUpdateCourseDto } from "./dto/put-update-course-instructors.dto";
+import { PUTUpdateCourseInstructorsDto } from "./dto/put-update-course-instructors.dto";
 import { CourseInstructorModelFactory, CourseInstructorsViewModelFactory } from "./model-factories";
 import {
     CourseInstructorViewModel,
@@ -23,6 +22,7 @@ import {
     CourseInstructorsViewModel,
 } from "./view-models";
 import { BaseErrorMessage, RoleName } from "@common/enum";
+import { CourseInstructors } from "./entities/course-instructors.entity";
 
 @Injectable()
 export class CourseInstructorsService implements ICourseInstructorsService {
@@ -138,7 +138,7 @@ export class CourseInstructorsService implements ICourseInstructorsService {
 
     public async updateCourseInstructors(
         id: number,
-        dto: PUTUpdateCourseDto,
+        dto: PUTUpdateCourseInstructorsDto,
         user: User,
     ): Promise<CourseInstructorsViewModel> {
         const [instructors, course] = await this.validateUpdate(id, dto);
@@ -175,7 +175,7 @@ export class CourseInstructorsService implements ICourseInstructorsService {
         } catch (err) {
             console.error(err);
 
-            await this.coursesRepository.rollbackTrx(transaction);
+            await this.courseInstructorsRepository.rollbackTrx(transaction);
 
             throw err;
         }
@@ -206,7 +206,7 @@ export class CourseInstructorsService implements ICourseInstructorsService {
 
     private async validateUpdate(
         id: number,
-        dto: PUTUpdateCourseDto,
+        dto: PUTUpdateCourseInstructorsDto,
     ): Promise<readonly [User[], Course]> {
         await this.checkIfExists(id);
         const instructors = await this.checkIfInstructorsExists(dto.instructorIdList);
@@ -287,7 +287,7 @@ interface ICourseInstructorsService {
     getCourseInstructor(id: number): Promise<CourseInstructorViewModel>;
     updateCourseInstructors(
         id: number,
-        dto: PUTUpdateCourseDto,
+        dto: PUTUpdateCourseInstructorsDto,
         user: User,
     ): Promise<CourseInstructorsViewModel>;
 }

@@ -73,6 +73,7 @@ const mockUsersRepository = () => ({
     delete: jest.fn().mockResolvedValue(null),
     save: jest.fn().mockResolvedValue(null),
     findOne: jest.fn().mockResolvedValue(null),
+    getByIdList: jest.fn().mockResolvedValue(null),
     createQueryBuilder: jest.fn(),
     manager: {
         connection: {

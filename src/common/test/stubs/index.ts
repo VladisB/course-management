@@ -1,4 +1,15 @@
-import { courseMockList, courseStub, courseStubCS, courseVMMockList } from "./course.stub";
+import {
+    courseInstructorsCSStub,
+    courseInstructorsListVMMockList,
+    courseInstructorsListVMStub,
+    courseInstructorsMockList,
+    courseInstructorsStub,
+    courseInstructorsVMMockList,
+    courseMockList,
+    courseStub,
+    courseStubCS,
+    courseVMMockList,
+} from "./course.stub";
 import { facultiesMockList, facultyCEStub, facultyCSStub, facultyVMMockList } from "./faculty.stub";
 import { groupCoursesMockList, groupCoursesStub } from "./group-courses.stub";
 import { groupMockList, groupStub, groupVMMockList, groupVMStub } from "./group.stub";
@@ -59,4 +70,10 @@ export {
     lessonStubCS,
     courseVMMockList,
     courseStubCS,
+    courseInstructorsCSStub,
+    courseInstructorsStub,
+    courseInstructorsMockList,
+    courseInstructorsVMMockList,
+    courseInstructorsListVMStub,
+    courseInstructorsListVMMockList,
 };

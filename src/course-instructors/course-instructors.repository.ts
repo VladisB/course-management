@@ -58,13 +58,8 @@ export class CourseInstructorsRepository
         });
     }
 
-    public async create(courseId: number, instructorId: number): Promise<CourseInstructors> {
-        const groupCourse = this.entityRepository.create({
-            course: { id: courseId },
-            instructor: { id: instructorId },
-        });
-
-        const { id } = await this.entityRepository.save(groupCourse);
+    public async create(entity: CourseInstructors): Promise<CourseInstructors> {
+        const { id } = await this.entityRepository.save(entity);
 
         return await this.getById(id);
     }
@@ -136,7 +131,7 @@ export class CourseInstructorsRepository
 
 export abstract class ICourseInstructorsRepository extends IBaseRepository {
     abstract bulkCreate(enteties: CourseInstructors[]): Promise<CourseInstructors[]>;
-    abstract create(courseId: number, instructorId: number): Promise<CourseInstructors>;
+    abstract create(entity: CourseInstructors): Promise<CourseInstructors>;
     abstract deleteById(id: number): Promise<void>;
     abstract getAllQ(): SelectQueryBuilder<CourseInstructors>;
     abstract getByDetails(
