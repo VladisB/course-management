@@ -8,6 +8,7 @@ import {
     Post,
     Put,
     Query,
+    UseGuards,
     UsePipes,
     ValidationPipe,
 } from "@nestjs/common";
@@ -23,8 +24,14 @@ import {
 import { CreateCourseInstructorsDto } from "./dto/create-course-instructors.dto";
 import { User } from "@app/users/entities/user.entity";
 import { GetUser } from "@app/auth/get-user.decorator";
+import { RolesGuard } from "@app/roles/roles.guard";
+import { AuthGuard } from "@nestjs/passport";
+import { Strategies } from "@app/auth/strategies.enum";
+import { RoleName } from "@app/common/enum";
+import { Roles } from "@app/roles/roles-auth.decorator";
 
-// @UseGuards(AuthGuard(Strategies.JWT), RolesGuard)
+@Roles(RoleName.Admin, RoleName.Instructor)
+@UseGuards(AuthGuard(Strategies.JWT), RolesGuard)
 @UsePipes(new ValidationPipe({ transform: true }))
 @Controller("course-instructors")
 export class CourseInstructorsController {
