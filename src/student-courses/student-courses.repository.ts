@@ -3,7 +3,6 @@ import { InjectRepository } from "@nestjs/typeorm";
 import { BaseErrorMessage } from "@common/enum";
 import { In, QueryRunner, Repository, SelectQueryBuilder } from "typeorm";
 import { StudentCourses } from "./entities/student-courses.entity";
-import { UpdateStudentCoursesDto } from "./dto/update-student-courses.dto";
 import { BaseRepository, IBaseRepository } from "@common/db/base.repository";
 
 @Injectable()
@@ -23,14 +22,9 @@ export class StudentCoursesRepository extends BaseRepository implements IStudent
         });
     }
 
-    public async create(courseId: number, studentId: number): Promise<StudentCourses> {
+    public async create(entity: StudentCourses): Promise<StudentCourses> {
         try {
-            const feedBack = this.entityRepository.create({
-                course: { id: courseId },
-                student: { id: studentId },
-            });
-
-            const { id } = await this.entityRepository.save(feedBack);
+            const { id } = await this.entityRepository.save(entity);
 
             return await this.getById(id);
         } catch (err) {
@@ -40,15 +34,11 @@ export class StudentCoursesRepository extends BaseRepository implements IStudent
         }
     }
 
-    public async update(id: number, dto: UpdateStudentCoursesDto): Promise<StudentCourses> {
+    public async update(entity: StudentCourses): Promise<StudentCourses> {
         try {
-            const feedBack = await this.entityRepository.preload({
-                id,
-                ...dto,
-                feedback: dto.feedBack,
-            });
+            const { id } = await this.entityRepository.save(entity);
 
-            return await this.entityRepository.save(feedBack);
+            return await this.getById(id);
         } catch (err) {
             console.error("Error: ", err);
 
@@ -70,7 +60,6 @@ export class StudentCoursesRepository extends BaseRepository implements IStudent
             throw new Error(BaseErrorMessage.DB_ERROR);
         }
     }
-
 
     public async getById(id: number): Promise<StudentCourses> {
         return await this.entityRepository.findOne({
@@ -96,8 +85,11 @@ export class StudentCoursesRepository extends BaseRepository implements IStudent
         });
     }
 
-    public async getByIdList(idList: number[]): Promise<StudentCourses[]> {
-        return await this.entityRepository.find({
+    public async trxGetByIdList(
+        queryRunner: QueryRunner,
+        idList: number[],
+    ): Promise<StudentCourses[]> {
+        return await queryRunner.manager.find(StudentCourses, {
             relations: {
                 course: true,
                 student: true,
@@ -150,58 +142,32 @@ export class StudentCoursesRepository extends BaseRepository implements IStudent
         });
     }
 
-    public async bulkCreate(studentId: number, courseIdList: number[]): Promise<StudentCourses[]> {
-        const enteties = courseIdList.map((id) =>
-            this.entityRepository.create({
-                course: { id },
-                student: { id: studentId },
-            }),
-        );
-
-        const entityList = await this.entityRepository.save(enteties);
-
-        return await this.getByIdList(entityList.map((entity) => entity.id));
-    }
-
     public async trxBulkCreate(
         queryRunner: QueryRunner,
-        studentId: number,
-        courseIdList: number[],
+        entities: StudentCourses[],
     ): Promise<StudentCourses[]> {
-        const enteties = courseIdList.map((id) =>
-            this.entityRepository.create({
-                course: { id },
-                student: { id: studentId },
-            }),
+        const entityList = await queryRunner.manager.save(entities);
+
+        return await this.trxGetByIdList(
+            queryRunner,
+            entityList.map((entity) => entity.id),
         );
-
-        const entityList = await queryRunner.manager.save(enteties);
-
-        return await this.getByIdList(entityList.map((entity) => entity.id));
     }
 
     public async deleteById(id: number): Promise<void> {
-        try {
-            await this.entityRepository.delete(id);
-        } catch (err) {
-            console.error("Error: ", err);
-
-            throw new Error(BaseErrorMessage.DB_ERROR);
-        }
+        await this.entityRepository.delete(id);
     }
 }
 
 export abstract class IStudentCoursesRepository extends IBaseRepository {
-    abstract bulkCreate(studentId: number, courseIdList: number[]): Promise<StudentCourses[]>;
     abstract trxBulkCreate(
         queryRunner: QueryRunner,
-        studentId: number,
-        courseIdList: number[],
+        entities: StudentCourses[],
     ): Promise<StudentCourses[]>;
     abstract trxBulkDelete(queryRunner: QueryRunner, idList: number[]): Promise<void>;
-    abstract create(courseId: number, instructorId: number): Promise<StudentCourses>;
+    abstract create(entity: StudentCourses): Promise<StudentCourses>;
     abstract deleteById(id: number): Promise<void>;
-    abstract getAllQ(): any;
+    abstract getAllQ(): SelectQueryBuilder<StudentCourses>;
     abstract getByCourseAndStudent(courseId: number, studentId: number): Promise<StudentCourses>;
     abstract trxGetByCourseAndStudent(
         queryRunner: QueryRunner,
@@ -210,7 +176,7 @@ export abstract class IStudentCoursesRepository extends IBaseRepository {
     ): Promise<StudentCourses>;
     abstract getById(id: number): Promise<StudentCourses>;
     abstract trxGetById(queryRunner: QueryRunner, id: number): Promise<StudentCourses>;
-    abstract getByIdList(idList: number[]): Promise<StudentCourses[]>;
-    abstract update(id: number, dto: UpdateStudentCoursesDto): Promise<StudentCourses>;
+    abstract trxGetByIdList(queryRunner: QueryRunner, idList: number[]): Promise<StudentCourses[]>;
+    abstract update(entity: StudentCourses): Promise<StudentCourses>;
     abstract trxUpdate(queryRunner: QueryRunner, entity: StudentCourses): Promise<StudentCourses>;
 }
