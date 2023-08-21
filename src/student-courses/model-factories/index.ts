@@ -1,3 +1,4 @@
+import { StudentCourseModelFactory } from "./student-course.factory";
 import { StudentCoursesViewModelFactory } from "./student-courses";
 
-export { StudentCoursesViewModelFactory };
+export { StudentCoursesViewModelFactory, StudentCourseModelFactory };

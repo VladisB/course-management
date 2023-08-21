@@ -21,6 +21,7 @@ import { User } from "@app/users/entities/user.entity";
 import { UserViewModel } from "@app/users/view-models";
 import { Role } from "@app/roles/entities/role.entity";
 import { UserModelFactory } from "@app/users/model-factories/user.factory";
+import { StudentCourseModelFactory } from "@app/student-courses/model-factories/student-course.factory";
 
 @Injectable()
 export class UsersManagementService implements IUsersManagementService {
@@ -55,7 +56,7 @@ export class UsersManagementService implements IUsersManagementService {
             const newUser = await this.usersRepository.create(newEntity);
 
             if (group && role.name === RoleName.Student) {
-                await this.trxAddStudentCourses(transaction, newUser.id, group);
+                await this.trxAddStudentCourses(transaction, newUser, group, user);
             }
 
             await this.usersRepository.commitTrx(transaction);
@@ -76,7 +77,7 @@ export class UsersManagementService implements IUsersManagementService {
         const transaction = await this.usersRepository.initTrx();
 
         try {
-            await this.trxUpdateStudentCourses(transaction, id, group, userEntity);
+            await this.trxUpdateStudentCourses(transaction, group, userEntity, user);
 
             const updatedEntity = UserModelFactory.update({
                 id,
@@ -104,31 +105,48 @@ export class UsersManagementService implements IUsersManagementService {
         }
     }
 
-    private async trxAddStudentCourses(transaction: QueryRunner, studentId: number, group: Group) {
+    private async trxAddStudentCourses(
+        transaction: QueryRunner,
+        student: User,
+        group: Group,
+        createdBy: User,
+    ) {
         if (group.groupCourses.length > 0) {
-            const courseIdList = group.groupCourses.map((gc) => gc.courseId);
+            const newEntityList = group.groupCourses.map((groupCourse) =>
+                StudentCourseModelFactory.create({
+                    course: groupCourse.course,
+                    student: student,
+                    createdAt: new Date(),
+                    createdBy,
+                }),
+            );
 
-            await this.studentCoursesRepository.trxBulkCreate(transaction, studentId, courseIdList);
+            await this.studentCoursesRepository.trxBulkCreate(transaction, newEntityList);
         }
     }
 
     private async trxUpdateStudentCourses(
         transaction: QueryRunner,
-        studentId: number,
         group: Group,
         user: User,
+        createdBy: User,
     ) {
         if (group === undefined || group.groupCourses.length === 0) return;
 
         const currentStudentCourses = user.studentCourses;
         const newCourseIdList = group.groupCourses.map((gc) => gc.courseId);
 
+        const newEntityList = group.groupCourses.map((groupCourse) =>
+            StudentCourseModelFactory.create({
+                course: groupCourse.course,
+                student: user,
+                createdAt: new Date(),
+                createdBy,
+            }),
+        );
+
         if (currentStudentCourses.length === 0) {
-            await this.studentCoursesRepository.trxBulkCreate(
-                transaction,
-                studentId,
-                newCourseIdList,
-            );
+            await this.studentCoursesRepository.trxBulkCreate(transaction, newEntityList);
         } else {
             // Compare with new courses
             const oldCourseIdList = currentStudentCourses.map((sc) => sc.courseId);
@@ -151,11 +169,7 @@ export class UsersManagementService implements IUsersManagementService {
 
             // Add courses that are not in current courses
             if (coursesIdListToAdd.length > 0) {
-                await this.studentCoursesRepository.trxBulkCreate(
-                    transaction,
-                    studentId,
-                    coursesIdListToAdd,
-                );
+                await this.studentCoursesRepository.trxBulkCreate(transaction, newEntityList);
             }
         }
     }

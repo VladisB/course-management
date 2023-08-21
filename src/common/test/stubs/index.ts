@@ -29,6 +29,11 @@ import {
     unexistedRoleStub,
 } from "./role.stub";
 import {
+    studentCourseStub,
+    studentCoursesMockList,
+    studentCoursesViewModelMockList,
+} from "./student-courses.stub";
+import {
     adminUserStub,
     e2eInstructorStub,
     instructorUserStub,
@@ -76,4 +81,7 @@ export {
     courseInstructorsVMMockList,
     courseInstructorsListVMStub,
     courseInstructorsListVMMockList,
+    studentCoursesMockList,
+    studentCourseStub,
+    studentCoursesViewModelMockList,
 };
