@@ -13,7 +13,7 @@ import { ILessonsRepository } from "@app/lessons/lessons.repository";
 import { IUsersRepository } from "@app/users/users.repository";
 import { Lesson } from "@app/lessons/entities/lesson.entity";
 import { IFilesService } from "@app/files/files.service.interface";
-import { BaseErrorMessage, FileMimeType, S3BucketPath } from "@common/enum";
+import { BaseErrorMessage, FileMimeType, RoleName, S3BucketPath } from "@common/enum";
 import { ConfigService } from "@nestjs/config";
 import { HomeworkModelFactory } from "./model-factories/homework.factory";
 import { Homework } from "./entities/homework.entity";
@@ -25,12 +25,12 @@ import { SignedHomeworkURL } from "./interfaces/signed-homework-url.interface";
 @Injectable()
 export class HomeworksService implements IHomeworksService {
     constructor(
+        private readonly configService: ConfigService,
+        private readonly filesService: IFilesService,
         private readonly homeworkViewModelFactory: HomeworkViewModelFactory,
         private readonly homeworksRepository: IHomeworksRepository,
         private readonly lessonsRepository: ILessonsRepository,
         private readonly usersRepository: IUsersRepository,
-        private readonly filesService: IFilesService,
-        private readonly configService: ConfigService,
     ) {}
     //#region Public Methods
     public async getAllHomeworks(
@@ -93,7 +93,7 @@ export class HomeworksService implements IHomeworksService {
     }
 
     public async deleteHomework(id: number, user: User): Promise<void> {
-        const homework = await this.validateDelete(id, user.id);
+        const homework = await this.validateDelete(id, user);
 
         await this.deleteHomeworkFile(homework.filePath);
 
@@ -295,9 +295,9 @@ export class HomeworksService implements IHomeworksService {
         return homework;
     }
 
-    private async validateDelete(id: number, userId: number): Promise<Homework> {
+    private async validateDelete(id: number, user: User): Promise<Homework> {
         const homework = await this.checkIfNotExists(id);
-        await this.checkOwner(homework, userId);
+        await this.checkOwner(homework, user);
 
         return homework;
     }
@@ -320,10 +320,12 @@ export class HomeworksService implements IHomeworksService {
         return homework;
     }
 
-    private async checkOwner(homework: Homework, userId: number): Promise<void> {
-        if (homework.createdBy.id !== userId) {
-            throw new ConflictException("You are not the owner of this homework");
+    private async checkOwner(homework: Homework, user: User): Promise<void> {
+        if (homework.createdBy.id == user.id || user.role.name === RoleName.Admin) {
+            return;
         }
+
+        throw new BadRequestException("You are not the owner of this homework");
     }
 
     private async checkIfLessonExists(id: number): Promise<Lesson> {
