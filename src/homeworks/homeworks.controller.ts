@@ -55,7 +55,7 @@ export class HomeworksController {
 
     @Get("/my")
     @Roles(RoleName.Student)
-    findMy(@GetUser() user: User, @Query() queryParams: QueryParamsDTO) {
+    findMy(@Query() queryParams: QueryParamsDTO, @GetUser() user: User) {
         return this.homeworksService.getAllStudentHomeworks(queryParams, user);
     }
 
