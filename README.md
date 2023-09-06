@@ -64,14 +64,14 @@ nvm list available
 ```
 
 Install a specific version of Node.js.
-**Note**: `Current node version of the project is 18.16.0 (LTS)`
+**Note**: `Current node version of the project is 18.17.1 (LTS)`
 ```
-nvm install 18.16.0
+nvm install 18.17.1
 ```
 
 Set the Node.js version you just downloaded.
 ```
-nvm use 18.16.0
+nvm use 18.17.1
 ```
 
 List node versions available on your local machine and validate the default you are currently using.
