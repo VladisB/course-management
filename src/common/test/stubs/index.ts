@@ -30,14 +30,18 @@ import {
 } from "./role.stub";
 import {
     studentCourseStub,
+    studentCourseViewModelList,
     studentCoursesMockList,
     studentCoursesViewModelMockList,
+    studentUserStub3,
 } from "./student-courses.stub";
 import {
     adminUserStub,
     e2eInstructorStub,
     instructorUserStub,
+    studentMockList,
     studentUserStub,
+    studentVMMockList,
     unexistedUserStub,
 } from "./user.stub";
 
@@ -84,4 +88,8 @@ export {
     studentCoursesMockList,
     studentCourseStub,
     studentCoursesViewModelMockList,
+    studentMockList,
+    studentVMMockList,
+    studentUserStub3,
+    studentCourseViewModelList,
 };

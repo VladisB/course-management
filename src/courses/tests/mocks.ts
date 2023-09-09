@@ -18,6 +18,7 @@ const mockCoursesRepository = () => ({
     getById: jest.fn().mockResolvedValue(null),
     deleteById: jest.fn().mockResolvedValue(null),
     isAssignedToGroup: jest.fn().mockResolvedValue(null),
+    getAllByStudentId: jest.fn().mockResolvedValue(null),
     manager: {
         connection: {
             createQueryRunner: jest.fn(),
