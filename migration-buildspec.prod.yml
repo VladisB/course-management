@@ -79,6 +79,7 @@ phases:
       - echo AWS_APP_BUCKET_NAME=$AWS_APP_BUCKET_NAME >> .prod.env
 
       - echo Running migrations...
+      - docker run --env-file .prod.env $REPO_URI:$IMAGE_TAG_PROD -c "PGPASSWORD=$PG_PASSWORD psql -h $PG_HOST -p $PG_PORT -U postgres -tc \"SELECT 1 FROM pg_database WHERE datname = '$PG_DATABASE'\" | grep -q 1 || PGPASSWORD=$PG_PASSWORD psql -h $PG_HOST -p $PG_PORT -U postgres -c \"CREATE DATABASE \\\"$PG_DATABASE\\\";\""
       - docker run --env-file .prod.env $REPO_URI:$IMAGE_TAG_PROD /bin/sh -c "npm run migration:run"
       - echo Migrations completed.
 
