@@ -65,7 +65,7 @@ phases:
       - docker push $REPO_URI:$IMAGE_TAG_TESTING
 
       - echo write definitions file...
-      - printf '[{"name":"course-mangement-api","imageUri":"%s"}]' $REPO_URI:$IMAGE_TAG_PROD > imagedefinitions.json
+      - printf '[{"name":"course-management-api","imageUri":"%s"}]' $REPO_URI:$IMAGE_TAG_PROD > imagedefinitions.json
 
 artifacts:
   files: imagedefinitions.json
