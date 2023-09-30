@@ -19,6 +19,7 @@ import { StudentsModule } from "./students/students.module";
 import { LessonGradesModule } from "./lesson-grades/lesson-grades.module";
 import { HomeWorksModule } from "./homeworks/homeworks.module";
 import { FilesModule } from "./files/files.module";
+import { HealthController } from './health/health.controller';
 
 @Module({
     imports: [
@@ -43,7 +44,7 @@ import { FilesModule } from "./files/files.module";
         HomeWorksModule,
         FilesModule,
     ],
-    controllers: [],
+    controllers: [HealthController],
     providers: [TypeOrmConfigService],
 })
 export class AppModule {}
