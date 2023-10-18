@@ -72,6 +72,7 @@ const mockUsersRepository = () => ({
     }),
     delete: jest.fn().mockResolvedValue(null),
     save: jest.fn().mockResolvedValue(null),
+    find: jest.fn().mockResolvedValue([]),
     findOne: jest.fn().mockResolvedValue(null),
     getByIdList: jest.fn().mockResolvedValue(null),
     createQueryBuilder: jest.fn(),

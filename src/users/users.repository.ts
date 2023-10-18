@@ -91,9 +91,15 @@ export class UsersRepository extends BaseRepository implements IUsersRepository 
     }
 
     public async update(entity: User): Promise<User> {
-        const { id: entityId } = await this.entityRepository.save(entity);
+        try {
+            const { id: entityId } = await this.entityRepository.save(entity);
 
-        return await this.getById(entityId);
+            return await this.getById(entityId);
+        } catch (err) {
+            console.error("Error: ", err);
+
+            throw new Error(BaseErrorMessage.DB_ERROR);
+        }
     }
 
     public async trxUpdate(queryRunner: QueryRunner, entity: User): Promise<User> {
@@ -115,8 +121,14 @@ export class UsersRepository extends BaseRepository implements IUsersRepository 
     }
 
     public async updateRefreshToken(id: number, refreshToken: string | null): Promise<void> {
-        // NOTE: update() does not trigger the @beforeUpdate() hook
-        await this.entityRepository.update({ id }, { refreshToken });
+        // // NOTE: update() does not trigger the @beforeUpdate() hook
+        try {
+            await this.entityRepository.update({ id }, { refreshToken });
+        } catch (err) {
+            console.error("Error: ", err);
+
+            throw new Error(BaseErrorMessage.DB_ERROR);
+        }
     }
 }
 
