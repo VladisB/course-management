@@ -23,7 +23,6 @@ import { Roles } from "@app/roles/roles-auth.decorator";
 import { Strategies } from "@app/auth/strategies.enum";
 import { UpdateUserDto } from "@app/users/dto/update-user.dto";
 import { CreateUserDto } from "@app/users/dto/create-user.dto";
-import { IUsersViewModelFactory } from "@app/users/model-factories";
 import { GetUser } from "@app/auth/get-user.decorator";
 import { User } from "@app/users/entities/user.entity";
 
@@ -31,17 +30,12 @@ import { User } from "@app/users/entities/user.entity";
 @Roles(RoleName.Admin)
 @UseGuards(AuthGuard(Strategies.JWT), RolesGuard)
 export class UsersController {
-    constructor(
-        private usersManagementService: IUsersManagementService,
-        private usersViewModelFactory: IUsersViewModelFactory,
-    ) {}
+    constructor (private usersManagementService: IUsersManagementService) { }
 
     @Post()
     @UsePipes(new ValidationPipe({ transform: true }))
     async create(@Body() userDto: CreateUserDto, @GetUser() user: User): Promise<UserViewModel> {
-        const model = await this.usersManagementService.createUser(userDto, user);
-
-        return this.usersViewModelFactory.initUserViewModel(model);
+        return this.usersManagementService.createUser(userDto, user);
     }
 
     @Get()

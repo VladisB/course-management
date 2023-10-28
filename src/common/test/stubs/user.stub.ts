@@ -3,6 +3,7 @@ import { adminRoleStub, instructorRoleStub, studentRoleStub, unexistedRoleStub }
 import { getRandomNumber } from "../utils";
 import { E2ETestData } from "@app/common/enum";
 import { StudentListViewModel } from "@app/students/view-models";
+import { UserViewModel } from "@app/users/view-models";
 
 const adminUserStub: User = new User();
 adminUserStub.id = 1;
@@ -46,6 +47,14 @@ studentVMStub2.group = null;
 
 const studentVMMockList: StudentListViewModel[] = [studentVMStub, studentVMStub2];
 
+const studentUserVMStub = new UserViewModel();
+studentUserVMStub.id = studentUserStub.id;
+studentUserVMStub.email = studentUserStub.email;
+studentUserVMStub.firstName = studentUserStub.firstName;
+studentUserVMStub.lastName = studentUserStub.lastName;
+studentUserVMStub.role = studentUserStub.role.name;
+studentUserVMStub.group = "group name";
+
 const instructorUserStub: User = new User();
 instructorUserStub.id = 3;
 instructorUserStub.email = "instructor@unexisted.com";
@@ -53,6 +62,14 @@ instructorUserStub.firstName = "John Instructor";
 instructorUserStub.lastName = "Doe";
 instructorUserStub.role = instructorRoleStub;
 instructorUserStub.group = null;
+
+const instructorUserVMStub = new UserViewModel();
+instructorUserVMStub.id = instructorUserStub.id;
+instructorUserVMStub.email = instructorUserStub.email;
+instructorUserVMStub.firstName = instructorUserStub.firstName;
+instructorUserVMStub.lastName = instructorUserStub.lastName;
+instructorUserVMStub.role = instructorUserStub.role.name;
+instructorUserVMStub.group = null;
 
 const unexistedUserStub: User = new User();
 unexistedUserStub.id = 3;
@@ -69,6 +86,9 @@ const e2eInstructorStub: Partial<User> = {
     lastName: "Deer",
 };
 
+const userMockList: User[] = [adminUserStub, studentUserStub, instructorUserStub];
+const userVMMList: UserViewModel[] = [studentUserVMStub, instructorUserVMStub];
+
 export {
     adminUserStub,
     studentUserStub,
@@ -77,4 +97,8 @@ export {
     e2eInstructorStub,
     studentMockList,
     studentVMMockList,
+    studentUserVMStub,
+    instructorUserVMStub,
+    userMockList,
+    userVMMList,
 };

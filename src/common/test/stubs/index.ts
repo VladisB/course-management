@@ -39,10 +39,14 @@ import {
     adminUserStub,
     e2eInstructorStub,
     instructorUserStub,
+    instructorUserVMStub,
     studentMockList,
     studentUserStub,
+    studentUserVMStub,
     studentVMMockList,
     unexistedUserStub,
+    userMockList,
+    userVMMList,
 } from "./user.stub";
 
 export {
@@ -92,4 +96,8 @@ export {
     studentVMMockList,
     studentUserStub3,
     studentCourseViewModelList,
+    studentUserVMStub,
+    instructorUserVMStub,
+    userMockList,
+    userVMMList,
 };

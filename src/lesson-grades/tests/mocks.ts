@@ -67,6 +67,7 @@ const mockUsersRepository = () => ({
     getAllQ: jest.fn().mockReturnValue(null),
     getById: jest.fn().mockResolvedValue(null),
     getStudentById: jest.fn().mockResolvedValue(null),
+    getByEmail: jest.fn().mockResolvedValue(null),
     update: jest.fn().mockImplementation((entity: User) => {
         return Promise.resolve(entity);
     }),
@@ -76,12 +77,17 @@ const mockUsersRepository = () => ({
     findOne: jest.fn().mockResolvedValue(null),
     getByIdList: jest.fn().mockResolvedValue(null),
     createQueryBuilder: jest.fn(),
+    trxUpdate: jest.fn(),
+    trxCreate: jest.fn(),
     getAllStudentsQ: jest.fn(),
     manager: {
         connection: {
             createQueryRunner: jest.fn(),
         },
     },
+    initTrx: jest.fn(),
+    rollbackTrx: jest.fn(),
+    commitTrx: jest.fn(),
 });
 
 const mockStudentCoursesRepository = () => ({
@@ -104,6 +110,8 @@ const mockStudentCoursesRepository = () => ({
     trxGetByCourseAndStudent: jest.fn().mockResolvedValue(null),
     createQueryBuilder: jest.fn(),
     trxUpdate: jest.fn(),
+    trxBulkCreate: jest.fn(),
+    trxBulkDelete: jest.fn(),
     manager: {
         connection: {
             createQueryRunner: jest.fn(),

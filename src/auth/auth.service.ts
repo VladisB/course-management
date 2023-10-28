@@ -41,7 +41,7 @@ export class AuthService implements IAuthService {
     public async signUp(dto: CreateUserDto): Promise<AuthViewModel> {
         await this.validateCreate(dto);
 
-        const user = await this.usersManagementService.createUser(dto);
+        const user = await this.usersManagementService.signUpUser(dto);
         const jwtModel = this.jwtModelFactory.initJwtModel(user);
 
         return this.generateTokens(jwtModel);

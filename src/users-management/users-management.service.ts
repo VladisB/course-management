@@ -35,13 +35,12 @@ export class UsersManagementService implements IUsersManagementService {
 
     //#region Public methods
 
-    public async createUser(dto: CreateUserDto, user: User): Promise<User> {
+    public async signUpUser(dto: CreateUserDto, user: User): Promise<User> {
         const [group, role] = await this.validateCreate(dto);
 
         const transaction = await this.usersRepository.initTrx();
 
         try {
-            //TODO: add transaction
             const newEntity = UserModelFactory.create({
                 email: dto.email,
                 password: dto.password,
@@ -53,7 +52,7 @@ export class UsersManagementService implements IUsersManagementService {
                 createdAt: new Date(),
             });
 
-            const newUser = await this.usersRepository.create(newEntity);
+            const newUser = await this.usersRepository.trxCreate(transaction, newEntity);
 
             if (group && role.name === RoleName.Student) {
                 await this.trxAddStudentCourses(transaction, newUser, group, user);
@@ -66,6 +65,18 @@ export class UsersManagementService implements IUsersManagementService {
             console.error(err);
 
             await this.usersRepository.rollbackTrx(transaction);
+
+            throw err;
+        }
+    }
+
+    public async createUser(dto: CreateUserDto, user: User): Promise<UserViewModel> {
+        try {
+            const newUser = await this.signUpUser(dto, user);
+
+            return this.usersViewModelFactory.initUserViewModel(newUser);
+        } catch (err) {
+            console.error(err);
 
             throw err;
         }
@@ -321,8 +332,8 @@ export class UsersManagementService implements IUsersManagementService {
 }
 
 export abstract class IUsersManagementService {
-    // TODO: Add migration to add createdBy
-    abstract createUser(dto: CreateUserDto, user?: User): Promise<User>;
+    abstract createUser(dto: CreateUserDto, user?: User): Promise<UserViewModel>;
+    abstract signUpUser(dto: CreateUserDto, user?: User): Promise<User>;
     abstract deleteUser(id: number): Promise<void>;
     abstract getAllUsers(queryParams: QueryParamsDTO): Promise<DataListResponse<UserViewModel>>;
     abstract getUser(id: number): Promise<UserViewModel>;
