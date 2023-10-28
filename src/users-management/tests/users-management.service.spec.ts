@@ -92,8 +92,28 @@ describe("UsersManagementService", () => {
         usersViewModelFactory = module.get<IUsersViewModelFactory>(IUsersViewModelFactory);
     });
 
-    it("should be defined", () => {
+    it("should be defined usersManagementService", () => {
         expect(usersManagementService).toBeDefined();
+    });
+
+    it("should be defined rolesRepository", () => {
+        expect(rolesRepository).toBeDefined();
+    });
+
+    it("should be defined studentCoursesRepository", () => {
+        expect(studentCoursesRepository).toBeDefined();
+    });
+
+    it("should be defined usersRepository", () => {
+        expect(usersRepository).toBeDefined();
+    });
+
+    it("should be defined groupsRepository", () => {
+        expect(groupsRepository).toBeDefined();
+    });
+
+    it("should be defined usersViewModelFactory", () => {
+        expect(usersViewModelFactory).toBeDefined();
     });
 
     describe("createUser", () => {
