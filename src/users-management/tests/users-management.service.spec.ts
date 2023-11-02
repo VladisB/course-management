@@ -7,7 +7,6 @@ import { NotFoundException, ConflictException } from "@nestjs/common";
 import { IStudentCoursesRepository } from "@app/student-courses/student-courses.repository";
 import { IUsersViewModelFactory } from "@app/users/model-factories";
 import { SelectQueryBuilder } from "typeorm";
-import { StudentCoursesViewModel } from "@app/student-courses/view-models";
 import { mockStudentCoursesRepository, mockUsersRepository } from "@app/lesson-grades/tests/mocks";
 import { User } from "@app/users/entities/user.entity";
 import { UsersManagementService } from "../users-management.service";
@@ -32,16 +31,10 @@ import { UserViewModel } from "@app/users/view-models";
 import { ApplyToQueryExtension } from "@app/common/query-extention";
 import { UpdateUserDto } from "@app/users/dto/update-user.dto";
 
-// Mock the repositories and other dependencies here
-// jest.mock("@app/users/users.repository");
-// jest.mock("@app/groups/groups.repository");
-// jest.mock("@app/roles/roles.repository");
-
 const queryBuilderMock = mockQueryBuilder<UserViewModel>(userMockList);
 
 describe("UsersManagementService", () => {
     let usersManagementService: UsersManagementService;
-    // let usersRepo: jest.Mocked<IUsersRepository>;
 
     let rolesRepository: IRolesRepository;
     let studentCoursesRepository: IStudentCoursesRepository;
@@ -49,7 +42,6 @@ describe("UsersManagementService", () => {
     let groupsRepository: IGroupsRepository;
     let usersViewModelFactory: IUsersViewModelFactory;
 
-    let queryBuilder: Partial<SelectQueryBuilder<StudentCoursesViewModel>>;
     let user: User;
 
     beforeEach(async () => {

@@ -61,17 +61,17 @@ describe("LessonsService", () => {
         jest.clearAllMocks();
     });
 
-    // it("LessonsService should be defined", () => {
-    //     expect(lessonsService).toBeDefined();
-    // });
+    it("LessonsService should be defined", () => {
+        expect(lessonsService).toBeDefined();
+    });
 
-    // it("lessonsRepository should be defined", () => {
-    //     expect(lessonsRepository).toBeDefined();
-    // });
+    it("lessonsRepository should be defined", () => {
+        expect(lessonsRepository).toBeDefined();
+    });
 
-    // it("lessonViewModelFactory should be defined", () => {
-    //     expect(lessonViewModelFactory).toBeDefined();
-    // });
+    it("lessonViewModelFactory should be defined", () => {
+        expect(lessonViewModelFactory).toBeDefined();
+    });
 
     describe("create a lesson", () => {
         it("should save the new lesson", async () => {

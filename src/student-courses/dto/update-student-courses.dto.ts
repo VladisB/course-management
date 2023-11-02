@@ -1,8 +1,6 @@
 import { IsNotEmpty, IsNumber, IsString, MinLength, MaxLength, IsOptional } from "class-validator";
 
 export class PATCHUpdateStudentCoursesDto {
-    // NOTE: studentId and courseId are not allowed to be changed.
-
     @IsOptional()
     @IsNotEmpty()
     @IsNumber()
