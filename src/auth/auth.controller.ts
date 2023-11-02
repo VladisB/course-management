@@ -39,7 +39,7 @@ export class AuthController {
     @Post("/signup")
     @UsePipes(new ValidationPipe({ transform: true }))
     @HttpCode(201)
-    async registration(
+    async signUp(
         @Res({ passthrough: true }) res: Response,
         @Body() userDto: CreateUserDto,
     ): Promise<AuthViewModel> {

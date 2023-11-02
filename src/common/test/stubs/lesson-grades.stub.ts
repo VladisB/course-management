@@ -21,7 +21,6 @@ studentLGStub.group = null;
 
 const studentCoursesLGStub = new StudentCourses();
 studentCoursesLGStub.id = 1;
-// studentCoursesLGStub.student = studentLGStub;
 studentCoursesLGStub.studentId = studentLGStub.id;
 studentCoursesLGStub.courseId = courseStub.id;
 studentCoursesLGStub.course = courseStub;
@@ -42,7 +41,6 @@ lessonGradeVMStub.studentLastName = studentLGStub.lastName;
 lessonGradeVMStub.grade = 5;
 lessonGradeVMStub.createdBy = studentLGStub.email;
 lessonGradeVMStub.modifiedBy = studentLGStub.email;
-// lessonGradeVMStub.createdAt = new Date();
 
 const lessonGradeVMMockList: LessonGradeViewModel[] = [lessonGradeVMStub];
 

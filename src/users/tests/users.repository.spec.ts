@@ -52,6 +52,46 @@ describe("UsersRepository", () => {
         });
     });
 
+    describe("trxCreate", () => {
+        it("should call trxCreate on the repository with the correct parameters", async () => {
+            const trx: QueryRunner = {
+                manager: {
+                    save: jest.fn().mockResolvedValue(studentUserStub),
+                    findOne: jest.fn().mockResolvedValue(studentUserStub),
+                },
+            } as any;
+
+            jest.spyOn(entityRepository, "save").mockResolvedValue(studentUserStub);
+
+            await usersRepository.trxCreate(trx, studentUserStub);
+
+            expect(trx.manager.save).toHaveBeenCalledWith(studentUserStub);
+            expect(trx.manager.save).toHaveBeenCalledTimes(1);
+            expect(trx.manager.findOne).toHaveBeenCalledTimes(1);
+        });
+
+        it("should throw an err on the repository", async () => {
+            const trx: QueryRunner = {
+                manager: {
+                    save: jest.fn().mockImplementation(async () => {
+                        throw new Error(BaseErrorMessage.DB_ERROR);
+                    }),
+                },
+            } as any;
+
+            jest.spyOn(console, "error").mockImplementation((err) => err);
+
+            try {
+                await usersRepository.trxCreate(trx, studentUserStub);
+
+                expect(trx.manager.save).toHaveBeenCalledTimes(1);
+            } catch (err) {
+                expect(console.error).toHaveBeenCalledTimes(1);
+                expect(err.message).toEqual(BaseErrorMessage.DB_ERROR);
+            }
+        });
+    });
+
     describe("deleteById", () => {
         it("should call delete on the repository with the correct parameters", async () => {
             jest.spyOn(entityRepository, "delete").mockResolvedValue(null);

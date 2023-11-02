@@ -80,6 +80,7 @@ const mockUsersRepository = () => ({
     trxUpdate: jest.fn(),
     trxCreate: jest.fn(),
     getAllStudentsQ: jest.fn(),
+    updateRefreshToken: jest.fn(),
     manager: {
         connection: {
             createQueryRunner: jest.fn(),

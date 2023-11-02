@@ -14,6 +14,7 @@ import { User } from "../users/entities/user.entity";
 import { ConfigService } from "@nestjs/config";
 import { IUsersRepository } from "@app/users/users.repository";
 import { IUsersManagementService } from "@app/users-management/users-management.service";
+import { BaseErrorMessage } from "@app/common/enum";
 
 @Injectable()
 export class AuthService implements IAuthService {
@@ -21,8 +22,8 @@ export class AuthService implements IAuthService {
         private jwtModelFactory: JwtModelFactory,
         private jwtService: JwtService,
         private readonly configService: ConfigService,
-        private usersRepository: IUsersRepository,
         private usersManagementService: IUsersManagementService,
+        private usersRepository: IUsersRepository,
     ) {}
 
     //#region Public methods
@@ -68,7 +69,7 @@ export class AuthService implements IAuthService {
         return user;
     }
 
-    public async generateTokens(payload: JwtModel): Promise<AuthViewModel> {
+    private async generateTokens(payload: JwtModel): Promise<AuthViewModel> {
         const [accessToken, refreshToken] = await Promise.all([
             this.jwtService.signAsync(payload, {
                 secret: this.configService.get<string>("app.jwt"),
@@ -100,12 +101,14 @@ export class AuthService implements IAuthService {
             const user = await this.usersRepository.getById(tokenUser.id);
 
             if (!user) {
-                throw new NotFoundException();
+                throw new NotFoundException(BaseErrorMessage.NOT_FOUND);
             }
 
             await this.removeTokenHash(user.email);
-        } catch {
-            throw new UnauthorizedException({ message: "Unauthorized user!" });
+        } catch (err) {
+            console.error(err);
+
+            throw err;
         }
     }
 
@@ -166,7 +169,6 @@ export class AuthService implements IAuthService {
 }
 
 interface IAuthService {
-    generateTokens(payload: JwtModel): Promise<AuthViewModel>;
     login(dto: AuthCredentialsDto): Promise<AuthViewModel>;
     logout(tokenUser: User): Promise<void>;
     refreshToken(user: User): Promise<AuthViewModel>;
