@@ -1,3 +1,3 @@
-import { AuthCredentialsDto } from "./auth-credentials.dto";
+import { AuthSignUpDto } from "./auth-signup.dto";
 
-export { AuthCredentialsDto };
+export { AuthSignUpDto };

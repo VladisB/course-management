@@ -222,7 +222,7 @@ describe("UsersManagementService", () => {
                 studentUserVMStub,
             );
 
-            const result = await usersManagementService.signUpUser(dto, user);
+            const result = await usersManagementService.signUpStudent(dto, user);
 
             expect(result.id).toEqual(expect.any(Number));
             expect(result.email).toEqual(expect.any(String));
@@ -242,7 +242,7 @@ describe("UsersManagementService", () => {
 
             jest.spyOn(usersRepository, "getByEmail").mockResolvedValue(studentUserStub);
 
-            await expect(usersManagementService.signUpUser(dto, user)).rejects.toThrowError(
+            await expect(usersManagementService.signUpStudent(dto, user)).rejects.toThrowError(
                 new ConflictException(`Email is already taken`),
             );
         });

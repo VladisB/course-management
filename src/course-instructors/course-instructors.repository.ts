@@ -64,17 +64,17 @@ export class CourseInstructorsRepository
         return await this.getById(id);
     }
 
-    public async bulkCreate(enteties: CourseInstructors[]): Promise<CourseInstructors[]> {
-        const entityList = await this.entityRepository.save(enteties);
+    public async bulkCreate(entities: CourseInstructors[]): Promise<CourseInstructors[]> {
+        const entityList = await this.entityRepository.save(entities);
 
         return await this.getByIdList(entityList.map((entity) => entity.id));
     }
 
     public async trxBulkCreate(
         queryRunner: QueryRunner,
-        enteties: CourseInstructors[],
+        entities: CourseInstructors[],
     ): Promise<CourseInstructors[]> {
-        return await queryRunner.manager.save(enteties);
+        return await queryRunner.manager.save(entities);
     }
 
     public async getById(id: number): Promise<CourseInstructors> {
@@ -130,7 +130,7 @@ export class CourseInstructorsRepository
 }
 
 export abstract class ICourseInstructorsRepository extends IBaseRepository {
-    abstract bulkCreate(enteties: CourseInstructors[]): Promise<CourseInstructors[]>;
+    abstract bulkCreate(entities: CourseInstructors[]): Promise<CourseInstructors[]>;
     abstract create(entity: CourseInstructors): Promise<CourseInstructors>;
     abstract deleteById(id: number): Promise<void>;
     abstract getAllQ(): SelectQueryBuilder<CourseInstructors>;
@@ -143,7 +143,7 @@ export abstract class ICourseInstructorsRepository extends IBaseRepository {
     abstract getByIdWithFullDetails(id: number): Promise<CourseInstructors>;
     abstract trxBulkCreate(
         queryRunner: QueryRunner,
-        enteties: CourseInstructors[],
+        entities: CourseInstructors[],
     ): Promise<CourseInstructors[]>;
     abstract trxDeleteByIdList(queryRunner: QueryRunner, idList: number[]): Promise<void>;
     abstract trxGetAllByCourseId(

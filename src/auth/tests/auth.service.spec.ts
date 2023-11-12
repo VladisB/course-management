@@ -1,6 +1,5 @@
 import { Test, TestingModule } from "@nestjs/testing";
 import { IUsersRepository } from "@app/users/users.repository";
-import { CreateUserDto } from "@app/users/dto/create-user.dto";
 import { NotFoundException, ConflictException, UnauthorizedException } from "@nestjs/common";
 import { mockUsersRepository } from "@app/lesson-grades/tests/mocks";
 import { studentRoleStub, studentUserStub } from "@app/common/test/stubs";
@@ -10,9 +9,10 @@ import { ConfigService } from "@nestjs/config";
 import { AuthService } from "../auth.service";
 import { JwtModelFactory } from "../model-factories";
 import { IUsersManagementService } from "@app/users-management/users-management.service";
-import { AuthCredentialsDto } from "../dto";
+import { AuthSignUpDto } from "../dto";
 import { JwtModel } from "../models";
 import * as bcrypt from "bcryptjs";
+import { AuthLoginDto } from "../dto/auth-login.dto";
 
 jest.mock("bcryptjs");
 
@@ -33,7 +33,7 @@ describe("AuthService", () => {
                     provide: IUsersManagementService,
                     useValue: {
                         createUser: jest.fn(),
-                        signUpUser: jest.fn(),
+                        signUpStudent: jest.fn(),
                         deleteUser: jest.fn(),
                         getAllUsers: jest.fn(),
                         updateUser: jest.fn(),
@@ -102,7 +102,7 @@ describe("AuthService", () => {
 
     describe("login", () => {
         it("should return a JWT token if the email and password are correct", async () => {
-            const dto: AuthCredentialsDto = {
+            const dto: AuthLoginDto = {
                 email: studentUserStub.email,
                 password: studentUserStub.password,
             };
@@ -119,7 +119,7 @@ describe("AuthService", () => {
         });
 
         it("should throw an error if the email is incorrect", async () => {
-            const dto: AuthCredentialsDto = {
+            const dto: AuthLoginDto = {
                 email: studentUserStub.email,
                 password: studentUserStub.password,
             };
@@ -132,7 +132,7 @@ describe("AuthService", () => {
         });
 
         it("should throw an error if the password is incorrect", async () => {
-            const dto: AuthCredentialsDto = {
+            const dto: AuthLoginDto = {
                 email: studentUserStub.email,
                 password: studentUserStub.password,
             };
@@ -191,7 +191,7 @@ describe("AuthService", () => {
 
     describe("signUp", () => {
         it("should successfully create a user", async () => {
-            const dto: CreateUserDto = {
+            const dto: AuthSignUpDto = {
                 email: "test@gmail.com",
                 firstName: "Test first name",
                 lastName: "Test last name",
@@ -199,6 +199,7 @@ describe("AuthService", () => {
             };
 
             jest.spyOn(usersRepository, "getByEmail").mockResolvedValue(null);
+            jest.spyOn(usersManagementService, "signUpStudent").mockResolvedValue(studentUserStub);
             jest.spyOn(usersRepository, "create").mockResolvedValue(studentUserStub);
             jest.spyOn(jwtService, "signAsync").mockResolvedValue("jwt-token");
 
@@ -209,7 +210,7 @@ describe("AuthService", () => {
         });
 
         it("should throw a ConflictException when user already exists", async () => {
-            const dto: CreateUserDto = {
+            const dto: AuthSignUpDto = {
                 email: "test@gmail.com",
                 firstName: "Test first name",
                 lastName: "Test last name",
@@ -217,7 +218,7 @@ describe("AuthService", () => {
             };
 
             jest.spyOn(usersRepository, "getByEmail").mockResolvedValue(studentUserStub);
-            jest.spyOn(usersManagementService, "signUpUser").mockResolvedValue(studentUserStub);
+            jest.spyOn(usersManagementService, "signUpStudent").mockResolvedValue(studentUserStub);
 
             await expect(authService.signUp(dto)).rejects.toThrow(
                 new ConflictException("User already exists"),

@@ -3,6 +3,7 @@ import {
     Controller,
     Delete,
     Get,
+    HttpCode,
     Param,
     ParseIntPipe,
     Patch,
@@ -33,23 +34,27 @@ export class UsersController {
     constructor (private usersManagementService: IUsersManagementService) { }
 
     @Post()
+    @HttpCode(201)
     @UsePipes(new ValidationPipe({ transform: true }))
     async create(@Body() userDto: CreateUserDto, @GetUser() user: User): Promise<UserViewModel> {
         return this.usersManagementService.createUser(userDto, user);
     }
 
     @Get()
+    @HttpCode(200)
     @UsePipes(new ValidationPipe({ transform: true }))
     findAll(@Query() queryParams: QueryParamsDTO): Promise<DataListResponse<UserViewModel>> {
         return this.usersManagementService.getAllUsers(queryParams);
     }
 
     @Get(":id")
+    @HttpCode(200)
     findOne(@Param("id", ParseIntPipe) id: number): Promise<UserViewModel> {
         return this.usersManagementService.getUser(id);
     }
 
     @Patch(":id")
+    @HttpCode(200)
     update(
         @Param("id", ParseIntPipe) id: number,
         @Body() updateUserDto: UpdateUserDto,
@@ -60,6 +65,7 @@ export class UsersController {
 
     // TODO: Update validation rules. Check if user has related entities.
     @Delete(":id")
+    @HttpCode(204)
     remove(@Param("id", ParseIntPipe) id: number): Promise<void> {
         return this.usersManagementService.deleteUser(id);
     }
