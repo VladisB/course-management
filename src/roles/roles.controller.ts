@@ -3,6 +3,7 @@ import {
     Controller,
     Delete,
     Get,
+    HttpCode,
     Param,
     ParseIntPipe,
     Patch,
@@ -34,21 +35,25 @@ export class RolesController {
     constructor(private roleService: RolesService) {}
 
     @Post()
+    @HttpCode(201)
     create(@Body() dto: CreateRoleDto, @GetUser() user: User): Promise<RoleViewModel> {
         return this.roleService.createRole(dto, user);
     }
 
     @Get()
+    @HttpCode(200)
     findAll(@Query() queryParams: QueryParamsDTO): Promise<DataListResponse<RoleViewModel>> {
         return this.roleService.getRoles(queryParams);
     }
 
     @Get(":id")
+    @HttpCode(200)
     findOne(@Param("id", ParseIntPipe) id: number): Promise<RoleViewModel> {
         return this.roleService.getRole(id);
     }
 
     @Patch(":id")
+    @HttpCode(200)
     update(
         @Param("id", ParseIntPipe) id: number,
         @Body() updateRoleDto: UpdateRoleDto,
@@ -58,6 +63,7 @@ export class RolesController {
     }
 
     @Delete(":id")
+    @HttpCode(204)
     remove(@Param("id", ParseIntPipe) id: number): Promise<void> {
         return this.roleService.deleteRole(id);
     }

@@ -3,6 +3,7 @@ import {
     Controller,
     Delete,
     Get,
+    HttpCode,
     Param,
     ParseIntPipe,
     Patch,
@@ -33,12 +34,14 @@ export class GroupsController {
     constructor(private groupsService: GroupsService) {}
 
     @Post()
+    @HttpCode(201)
     @Roles(RoleName.Admin)
     create(@Body() dto: CreateGroupDto, @GetUser() user: User): Promise<GroupViewModel> {
         return this.groupsService.createGroup(dto, user);
     }
 
     @Get()
+    @HttpCode(200)
     @Roles(RoleName.Admin, RoleName.Student, RoleName.Instructor)
     findAll(@Query() queryParams: QueryParamsDTO): Promise<DataListResponse<GroupViewModel>> {
         return this.groupsService.getGroups(queryParams);
@@ -51,6 +54,7 @@ export class GroupsController {
     }
 
     @Patch(":id")
+    @HttpCode(200)
     @Roles(RoleName.Admin)
     update(
         @Param("id", ParseIntPipe) id: number,
@@ -61,8 +65,9 @@ export class GroupsController {
     }
 
     @Delete(":id")
+    @HttpCode(204)
     @Roles(RoleName.Admin)
-    remove(@Param("id") id: number) {
+    remove(@Param("id") id: number): Promise<void> {
         return this.groupsService.deleteGroup(id);
     }
 }

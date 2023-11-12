@@ -12,11 +12,12 @@ import {
     ParseIntPipe,
     UseGuards,
     ForbiddenException,
+    HttpCode,
 } from "@nestjs/common";
 import { LessonsService } from "./lessons.service";
 import { CreateLessonDto } from "./dto/create-lesson.dto";
 import { UpdateLessonDto } from "./dto/update-lesson.dto";
-import { LessonViewModel } from "./view-models";
+import { LessonViewModel, StudentLessonListViewModel } from "./view-models";
 import { DataListResponse } from "@common/db/data-list-response";
 import { QueryParamsDTO } from "@common/dto/query-params.dto";
 import { Strategies } from "@app/auth/strategies.enum";
@@ -34,6 +35,7 @@ export class LessonsController {
     constructor(private readonly lessonsService: LessonsService) {}
 
     @Post()
+    @HttpCode(201)
     @Roles(RoleName.Admin, RoleName.Instructor)
     create(
         @Body() createLessonDto: CreateLessonDto,
@@ -43,6 +45,7 @@ export class LessonsController {
     }
 
     @Get()
+    @HttpCode(200)
     @Roles(RoleName.Admin, RoleName.Instructor, RoleName.Student)
     async findAll(
         @GetUser() user: User,
@@ -58,9 +61,6 @@ export class LessonsController {
             case RoleName.Instructor:
                 result = await this.lessonsService.getInstructorLessons(queryParams, user.id);
                 break;
-            case RoleName.Student:
-                result = await this.lessonsService.getStudentLessons(queryParams, user.id);
-                break;
             default:
                 throw new ForbiddenException();
         }
@@ -68,13 +68,25 @@ export class LessonsController {
         return result;
     }
 
+    @Get("/my")
+    @HttpCode(200)
+    @Roles(RoleName.Student)
+    async findStudentLessons(
+        @GetUser() user: User,
+        @Query() queryParams: QueryParamsDTO,
+    ): Promise<DataListResponse<StudentLessonListViewModel>> {
+        return await this.lessonsService.getStudentLessons(queryParams, user.id);
+    }
+
     @Get(":id")
+    @HttpCode(200)
     @Roles(RoleName.Admin, RoleName.Instructor, RoleName.Student)
     async findOne(@Param("id", ParseIntPipe) id: number): Promise<LessonViewModel> {
         return this.lessonsService.getLesson(id);
     }
 
     @Patch(":id")
+    @HttpCode(200)
     @Roles(RoleName.Admin, RoleName.Instructor)
     update(
         @Param("id", ParseIntPipe) id: number,
@@ -85,8 +97,9 @@ export class LessonsController {
     }
 
     @Delete(":id")
+    @HttpCode(204)
     @Roles(RoleName.Admin, RoleName.Instructor)
-    remove(@Param("id", ParseIntPipe) id: number) {
+    remove(@Param("id", ParseIntPipe) id: number): Promise<void> {
         return this.lessonsService.deleteLesson(id);
     }
 }

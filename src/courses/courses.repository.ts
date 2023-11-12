@@ -3,8 +3,6 @@ import { InjectRepository } from "@nestjs/typeorm";
 import { BaseRepository, IBaseRepository } from "@common/db/base.repository";
 import { BaseErrorMessage } from "@common/enum";
 import { In, QueryRunner, Repository, SelectQueryBuilder } from "typeorm";
-import { CreateCourseDto } from "./dto/create-course.dto";
-import { UpdateCourseDto } from "./dto/update-course.dto";
 import { Course } from "./entities/course.entity";
 
 @Injectable()
@@ -105,7 +103,9 @@ export class CoursesRepository extends BaseRepository implements ICoursesReposit
 
     public async update(entity: Course): Promise<Course> {
         try {
-            return await this.courseEntityRepository.save(entity);
+            const newEntity = await this.courseEntityRepository.save(entity);
+
+            return await this.getById(newEntity.id);
         } catch (err) {
             console.error("Error: ", err);
 

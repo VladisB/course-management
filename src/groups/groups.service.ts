@@ -182,6 +182,7 @@ export class GroupsService implements IGroupsService {
 
         const courses = dto.courseIdList && (await this.checkIfCoursesExists(dto));
         if (courses && courses.length) {
+            this.checkIfCourseAvailable(courses);
             await this.checkIfCoursesHaveInstructors(courses);
             this.checkIfCoursesAvailable(courses);
         }
@@ -211,6 +212,15 @@ export class GroupsService implements IGroupsService {
             throw new BadRequestException(`Course(s) not found.`);
 
         return courses;
+    }
+
+    private checkIfCourseAvailable(courseList: Course[]): void {
+        for (const course of courseList) {
+            if (course.available === false)
+                throw new ConflictException(
+                    `Course ${course.name} is not available. Course should have more than 5 lessons.`,
+                );
+        }
     }
 
     private async checkIfCoursesHaveInstructors(courseList: Course[]): Promise<void> {

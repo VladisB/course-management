@@ -11,6 +11,7 @@ import {
     UseGuards,
     Query,
     ParseIntPipe,
+    HttpCode,
 } from "@nestjs/common";
 import { AuthGuard } from "@nestjs/passport";
 import { CreateLessonGradeDto } from "./dto/create-lesson-grade.dto";
@@ -34,6 +35,7 @@ export class LessonGradesController {
     constructor(private readonly lessonGradesService: LessonGradesService) {}
 
     @Post()
+    @HttpCode(201)
     create(
         @Body() createLessonGradeDto: CreateLessonGradeDto,
         @GetUser() user: User,
@@ -42,26 +44,30 @@ export class LessonGradesController {
     }
 
     @Get()
+    @HttpCode(200)
     findAll(@Query() queryParams: QueryParamsDTO): Promise<DataListResponse<LessonGradeViewModel>> {
         return this.lessonGradesService.getAllGrades(queryParams);
     }
 
     @Get(":id")
+    @HttpCode(200)
     findOne(@Param("id", ParseIntPipe) id: number): Promise<LessonGradeViewModel> {
         return this.lessonGradesService.getGrade(id);
     }
 
     @Patch(":id")
+    @HttpCode(200)
     update(
         @Param("id", ParseIntPipe) id: number,
         @Body() updateLessonGradeDto: UpdateLessonGradeDto,
         @GetUser() user: User,
-    ) {
+    ): Promise<LessonGradeViewModel> {
         return this.lessonGradesService.updateGrade(id, updateLessonGradeDto, user);
     }
 
     @Delete(":id")
-    remove(@Param("id", ParseIntPipe) id: number) {
+    @HttpCode(204)
+    remove(@Param("id", ParseIntPipe) id: number): Promise<void> {
         return this.lessonGradesService.deleteGrade(id);
     }
 }
