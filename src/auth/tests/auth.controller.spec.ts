@@ -4,7 +4,7 @@ import { CreateUserDto } from "@app/users/dto/create-user.dto";
 import { AuthController } from "../auth.controller";
 import { AuthService } from "../auth.service";
 import { AuthViewModel } from "../models";
-import { AuthCredentialsDto } from "../dto";
+import { AuthSignUpDto } from "../dto";
 import { Response } from "express";
 
 describe("AuthController", () => {
@@ -42,7 +42,7 @@ describe("AuthController", () => {
 
     describe("login", () => {
         it("should login a user", async () => {
-            const dto = new AuthCredentialsDto();
+            const dto = new AuthSignUpDto();
             const res = {
                 cookie: jest.fn(),
             } as unknown as Response;

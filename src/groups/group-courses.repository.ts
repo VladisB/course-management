@@ -19,10 +19,6 @@ export class GroupCoursesRepository extends BaseRepository implements IGroupCour
         return await this.getById(id);
     }
 
-    public async bulkCreate(entityList: GroupCourses[]): Promise<GroupCourses[]> {
-        return await this.entityRepository.save(entityList);
-    }
-
     public async trxBulkCreate(
         queryRunner: QueryRunner,
         entityList: GroupCourses[],
@@ -91,7 +87,6 @@ export abstract class IGroupCoursesRepository extends IBaseRepository {
     abstract deleteById(id: number): Promise<void>;
     abstract trxDeleteByGroupId(queryRunner: QueryRunner, groupId: number): Promise<void>;
     abstract create(entity: GroupCourses): Promise<GroupCourses>;
-    abstract bulkCreate(entityList: GroupCourses[]): Promise<GroupCourses[]>;
     abstract trxBulkCreate(
         queryRunner: QueryRunner,
         entityList: GroupCourses[],

@@ -22,6 +22,7 @@ import { UserViewModel } from "@app/users/view-models";
 import { Role } from "@app/roles/entities/role.entity";
 import { UserModelFactory } from "@app/users/model-factories/user.factory";
 import { StudentCourseModelFactory } from "@app/student-courses/model-factories/student-course.factory";
+import { AuthSignUpDto } from "@app/auth/dto";
 
 @Injectable()
 export class UsersManagementService implements IUsersManagementService {
@@ -34,8 +35,38 @@ export class UsersManagementService implements IUsersManagementService {
     ) {}
 
     //#region Public methods
+    public async signUpStudent(dto: AuthSignUpDto, user?: User): Promise<User> {
+        const role = await this.validateSignUpStudent(dto);
 
-    public async signUpUser(dto: CreateUserDto, user: User): Promise<User> {
+        const transaction = await this.usersRepository.initTrx();
+
+        try {
+            const newEntity = UserModelFactory.create({
+                email: dto.email,
+                password: dto.password,
+                firstName: dto.firstName,
+                lastName: dto.lastName,
+                role,
+                group: null,
+                createdBy: user ?? null,
+                createdAt: new Date(),
+            });
+
+            const newUser = await this.usersRepository.trxCreate(transaction, newEntity);
+
+            await this.usersRepository.commitTrx(transaction);
+
+            return newUser;
+        } catch (err) {
+            console.error(err);
+
+            await this.usersRepository.rollbackTrx(transaction);
+
+            throw err;
+        }
+    }
+
+    public async createUser(dto: CreateUserDto, user: User): Promise<UserViewModel> {
         const [group, role] = await this.validateCreate(dto);
 
         const transaction = await this.usersRepository.initTrx();
@@ -60,23 +91,11 @@ export class UsersManagementService implements IUsersManagementService {
 
             await this.usersRepository.commitTrx(transaction);
 
-            return newUser;
+            return this.usersViewModelFactory.initUserViewModel(newUser);
         } catch (err) {
             console.error(err);
 
             await this.usersRepository.rollbackTrx(transaction);
-
-            throw err;
-        }
-    }
-
-    public async createUser(dto: CreateUserDto, user: User): Promise<UserViewModel> {
-        try {
-            const newUser = await this.signUpUser(dto, user);
-
-            return this.usersViewModelFactory.initUserViewModel(newUser);
-        } catch (err) {
-            console.error(err);
 
             throw err;
         }
@@ -166,15 +185,15 @@ export class UsersManagementService implements IUsersManagementService {
                 (id) => !oldCourseIdList.includes(id),
             );
 
-            const entetiesToDelete = currentStudentCourses.filter(
+            const entitiesToDelete = currentStudentCourses.filter(
                 (sc) => !newCourseIdList.includes(sc.courseId),
             );
 
             // Remove courses that are not in new courses
-            if (entetiesToDelete.length > 0) {
+            if (entitiesToDelete.length > 0) {
                 await this.studentCoursesRepository.trxBulkDelete(
                     transaction,
-                    entetiesToDelete.map((sc) => sc.id),
+                    entitiesToDelete.map((sc) => sc.id),
                 );
             }
 
@@ -276,6 +295,15 @@ export class UsersManagementService implements IUsersManagementService {
         return [group, role];
     }
 
+    private async validateSignUpStudent(dto: AuthSignUpDto): Promise<Role> {
+        await this.checkIfUserExistByEmail(dto.email);
+
+        const role = await this.rolesRepository.getByName(RoleName.Student);
+
+
+        return role;
+    }
+
     private async validateUpdate(
         id: number,
         dto: UpdateUserDto,
@@ -332,8 +360,8 @@ export class UsersManagementService implements IUsersManagementService {
 }
 
 export abstract class IUsersManagementService {
-    abstract createUser(dto: CreateUserDto, user?: User): Promise<UserViewModel>;
-    abstract signUpUser(dto: CreateUserDto, user?: User): Promise<User>;
+    abstract createUser(dto: CreateUserDto, user: User): Promise<UserViewModel>;
+    abstract signUpStudent(dto: AuthSignUpDto, user?: User): Promise<User>;
     abstract deleteUser(id: number): Promise<void>;
     abstract getAllUsers(queryParams: QueryParamsDTO): Promise<DataListResponse<UserViewModel>>;
     abstract getUser(id: number): Promise<UserViewModel>;

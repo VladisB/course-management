@@ -172,19 +172,6 @@ describe("GroupCoursesRepository", () => {
         });
     });
 
-    describe("bulkCreate a group courses", () => {
-        it("should call save on the repository with the correct parameters", async () => {
-            // TODO: check types
-            jest.spyOn(entityRepository, "save").mockResolvedValue(groupCoursesMockList as any);
-
-            const result = await groupCoursesRepository.bulkCreate(groupCoursesMockList);
-
-            expect(entityRepository.save).toHaveBeenCalledWith(groupCoursesMockList);
-            expect(entityRepository.save).toHaveBeenCalledTimes(1);
-            expect(result).toEqual(groupCoursesMockList);
-        });
-    });
-
     describe("trxBulkCreate a group courses", () => {
         it("should call save on the repository with the correct parameters", async () => {
             const trx: QueryRunner = {

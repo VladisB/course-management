@@ -7,7 +7,7 @@ import {
 import { CreateUserDto } from "../users/dto/create-user.dto";
 import { JwtService } from "@nestjs/jwt";
 import * as bcrypt from "bcryptjs";
-import { AuthCredentialsDto } from "./dto/auth-credentials.dto";
+import { AuthSignUpDto } from "./dto/auth-signup.dto";
 import { JwtModelFactory } from "./model-factories/jwt.m-factory";
 import { AuthViewModel, JwtModel } from "./models";
 import { User } from "../users/entities/user.entity";
@@ -15,6 +15,7 @@ import { ConfigService } from "@nestjs/config";
 import { IUsersRepository } from "@app/users/users.repository";
 import { IUsersManagementService } from "@app/users-management/users-management.service";
 import { BaseErrorMessage } from "@app/common/enum";
+import { AuthLoginDto } from "./dto/auth-login.dto";
 
 @Injectable()
 export class AuthService implements IAuthService {
@@ -28,7 +29,7 @@ export class AuthService implements IAuthService {
 
     //#region Public methods
 
-    public async login(dto: AuthCredentialsDto): Promise<AuthViewModel> {
+    public async login(dto: AuthLoginDto): Promise<AuthViewModel> {
         const user = await this.validateLogin(dto);
 
         const jwtModel = this.jwtModelFactory.initJwtModel(user);
@@ -39,13 +40,17 @@ export class AuthService implements IAuthService {
         return tokens;
     }
 
-    public async signUp(dto: CreateUserDto): Promise<AuthViewModel> {
+    public async signUp(dto: AuthSignUpDto): Promise<AuthViewModel> {
         await this.validateCreate(dto);
 
-        const user = await this.usersManagementService.signUpUser(dto);
+        const user = await this.usersManagementService.signUpStudent(dto);
         const jwtModel = this.jwtModelFactory.initJwtModel(user);
 
-        return this.generateTokens(jwtModel);
+        const tokens = await this.generateTokens(jwtModel);
+
+        await this.updateRefreshToken(user.id, tokens.refreshToken);
+
+        return tokens;
     }
 
     public async validateJwt(payload: JwtModel): Promise<User> {
@@ -116,25 +121,25 @@ export class AuthService implements IAuthService {
 
     //#region Private methods
 
-    private async validateLogin(dto: AuthCredentialsDto): Promise<User> {
-        const user = await this.checkIsExist(dto);
-        await this.checkIsPasswordEquals(dto, user);
+    private async validateLogin(dto: AuthLoginDto): Promise<User> {
+        const user = await this.checkIsExist(dto.email);
+        await this.checkIsPasswordEquals(dto.password, user);
 
         return user;
     }
 
-    private async validateCreate(dto: AuthCredentialsDto): Promise<void> {
-        await this.checkIfExist(dto);
+    private async validateCreate(dto: AuthSignUpDto): Promise<void> {
+        await this.checkIfExist(dto.email);
     }
 
-    private async checkIfExist(dto: AuthCredentialsDto): Promise<void> {
-        const user = await this.usersRepository.getByEmail(dto.email);
+    private async checkIfExist(email: string): Promise<void> {
+        const user = await this.usersRepository.getByEmail(email);
 
         if (user) throw new ConflictException("User already exists");
     }
 
-    private async checkIsExist(dto: AuthCredentialsDto): Promise<User> {
-        const user = await this.usersRepository.getByEmail(dto.email);
+    private async checkIsExist(email: string): Promise<User> {
+        const user = await this.usersRepository.getByEmail(email);
 
         if (!user) {
             throw new UnauthorizedException({ message: "Wrong credentials!" });
@@ -143,11 +148,7 @@ export class AuthService implements IAuthService {
         return user;
     }
 
-    private async checkIsPasswordEquals(
-        authCredentialsDto: AuthCredentialsDto,
-        user: User,
-    ): Promise<void> {
-        const { password } = authCredentialsDto;
+    private async checkIsPasswordEquals(password: string, user: User): Promise<void> {
         const equals = await user.validatePassword(password);
 
         if (!equals) throw new UnauthorizedException({ message: "Wrong credentials!" });
@@ -169,7 +170,7 @@ export class AuthService implements IAuthService {
 }
 
 interface IAuthService {
-    login(dto: AuthCredentialsDto): Promise<AuthViewModel>;
+    login(dto: AuthSignUpDto): Promise<AuthViewModel>;
     logout(tokenUser: User): Promise<void>;
     refreshToken(user: User): Promise<AuthViewModel>;
     signUp(dto: CreateUserDto): Promise<AuthViewModel>;
