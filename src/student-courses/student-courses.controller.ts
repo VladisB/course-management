@@ -3,6 +3,7 @@ import {
     Controller,
     Delete,
     Get,
+    HttpCode,
     Param,
     ParseIntPipe,
     Patch,
@@ -34,6 +35,7 @@ export class StudentCoursesController {
     constructor(private studentCoursesService: StudentCoursesService) {}
 
     @Post()
+    @HttpCode(201)
     create(
         @Body() dto: CreateStudentCoursesDto,
         @GetUser() user: User,
@@ -42,6 +44,7 @@ export class StudentCoursesController {
     }
 
     @Get()
+    @HttpCode(200)
     findAll(
         @Query() queryParams: QueryParamsDTO,
     ): Promise<DataListResponse<StudentCoursesViewModel>> {
@@ -49,11 +52,13 @@ export class StudentCoursesController {
     }
 
     @Get(":id")
+    @HttpCode(200)
     findOne(@Param("id", ParseIntPipe) id: number): Promise<StudentCoursesViewModel> {
         return this.studentCoursesService.getStudentCourse(id);
     }
 
     @Patch(":id")
+    @HttpCode(200)
     update(
         @Param("id", ParseIntPipe) id: number,
         @Body() dto: PATCHUpdateStudentCoursesDto,
@@ -63,6 +68,7 @@ export class StudentCoursesController {
     }
 
     @Delete(":id")
+    @HttpCode(204)
     remove(@Param("id", ParseIntPipe) id: number): Promise<void> {
         return this.studentCoursesService.deleteStudentCourse(id);
     }

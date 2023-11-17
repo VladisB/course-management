@@ -83,6 +83,9 @@ Type the command `node -v` to check your version of Node.js and `npm -v` to outp
 
 ### 2) Set up Docker on macOS
 
+Of course you can run the application without Docker, but it's highly recommended to use it for development and production environments with the same configuration.
+Currently Docker setup is based on `node:18.17.1` image.
+
 1. **Download Docker Desktop for Mac**: Visit the Docker Hub website and download the Docker Desktop for Mac installer. You'll need to create a Docker Hub account if you don't have one. You can download the installer from [here](https://hub.docker.com/editions/community/docker-ce-desktop-mac/).
 
 2. **Install Docker Desktop**: Open the installer file you downloaded (it should be a `.dmg` file). Drag and drop the Docker app icon to the Applications folder.
@@ -166,4 +169,7 @@ By default app is running on port `3000`, base local address is: `http://localho
 # Cloud infrastructure
 
 <img src="./docs/img/cicd.png" alt="cicd" style="max-width:100%;">
+
+# Future improvements
+- [ ] Add swagger documentation
 

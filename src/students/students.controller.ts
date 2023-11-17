@@ -1,6 +1,7 @@
 import {
     Controller,
     Get,
+    HttpCode,
     Param,
     ParseIntPipe,
     Query,
@@ -30,6 +31,7 @@ export class StudentsController {
     constructor(private readonly studentsService: IStudentsService) {}
 
     @Get()
+    @HttpCode(200)
     @Roles(RoleName.Admin, RoleName.Instructor)
     @UsePipes(new ValidationPipe({ transform: true }))
     findAll(@Query() queryParams: QueryParamsDTO): Promise<DataListResponse<StudentListViewModel>> {
@@ -37,12 +39,14 @@ export class StudentsController {
     }
 
     @Get("/my-courses")
+    @HttpCode(200)
     @Roles(RoleName.Student)
     findStudentCourses(@GetUser() user: User): Promise<StudentCourseViewModel[]> {
         return this.studentsService.getStudentCourses(user.id);
     }
 
     @Get(":id")
+    @HttpCode(200)
     @Roles(RoleName.Admin, RoleName.Instructor)
     findOne(@Param("id", ParseIntPipe) id: number): Promise<StudentDetailsViewModel> {
         return this.studentsService.getStudent(id);

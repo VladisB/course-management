@@ -63,7 +63,7 @@ const checkStatusCode = (res: any, expectedStatus: any = 200): any => {
     `);
 };
 
-const getRandomNumber = (limit = 10000) => Math.floor(Math.random() * limit);
+const getRandomNumber = (limit = 30000) => Math.floor(Math.random() * limit);
 
 const createRoleDto = (randomNumber: number): CreateRoleDto => ({
     name: "newrole_" + randomNumber,
@@ -181,12 +181,15 @@ const initE2ETestData = async (
         });
     checkStatusCode(courseInstructorResult, 201);
 
-    // Create a lesson
-    await createE2ELesson({
-        app,
-        accessToken: accessTokenAdmin,
-        courseId: course.body.id,
-    });
+    // Create 5 lessons to make course available
+    const lessons = Array(5).fill(null);
+    for (const lesson of lessons) {
+        await createE2ELesson({
+            app,
+            accessToken: accessTokenAdmin,
+            courseId: course.body.id,
+        });
+    }
 
     // Update group. Assign course to group
     const groupUpdated = await request(app.getHttpServer())
@@ -205,7 +208,12 @@ const initE2ETestData = async (
             groupId: groupResult.body.id,
         });
     checkStatusCode(updatedStudent, 200);
-
+    console.log("result", {
+        adminToken: accessTokenAdmin,
+        instructorToken: accessTokenInstructor,
+        studentToken: accessTokenStudent,
+        course: course.body,
+    });
     return {
         adminToken: accessTokenAdmin,
         instructorToken: accessTokenInstructor,

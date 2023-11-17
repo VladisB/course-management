@@ -40,6 +40,7 @@ export class StudentsViewModelFactory implements IStudentsViewModelFactory {
             const courseList: StudentCourseViewModel[] = courses.map((course) => ({
                 id: course.id,
                 name: course.name,
+                passed: course.studentCourses[0].passed,
             }));
 
             model.push(...courseList);
@@ -88,6 +89,7 @@ export class StudentsViewModelFactory implements IStudentsViewModelFactory {
             const courseList: StudentCourseViewModel[] = student.studentCourses.map(
                 (studentCourses) => ({
                     id: studentCourses.course.id,
+                    passed: studentCourses.passed,
                     name: studentCourses.course.name,
                 }),
             );

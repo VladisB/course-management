@@ -62,7 +62,7 @@ export class CourseInstructorsViewModelFactory implements ICoursesViewModelFacto
         model: CourseInstructorsViewModel,
         courseInstructors: CourseInstructors[],
     ): CourseInstructorsViewModel {
-        if (courseInstructors) {
+        if (courseInstructors && courseInstructors.length) {
             const firstItem = courseInstructors.find((courseInstructors) => courseInstructors.id);
 
             model.courseName = firstItem.course.name;

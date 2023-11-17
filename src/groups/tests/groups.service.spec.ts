@@ -6,7 +6,7 @@ import { SelectQueryBuilder } from "typeorm";
 import { Test } from "@nestjs/testing";
 import { User } from "@app/users/entities/user.entity";
 import {
-    courseMockList,
+    courseStub,
     facultyCEStub,
     groupMockList,
     groupStub,
@@ -223,11 +223,12 @@ describe("GroupsService", () => {
     describe("update group", () => {
         it("should return an updated group", async () => {
             const groupId = 1;
+            const courseList = [courseStub];
 
             const dto: UpdateGroupDto = {
                 name: "updated name",
                 facultyId: 1,
-                courseIdList: courseMockList.map((r) => r.id),
+                courseIdList: courseList.map((r) => r.id),
             };
 
             const groupToUpdate = groupMockList.find((r) => r.id === groupId);
@@ -236,7 +237,7 @@ describe("GroupsService", () => {
             jest.spyOn(groupsRepository, "getById").mockResolvedValue(
                 groupMockList.find((r) => r.id === groupId),
             );
-            jest.spyOn(coursesRepository, "getByIdList").mockResolvedValue(courseMockList);
+            jest.spyOn(coursesRepository, "getByIdList").mockResolvedValue(courseList);
             jest.spyOn(facultiesRepository, "getById").mockResolvedValue(facultyCEStub);
             jest.spyOn(groupsRepository, "getById").mockResolvedValue(groupToUpdate);
 
@@ -276,9 +277,11 @@ describe("GroupsService", () => {
         });
 
         it("should throw Error if provided faculty doesn't exist", async () => {
+            const courseList = [courseStub];
+
             const dto: UpdateGroupDto = {
                 name: "updated name",
-                courseIdList: courseMockList.map((r) => r.id),
+                courseIdList: courseList.map((r) => r.id),
                 facultyId: 99,
             };
 
@@ -290,7 +293,7 @@ describe("GroupsService", () => {
             jest.spyOn(groupsRepository, "getById").mockResolvedValue(
                 groupMockList.find((r) => r.id === groupId),
             );
-            jest.spyOn(coursesRepository, "getByIdList").mockResolvedValue(courseMockList);
+            jest.spyOn(coursesRepository, "getByIdList").mockResolvedValue(courseList);
 
             await expect(groupsService.updateGroup(groupId, dto, user)).rejects.toThrowError(
                 new BadRequestException("Provided faculty does not exist"),

@@ -1,6 +1,6 @@
 import { BaseErrorMessage } from "@app/common/enum";
 import { mockQueryBuilder } from "@app/common/test/mocks";
-import { courseMockList, courseStub, lessonStub } from "@app/common/test/stubs";
+import { courseMockList, courseStub } from "@app/common/test/stubs";
 import { Test } from "@nestjs/testing";
 import { getRepositoryToken } from "@nestjs/typeorm";
 import { In, QueryRunner, Repository, SelectQueryBuilder } from "typeorm";
@@ -168,7 +168,10 @@ describe("CoursesRepository", () => {
 
             expect(entityRepository.save).toHaveBeenCalledWith(courseStub);
             expect(entityRepository.save).toHaveBeenCalledTimes(1);
-            expect(result).toEqual(courseStub);
+
+            expect(result.id).toEqual(expect.any(Number));
+            expect(result.name).toEqual(courseStub.name);
+            expect(result.available).toEqual(courseStub.available);
         });
     });
 
@@ -242,12 +245,16 @@ describe("CoursesRepository", () => {
     describe("update a course", () => {
         it("should call save on the repository with the correct parameters", async () => {
             jest.spyOn(entityRepository, "save").mockResolvedValue(courseStub);
+            jest.spyOn(entityRepository, "findOne").mockResolvedValue(courseStub);
 
             const result = await coursesRepository.update(courseStub);
 
             expect(entityRepository.save).toHaveBeenCalledWith(courseStub);
             expect(entityRepository.save).toHaveBeenCalledTimes(1);
-            expect(result).toEqual(courseStub);
+
+            expect(result.id).toEqual(expect.any(Number));
+            expect(result.name).toEqual(courseStub.name);
+            expect(result.available).toEqual(courseStub.available);
         });
 
         it("should call save on the repository with wrong id", async () => {

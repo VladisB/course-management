@@ -261,9 +261,13 @@ export class LessonGradesService implements ILessonGradesService {
         id: number,
         dto: UpdateLessonGradeDto,
     ): Promise<readonly [Lesson, User]> {
-        await this.checkIfGradeExists(id);
+        const grade = await this.checkIfGradeExists(id);
         const lesson = dto.lessonId && (await this.checkIfLessonExists(dto.lessonId));
-        const student = dto.studentId && (await this.checkIfStudentExists(dto.studentId));
+        let student = dto.studentId && (await this.checkIfStudentExists(dto.studentId));
+
+        if (!student && grade) {
+            student = await this.usersRepository.getStudentById(grade.student.id);
+        }
 
         if (lesson && student) {
             await this.checkIfStudentAssignedToLessonsCourse(student, lesson);

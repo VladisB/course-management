@@ -3,6 +3,7 @@ import {
     Controller,
     Delete,
     Get,
+    HttpCode,
     Param,
     ParseIntPipe,
     Patch,
@@ -33,24 +34,28 @@ export class FacultiesController {
     constructor(private facultyService: FacultiesService) {}
 
     @Post()
+    @HttpCode(201)
     @Roles(RoleName.Admin)
     create(@Body() dto: CreateFacultyDto, @GetUser() user: User): Promise<FacultyViewModel> {
         return this.facultyService.createFaculty(dto, user);
     }
 
     @Get()
+    @HttpCode(200)
     @Roles(RoleName.Admin, RoleName.Student, RoleName.Instructor)
     findAll(@Query() queryParams: QueryParamsDTO): Promise<DataListResponse<FacultyViewModel>> {
         return this.facultyService.getFaculties(queryParams);
     }
 
     @Get(":id")
+    @HttpCode(200)
     @Roles(RoleName.Admin, RoleName.Student, RoleName.Instructor)
     findOne(@Param("id", ParseIntPipe) id: number): Promise<FacultyViewModel> {
         return this.facultyService.getFaculty(id);
     }
 
     @Patch(":id")
+    @HttpCode(200)
     @Roles(RoleName.Admin)
     update(
         @Param("id", ParseIntPipe) id: number,
@@ -61,6 +66,7 @@ export class FacultiesController {
     }
 
     @Delete(":id")
+    @HttpCode(204)
     @Roles(RoleName.Admin)
     remove(@Param("id") id: number): Promise<void> {
         return this.facultyService.deleteFaculty(id);

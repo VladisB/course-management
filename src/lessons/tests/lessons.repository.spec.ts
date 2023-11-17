@@ -135,6 +135,9 @@ describe("LessonsRepository", () => {
             const localQueryBuilderMock = {
                 ...queryBuilderMock,
                 innerJoinAndSelect: jest.fn().mockReturnThis(),
+                leftJoinAndSelect: jest.fn().mockReturnThis(),
+                innerJoinAndMapMany: jest.fn().mockReturnThis(),
+                where: jest.fn().mockReturnThis(),
             };
 
             jest.spyOn(entityRepository, "createQueryBuilder").mockReturnValue(
@@ -152,8 +155,24 @@ describe("LessonsRepository", () => {
                 "course.studentCourses",
                 "studentCourses",
             );
-            expect(queryBuilderMock.where).toHaveBeenCalledWith(
+            expect(localQueryBuilderMock.where).toHaveBeenCalledWith(
                 "studentCourses.studentId = :studentId",
+                { studentId },
+            );
+            expect(localQueryBuilderMock.innerJoinAndMapMany).toHaveBeenCalledWith(
+                "course.courseInstructors",
+                "course_instructors",
+                "courseInstructors",
+                "courseInstructors.courseId = course.id",
+            );
+            expect(localQueryBuilderMock.innerJoinAndSelect).toHaveBeenCalledWith(
+                "courseInstructors.instructor",
+                "user",
+            );
+            expect(localQueryBuilderMock.leftJoinAndSelect).toHaveBeenCalledWith(
+                "lesson.grades",
+                "lesson_grades",
+                "lesson_grades.student_id = :studentId",
                 { studentId },
             );
         });

@@ -131,7 +131,7 @@ export class UsersRepository extends BaseRepository implements IUsersRepository 
         try {
             const { id: entityId } = await queryRunner.manager.save(entity);
 
-            return await this.getById(entityId);
+            return await this.trxGetById(queryRunner, entityId);
         } catch (err) {
             console.error("Error: ", err);
 
