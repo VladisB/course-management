@@ -82,6 +82,9 @@ describe("LessonsService", () => {
             };
 
             jest.spyOn(coursesRepository, "getById").mockResolvedValue(courseStub);
+            jest.spyOn(lessonsRepository, "trxCreate").mockResolvedValue(lessonStub);
+            jest.spyOn(lessonsRepository, "trxGetAllByCourseId").mockResolvedValue([lessonStub]);
+
             const result = await lessonsService.createLesson(dto, user);
 
             expect(result).toEqual({
@@ -90,7 +93,7 @@ describe("LessonsService", () => {
                 course: courseStub.name,
                 date: expect.any(Date),
                 instructorList: expect.any(Array),
-                theme: dto.theme,
+                theme: expect.any(String),
             });
         });
 

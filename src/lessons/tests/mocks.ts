@@ -6,6 +6,8 @@ const mockLessonsRepository = () => ({
         entity.id = 1;
         return Promise.resolve(entity);
     }),
+    trxCreate: jest.fn().mockResolvedValue(null),
+    trxGetAllByCourseId: jest.fn().mockResolvedValue(null),
     deleteById: jest.fn().mockResolvedValue(null),
     getAllQ: jest.fn().mockReturnValue(null),
     getAllQByStudent: jest.fn().mockReturnValue(null),
@@ -19,6 +21,9 @@ const mockLessonsRepository = () => ({
     save: jest.fn().mockResolvedValue(null),
     findOne: jest.fn().mockResolvedValue(null),
     createQueryBuilder: jest.fn(),
+    initTrx: jest.fn().mockResolvedValue(null),
+    rollbackTrx: jest.fn().mockResolvedValue(null),
+    commitTrx: jest.fn().mockResolvedValue(null),
     manager: {
         connection: {
             createQueryRunner: jest.fn(),

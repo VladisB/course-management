@@ -46,7 +46,7 @@ export class LessonsController {
 
     @Get()
     @HttpCode(200)
-    @Roles(RoleName.Admin, RoleName.Instructor, RoleName.Student)
+    @Roles(RoleName.Admin, RoleName.Instructor)
     async findAll(
         @GetUser() user: User,
         @Query() queryParams: QueryParamsDTO,

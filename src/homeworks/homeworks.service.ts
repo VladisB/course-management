@@ -128,7 +128,7 @@ export class HomeworksService implements IHomeworksService {
         file: Buffer,
         creator: User,
     ): Promise<HomeworkViewModel> {
-        const homework = await this.validateUpdate(id, creator.id);
+        const homework = await this.validateUpdate(id, creator);
 
         const objecKey = await this.uploadHomework(
             file,
@@ -288,9 +288,10 @@ export class HomeworksService implements IHomeworksService {
         return lesson;
     }
 
-    private async validateUpdate(id: number, studentId: number): Promise<Homework> {
+    private async validateUpdate(id: number, user: User): Promise<Homework> {
         const homework = await this.checkIfNotExists(id);
-        await this.checkIfStudentExists(studentId);
+        await this.checkIfStudentExists(user.id);
+        await this.checkOwner(homework, user);
 
         return homework;
     }

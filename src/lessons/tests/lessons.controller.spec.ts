@@ -94,6 +94,20 @@ describe("LessonsController", () => {
             expect(lessonsService.getInstructorLessons).toHaveBeenCalledWith(queryParams, user.id);
         });
 
+        it("should throw an error if user role is not provided", async () => {
+            const queryParams: QueryParamsDTO = {
+                limit: 10,
+                page: 0,
+            };
+            user.role = unexistedRoleStub;
+
+            await expect(lessonsController.findAll(user, queryParams)).rejects.toThrowError(
+                new ForbiddenException(),
+            );
+        });
+    });
+
+    describe("findStudentLessons", () => {
         it("should find all lessons for student", async () => {
             const queryParams: QueryParamsDTO = {
                 limit: 10,
@@ -101,7 +115,7 @@ describe("LessonsController", () => {
             };
             user.role = studentRoleStub;
 
-            const result = await lessonsController.findAll(user, queryParams);
+            const result = await lessonsController.findStudentLessons(user, queryParams);
 
             expect(Array.isArray(result.records)).toBe(true);
             expect(result.records[0]).toBeInstanceOf(LessonViewModel);

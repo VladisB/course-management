@@ -74,7 +74,7 @@ export class AuthService implements IAuthService {
         return user;
     }
 
-    private async generateTokens(payload: JwtModel): Promise<AuthViewModel> {
+    public async generateTokens(payload: JwtModel): Promise<AuthViewModel> {
         const [accessToken, refreshToken] = await Promise.all([
             this.jwtService.signAsync(payload, {
                 secret: this.configService.get<string>("app.jwt"),
@@ -170,6 +170,7 @@ export class AuthService implements IAuthService {
 }
 
 interface IAuthService {
+    generateTokens(payload: JwtModel): Promise<AuthViewModel>;
     login(dto: AuthSignUpDto): Promise<AuthViewModel>;
     logout(tokenUser: User): Promise<void>;
     refreshToken(user: User): Promise<AuthViewModel>;

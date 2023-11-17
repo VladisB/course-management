@@ -27,6 +27,8 @@ courseStubCS.available = false;
 const studentCoursesStub = new StudentCourses();
 studentCoursesStub.id = 1;
 studentCoursesStub.student = studentUserStub;
+studentCoursesStub.passed = true;
+studentCoursesStub.finalMark = 90;
 
 courseStub.studentCourses = [studentCoursesStub];
 courseStub.groupCourses = [];
@@ -51,6 +53,8 @@ courseInstructorsCSStub.modifiedAt = new Date();
 
 courseStub.courseInstructors = [courseInstructorsStub];
 courseStubCS.courseInstructors = [courseInstructorsCSStub];
+courseStub.studentCourses = [studentCoursesStub];
+courseStubCS.studentCourses = [studentCoursesStub];
 
 const courseMockList: Course[] = [courseStub, courseStubCS];
 const courseInstructorsMockList: CourseInstructors[] = [

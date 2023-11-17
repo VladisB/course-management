@@ -40,8 +40,12 @@ export class LessonsRepository extends BaseRepository implements ILessonsReposit
                 "courseInstructors.courseId = course.id",
             )
             .innerJoinAndSelect("courseInstructors.instructor", "user")
-            .innerJoinAndSelect("lesson.grades", "lesson_grades")
-            .where("lesson_grades.student_id = :studentId", { studentId });
+            .leftJoinAndSelect(
+                "lesson.grades",
+                "lesson_grades",
+                "lesson_grades.student_id = :studentId",
+                { studentId },
+            );
 
         return query;
     }

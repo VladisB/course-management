@@ -87,7 +87,7 @@ describe("homeworksService", () => {
         homeworkViewModelFactory = module.get(HomeworkViewModelFactory);
 
         queryBuilder = queryBuilderMock;
-        user = new User();
+        user = studentUserStub;
     });
 
     afterEach(() => {

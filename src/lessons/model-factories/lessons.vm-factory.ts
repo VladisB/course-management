@@ -72,7 +72,10 @@ export class LessonViewModelFactory implements ILessonViewModelFactory {
                 date: lesson.date,
                 courseId: lesson.course.id,
                 course: lesson.course.name,
-                grade: lesson?.grades[0].grade ?? null,
+                grade:
+                    Array.isArray(lesson?.grades) && lesson.grades.length > 0
+                        ? lesson.grades[0].grade
+                        : null,
                 instructorList: this.populateInstructorList(lesson),
             }));
 

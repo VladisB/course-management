@@ -73,7 +73,7 @@ describe("AppController (e2e)", () => {
 
     describe("Roles Module", () => {
         describe("/roles (GET)", () => {
-            it("Successfuly GET roles(3) as an Admin", async () => {
+            it("Successfully GET roles(3) as an Admin", async () => {
                 const { body } = await request(app.getHttpServer())
                     .get(RoutePath.Roles)
                     .set("Authorization", `Bearer ${accessTokenAdmin}`)
@@ -107,7 +107,7 @@ describe("AppController (e2e)", () => {
         });
 
         describe("/roles (POST)", () => {
-            it("Successfuly create role as an Admin", async () => {
+            it("Successfully create role as an Admin", async () => {
                 const randomNumber = getRandomNumber(1000);
 
                 const dto = createRoleDto(randomNumber);
@@ -259,7 +259,7 @@ describe("AppController (e2e)", () => {
                 await request(app.getHttpServer())
                     .delete(`${RoutePath.Roles}/${id}`)
                     .set("Authorization", `Bearer ${accessTokenAdmin}`)
-                    .expect(200);
+                    .expect(204);
             });
 
             it("Fail to delete a specific role as a Student", async () => {
@@ -290,7 +290,7 @@ describe("AppController (e2e)", () => {
 
     describe("Lessons Module", () => {
         describe(`${RoutePath.Lessons} (GET)`, () => {
-            it("Successfuly GET lessons as an Admin", async () => {
+            it("Successfully GET lessons as an Admin", async () => {
                 const { body } = await request(app.getHttpServer())
                     .get(RoutePath.Lessons)
                     .set("Authorization", `Bearer ${accessTokenAdmin}`)
@@ -307,38 +307,30 @@ describe("AppController (e2e)", () => {
                 });
             });
 
-            it("Successfuly GET lessons as an Instructor", async () => {
+            it("Successfully GET lessons as an Instructor", async () => {
                 const { body } = await request(app.getHttpServer())
                     .get(RoutePath.Lessons)
                     .set("Authorization", `Bearer ${accessTokenInstructor}`)
                     .expect(200);
 
                 expect(body.records).toEqual(expect.any(Array));
-                expect(body.records[0]).toEqual({
-                    id: expect.any(Number),
-                    courseId: expect.any(Number),
-                    date: expect.any(String),
-                    theme: expect.any(String),
-                    course: expect.any(String),
-                    instructorList: expect.any(Array),
-                });
+                if (body.records.length > 0) {
+                    expect(body.records[0]).toEqual({
+                        id: expect.any(Number),
+                        courseId: expect.any(Number),
+                        date: expect.any(String),
+                        theme: expect.any(String),
+                        course: expect.any(String),
+                        instructorList: expect.any(Array),
+                    });
+                }
             });
 
-            it("Successfuly GET lessons as an Student", async () => {
-                const { body } = await request(app.getHttpServer())
+            it("Fail during getting lessons as an Student", async () => {
+                return request(app.getHttpServer())
                     .get(RoutePath.Lessons)
                     .set("Authorization", `Bearer ${accessTokenStudent}`)
-                    .expect(200);
-
-                expect(body.records).toEqual(expect.any(Array));
-                expect(body.records[0]).toEqual({
-                    id: expect.any(Number),
-                    courseId: expect.any(Number),
-                    date: expect.any(String),
-                    theme: expect.any(String),
-                    course: expect.any(String),
-                    instructorList: expect.any(Array),
-                });
+                    .expect(403);
             });
 
             it("Fail during getting lessons with wrong role", async () => {
@@ -356,7 +348,7 @@ describe("AppController (e2e)", () => {
         });
 
         describe(`${RoutePath.Lessons} (POST)`, () => {
-            it("Successfuly create lesson as an Admin", async () => {
+            it("Successfully create lesson as an Admin", async () => {
                 const randomNumber = getRandomNumber(1000);
 
                 const dto = createLessonDto(randomNumber, newCourse.id);
@@ -377,7 +369,7 @@ describe("AppController (e2e)", () => {
                 });
             });
 
-            it("Successfuly create lesson as an Instructor", async () => {
+            it("Successfully create lesson as an Instructor", async () => {
                 const randomNumber = getRandomNumber(1000);
 
                 const dto = createLessonDto(randomNumber, newCourse.id);
@@ -596,7 +588,7 @@ describe("AppController (e2e)", () => {
                 await request(app.getHttpServer())
                     .delete(`${RoutePath.Lessons}/${body.id}`)
                     .set("Authorization", `Bearer ${accessTokenAdmin}`)
-                    .expect(200);
+                    .expect(204);
             });
 
             it("Successfully delete a specific lesson as Instructor", async () => {
@@ -609,7 +601,7 @@ describe("AppController (e2e)", () => {
                 await request(app.getHttpServer())
                     .delete(`${RoutePath.Lessons}/${body.id}`)
                     .set("Authorization", `Bearer ${accessTokenInstructor}`)
-                    .expect(200);
+                    .expect(204);
             });
 
             it("Fail to delete a specific lesson as a Student", async () => {

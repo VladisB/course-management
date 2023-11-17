@@ -10,4 +10,5 @@ export class StudentDetailsViewModel {
 export class StudentCourseViewModel {
     id: number;
     name: string;
+    passed: boolean;
 }
