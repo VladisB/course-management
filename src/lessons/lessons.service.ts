@@ -157,13 +157,13 @@ export class LessonsService implements ILessonsService {
     }
 
     private async validateUpdate(id: number, dto: UpdateLessonDto): Promise<Course> {
-        await this.checkIfExists(id);
+        const lesson = await this.checkIfExists(id);
 
         if (dto.theme) {
             await this.checkIfExistsByTheme(dto.theme);
         }
 
-        return dto.courseId ? await this.checkIfCourseExists(dto.courseId) : null;
+        return dto.courseId ? await this.checkIfCourseExists(dto.courseId) : lesson.course;
     }
 
     private async checkIfCourseExists(id: number): Promise<Course> {
@@ -184,12 +184,14 @@ export class LessonsService implements ILessonsService {
         }
     }
 
-    private async checkIfExists(id: number): Promise<void> {
+    private async checkIfExists(id: number): Promise<Lesson> {
         const lesson = await this.lessonsRepository.getById(id);
 
         if (!lesson) {
             throw new NotFoundException(BaseErrorMessage.NOT_FOUND);
         }
+
+        return lesson;
     }
 
     private getDatatablesConfig(): DatatablesConfig {

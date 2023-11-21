@@ -4,6 +4,7 @@ import {
     Delete,
     Get,
     HttpCode,
+    HttpStatus,
     Param,
     ParseIntPipe,
     Post,
@@ -30,16 +31,37 @@ import { AuthGuard } from "@nestjs/passport";
 import { Strategies } from "@app/auth/strategies.enum";
 import { RoleName } from "@app/common/enum";
 import { Roles } from "@app/roles/roles-auth.decorator";
+import {
+    CommonApiResponseBadRequest,
+    CommonApiResponseConflict,
+    CommonApiResponseInternalServerError,
+    CommonApiResponseForbidden,
+    CommonApiResponseNotFound,
+} from "@app/common/swagger/common-api-responses-swagger";
+import { ApiBearerAuth, ApiBody, ApiOperation, ApiResponse, ApiTags } from "@nestjs/swagger";
 
+@Controller("course-instructors")
 @Roles(RoleName.Admin, RoleName.Instructor)
 @UseGuards(AuthGuard(Strategies.JWT), RolesGuard)
 @UsePipes(new ValidationPipe({ transform: true }))
-@Controller("course-instructors")
+@ApiTags("Course Instructors")
+@CommonApiResponseBadRequest()
+@CommonApiResponseInternalServerError()
+@CommonApiResponseForbidden()
+@ApiBearerAuth("JWT-auth")
 export class CourseInstructorsController {
     constructor(private courseInstructorsService: CourseInstructorsService) {}
 
     @Post()
-    @HttpCode(201)
+    @HttpCode(HttpStatus.CREATED)
+    @ApiOperation({ summary: "Create course instructors" })
+    @ApiBody({ type: CreateCourseInstructorsDto })
+    @ApiResponse({
+        status: HttpStatus.CREATED,
+        type: CourseInstructorsViewModel,
+        description: "Create course instructors successful",
+    })
+    @CommonApiResponseConflict()
     create(
         @Body() dto: CreateCourseInstructorsDto,
         @GetUser() user: User,
@@ -48,7 +70,13 @@ export class CourseInstructorsController {
     }
 
     @Get()
-    @HttpCode(200)
+    @HttpCode(HttpStatus.OK)
+    @ApiOperation({ summary: "Get course instructors" })
+    @ApiResponse({
+        status: HttpStatus.OK,
+        type: DataListResponse<CourseInstructorsListViewModel>,
+        description: "Get course instructors successful",
+    })
     findAll(
         @Query() queryParams: QueryParamsDTO,
     ): Promise<DataListResponse<CourseInstructorsListViewModel>> {
@@ -56,13 +84,28 @@ export class CourseInstructorsController {
     }
 
     @Get(":id")
-    @HttpCode(200)
+    @HttpCode(HttpStatus.OK)
+    @ApiOperation({ summary: "Get course instructor" })
+    @ApiResponse({
+        status: HttpStatus.OK,
+        type: CourseInstructorViewModel,
+        description: "Get course instructor successful",
+    })
+    @CommonApiResponseNotFound()
     findOne(@Param("id", ParseIntPipe) id: number): Promise<CourseInstructorViewModel> {
         return this.courseInstructorsService.getCourseInstructor(id);
     }
 
     @Put(":id")
-    @HttpCode(200)
+    @HttpCode(HttpStatus.OK)
+    @ApiOperation({ summary: "Update course instructor" })
+    @ApiBody({ type: PUTUpdateCourseInstructorsDto })
+    @ApiResponse({
+        status: HttpStatus.OK,
+        type: CourseInstructorsViewModel,
+        description: "Update course instructor successful",
+    })
+    @CommonApiResponseNotFound()
     update(
         @Param("id", ParseIntPipe) id: number,
         @Body() dto: PUTUpdateCourseInstructorsDto,
@@ -72,7 +115,12 @@ export class CourseInstructorsController {
     }
 
     @Delete(":id")
-    @HttpCode(204)
+    @HttpCode(HttpStatus.NO_CONTENT)
+    @ApiOperation({ summary: "Delete course instructor" })
+    @ApiResponse({
+        status: HttpStatus.NO_CONTENT,
+        description: "Course instructor deleted successful (No content)",
+    })
     remove(@Param("id", ParseIntPipe) id: number): Promise<void> {
         return this.courseInstructorsService.deleteCourseInstructors(id);
     }

@@ -4,6 +4,7 @@ import {
     Delete,
     Get,
     HttpCode,
+    HttpStatus,
     Param,
     ParseIntPipe,
     Patch,
@@ -26,37 +27,74 @@ import { RolesGuard } from "@app/roles/roles.guard";
 import { Roles } from "@app/roles/roles-auth.decorator";
 import { GetUser } from "@app/auth/get-user.decorator";
 import { User } from "@app/users/entities/user.entity";
+import {
+    CommonApiResponseBadRequest,
+    CommonApiResponseConflict,
+    CommonApiResponseInternalServerError,
+    CommonApiResponseForbidden,
+    CommonApiResponseNotFound,
+    OpenApiPaginationResponse,
+} from "@app/common/swagger/common-api-responses-swagger";
+import { ApiBearerAuth, ApiBody, ApiOperation, ApiResponse, ApiTags } from "@nestjs/swagger";
 
+@Controller("faculties")
 @UseGuards(AuthGuard(Strategies.JWT), RolesGuard)
 @UsePipes(new ValidationPipe({ transform: true }))
-@Controller("faculties")
+@ApiTags("Faculties")
+@CommonApiResponseBadRequest()
+@CommonApiResponseInternalServerError()
+@CommonApiResponseForbidden()
+@ApiBearerAuth("JWT-auth")
 export class FacultiesController {
     constructor(private facultyService: FacultiesService) {}
 
     @Post()
-    @HttpCode(201)
+    @HttpCode(HttpStatus.CREATED)
     @Roles(RoleName.Admin)
+    @ApiOperation({ summary: "Create faculty" })
+    @ApiResponse({
+        status: HttpStatus.CREATED,
+        description: "Created faculty",
+        type: FacultyViewModel,
+    })
+    @CommonApiResponseConflict()
     create(@Body() dto: CreateFacultyDto, @GetUser() user: User): Promise<FacultyViewModel> {
         return this.facultyService.createFaculty(dto, user);
     }
 
     @Get()
-    @HttpCode(200)
+    @HttpCode(HttpStatus.OK)
     @Roles(RoleName.Admin, RoleName.Student, RoleName.Instructor)
+    @ApiOperation({ summary: "Get faculties" })
+    @OpenApiPaginationResponse(FacultyViewModel, "Faculties list")
     findAll(@Query() queryParams: QueryParamsDTO): Promise<DataListResponse<FacultyViewModel>> {
         return this.facultyService.getFaculties(queryParams);
     }
 
     @Get(":id")
-    @HttpCode(200)
+    @HttpCode(HttpStatus.OK)
     @Roles(RoleName.Admin, RoleName.Student, RoleName.Instructor)
+    @ApiOperation({ summary: "Get faculty" })
+    @ApiResponse({
+        status: HttpStatus.OK,
+        description: "Faculty",
+        type: FacultyViewModel,
+    })
+    @CommonApiResponseNotFound()
     findOne(@Param("id", ParseIntPipe) id: number): Promise<FacultyViewModel> {
         return this.facultyService.getFaculty(id);
     }
 
     @Patch(":id")
-    @HttpCode(200)
+    @HttpCode(HttpStatus.OK)
     @Roles(RoleName.Admin)
+    @ApiOperation({ summary: "Update faculty" })
+    @ApiBody({ type: UpdateFacultyDto })
+    @ApiResponse({
+        status: HttpStatus.OK,
+        description: "Updated faculty",
+        type: FacultyViewModel,
+    })
     update(
         @Param("id", ParseIntPipe) id: number,
         @Body() updateFacultyDto: UpdateFacultyDto,
@@ -66,8 +104,14 @@ export class FacultiesController {
     }
 
     @Delete(":id")
-    @HttpCode(204)
+    @HttpCode(HttpStatus.NO_CONTENT)
     @Roles(RoleName.Admin)
+    @ApiOperation({ summary: "Delete faculty" })
+    @CommonApiResponseNotFound()
+    @ApiResponse({
+        status: HttpStatus.NO_CONTENT,
+        description: "Delete faculty",
+    })
     remove(@Param("id") id: number): Promise<void> {
         return this.facultyService.deleteFaculty(id);
     }

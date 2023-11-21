@@ -132,7 +132,7 @@ export class HomeworksService implements IHomeworksService {
 
         const objecKey = await this.uploadHomework(
             file,
-            creator,
+            homework.student,
             homework.lesson.course.name,
             homework.lesson.id,
         );
@@ -290,6 +290,11 @@ export class HomeworksService implements IHomeworksService {
 
     private async validateUpdate(id: number, user: User): Promise<Homework> {
         const homework = await this.checkIfNotExists(id);
+
+        if (user.role.name === RoleName.Admin) {
+            return homework;
+        }
+
         await this.checkIfStudentExists(user.id);
         await this.checkOwner(homework, user);
 
