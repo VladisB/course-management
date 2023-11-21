@@ -1,6 +1,6 @@
 import { ApiProperty } from "@nestjs/swagger";
 import { Transform } from "class-transformer";
-import { IsNotEmpty, IsNumber, IsString, MaxLength, MinLength } from "class-validator";
+import { IsNotEmpty, IsNumber, IsString, MaxLength, Min, MinLength } from "class-validator";
 
 export class CreateGroupDto {
     @IsString()
@@ -13,7 +13,7 @@ export class CreateGroupDto {
 
     @IsNotEmpty()
     @IsNumber()
-    @MinLength(1)
+    @Min(1)
     @ApiProperty({ description: "Faculty id" })
     readonly facultyId: number;
 }
