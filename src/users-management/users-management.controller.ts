@@ -18,7 +18,6 @@ import { AuthGuard } from "@nestjs/passport";
 import { RolesGuard } from "../roles/roles.guard";
 import { DataListResponse } from "@common/db/data-list-response";
 import { QueryParamsDTO } from "@common/dto/query-params.dto";
-import { UserViewModel } from "src/users/view-models";
 import { IUsersManagementService } from "./users-management.service";
 import { RoleName } from "@common/enum";
 import { Roles } from "@app/roles/roles-auth.decorator";
@@ -36,6 +35,7 @@ import {
     OpenApiPaginationResponse,
 } from "@app/common/swagger/common-api-responses-swagger";
 import { ApiBearerAuth, ApiBody, ApiOperation, ApiResponse, ApiTags } from "@nestjs/swagger";
+import { UserViewModel } from "@app/users/view-models";
 
 @Controller("users-management")
 @Roles(RoleName.Admin)
