@@ -4,6 +4,7 @@ import {
     Delete,
     Get,
     HttpCode,
+    HttpStatus,
     Param,
     ParseIntPipe,
     Patch,
@@ -26,34 +27,73 @@ import { RolesService } from "./roles.service";
 import { Strategies } from "@app/auth/strategies.enum";
 import { UpdateRoleDto } from "./dto/update-role.dto";
 import { User } from "@app/users/entities/user.entity";
+import {
+    CommonApiResponseBadRequest,
+    CommonApiResponseConflict,
+    CommonApiResponseForbidden,
+    CommonApiResponseInternalServerError,
+    CommonApiResponseNotFound,
+    OpenApiPaginationResponse,
+} from "@app/common/swagger/common-api-responses-swagger";
+import { ApiBearerAuth, ApiBody, ApiOperation, ApiResponse, ApiTags } from "@nestjs/swagger";
 
+@Controller("roles")
 @Roles(RoleName.Admin)
 @UseGuards(AuthGuard(Strategies.JWT), RolesGuard)
 @UsePipes(new ValidationPipe({ transform: true }))
-@Controller("roles")
+@ApiTags("Roles")
+@CommonApiResponseBadRequest()
+@CommonApiResponseInternalServerError()
+@CommonApiResponseForbidden()
+@ApiBearerAuth("JWT-auth")
 export class RolesController {
     constructor(private roleService: RolesService) {}
 
     @Post()
-    @HttpCode(201)
+    @HttpCode(HttpStatus.CREATED)
+    @ApiOperation({ summary: "Create role" })
+    @ApiBody({ type: CreateRoleDto })
+    @ApiResponse({
+        status: HttpStatus.CREATED,
+        description: "Created role",
+        type: RoleViewModel,
+    })
+    @CommonApiResponseConflict()
     create(@Body() dto: CreateRoleDto, @GetUser() user: User): Promise<RoleViewModel> {
         return this.roleService.createRole(dto, user);
     }
 
     @Get()
-    @HttpCode(200)
+    @HttpCode(HttpStatus.OK)
+    @ApiOperation({ summary: "Get roles" })
+    @OpenApiPaginationResponse(RoleViewModel, "Get roles")
     findAll(@Query() queryParams: QueryParamsDTO): Promise<DataListResponse<RoleViewModel>> {
         return this.roleService.getRoles(queryParams);
     }
 
     @Get(":id")
-    @HttpCode(200)
+    @HttpCode(HttpStatus.OK)
+    @ApiOperation({ summary: "Get role" })
+    @ApiResponse({
+        status: HttpStatus.OK,
+        description: "Get role",
+        type: RoleViewModel,
+    })
+    @CommonApiResponseNotFound()
     findOne(@Param("id", ParseIntPipe) id: number): Promise<RoleViewModel> {
         return this.roleService.getRole(id);
     }
 
     @Patch(":id")
-    @HttpCode(200)
+    @HttpCode(HttpStatus.OK)
+    @ApiOperation({ summary: "Update role" })
+    @ApiBody({ type: UpdateRoleDto })
+    @ApiResponse({
+        status: HttpStatus.OK,
+        description: "Updated role",
+        type: RoleViewModel,
+    })
+    @CommonApiResponseConflict()
     update(
         @Param("id", ParseIntPipe) id: number,
         @Body() updateRoleDto: UpdateRoleDto,
@@ -63,7 +103,13 @@ export class RolesController {
     }
 
     @Delete(":id")
-    @HttpCode(204)
+    @HttpCode(HttpStatus.NO_CONTENT)
+    @ApiOperation({ summary: "Delete role" })
+    @ApiResponse({
+        status: HttpStatus.NO_CONTENT,
+        description: "Delete role",
+    })
+    @CommonApiResponseNotFound()
     remove(@Param("id", ParseIntPipe) id: number): Promise<void> {
         return this.roleService.deleteRole(id);
     }
