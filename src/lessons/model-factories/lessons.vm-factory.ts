@@ -1,5 +1,9 @@
 import { Lesson } from "../entities/lesson.entity";
-import { LessonInstructorViewModel, LessonViewModel } from "../view-models";
+import {
+    LessonInstructorViewModel,
+    LessonViewModel,
+    StudentLessonListViewModel,
+} from "../view-models";
 
 export class LessonViewModelFactory implements ILessonViewModelFactory {
     public initLessonViewModel(lesson: Lesson): LessonViewModel {
@@ -19,6 +23,12 @@ export class LessonViewModelFactory implements ILessonViewModelFactory {
         const model: LessonViewModel[] = [];
 
         return this.setLessonListViewModel(model, lessons);
+    }
+
+    public initStudentLessonListViewModel(lessons: Lesson[]): StudentLessonListViewModel[] {
+        const model: StudentLessonListViewModel[] = [];
+
+        return this.setStudentLessonListViewModel(model, lessons);
     }
 
     private setLessonViewModel(model: LessonViewModel, lesson: Lesson): LessonViewModel {
@@ -51,6 +61,30 @@ export class LessonViewModelFactory implements ILessonViewModelFactory {
         return model;
     }
 
+    private setStudentLessonListViewModel(
+        model: StudentLessonListViewModel[],
+        lessons: Lesson[],
+    ): StudentLessonListViewModel[] {
+        if (lessons.length) {
+            const lessonList = lessons.map<StudentLessonListViewModel>((lesson) => ({
+                id: lesson.id,
+                theme: lesson.theme,
+                date: lesson.date,
+                courseId: lesson.course.id,
+                course: lesson.course.name,
+                grade:
+                    Array.isArray(lesson?.grades) && lesson.grades.length > 0
+                        ? lesson.grades[0].grade
+                        : null,
+                instructorList: this.populateInstructorList(lesson),
+            }));
+
+            model.push(...lessonList);
+        }
+
+        return model;
+    }
+
     private populateInstructorList(lesson: Lesson): LessonInstructorViewModel[] {
         if (!lesson.course.courseInstructors) return [];
 
@@ -66,5 +100,6 @@ export class LessonViewModelFactory implements ILessonViewModelFactory {
 
 interface ILessonViewModelFactory {
     initLessonViewModel(lesson: Lesson): LessonViewModel;
-    initLessonListViewModel(lesson: Lesson[]): LessonViewModel[];
+    initLessonListViewModel(lesson: Lesson[], showGrades: boolean): LessonViewModel[];
+    initStudentLessonListViewModel(lessons: Lesson[]): StudentLessonListViewModel[];
 }

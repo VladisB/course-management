@@ -8,9 +8,9 @@ import {
     CreateDateColumn,
     UpdateDateColumn,
     Index,
+    JoinColumn,
 } from "typeorm";
 
-// Store the final feedback for a course for each strudent
 @Index(["courseId", "studentId"], { unique: true })
 @Entity()
 export class StudentCourses {
@@ -39,6 +39,14 @@ export class StudentCourses {
     @ManyToOne(() => User, (user) => user.courseInstructors)
     public student: User;
 
+    @ManyToOne(() => User, { nullable: false })
+    @JoinColumn({ name: "created_by" })
+    public createdBy: User;
+
+    @ManyToOne(() => User, { nullable: false })
+    @JoinColumn({ name: "modified_by" })
+    public modifiedBy: User;
+
     @CreateDateColumn({
         type: "timestamp",
         default: () => "CURRENT_TIMESTAMP(6)",
@@ -50,7 +58,7 @@ export class StudentCourses {
         type: "timestamp",
         default: () => "CURRENT_TIMESTAMP(6)",
         onUpdate: "CURRENT_TIMESTAMP(6)",
-        name: "updated_at",
+        name: "modified_at",
     })
-    public updatedAt: Date;
+    public modifiedAt: Date;
 }

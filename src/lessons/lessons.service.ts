@@ -14,9 +14,10 @@ import { UpdateLessonDto } from "./dto/update-lesson.dto";
 import { Lesson } from "./entities/lesson.entity";
 import { ILessonsRepository } from "./lessons.repository";
 import { LessonModelFactory, LessonViewModelFactory } from "./model-factories";
-import { LessonViewModel } from "./view-models";
+import { LessonViewModel, StudentLessonListViewModel } from "./view-models";
 import { BaseErrorMessage } from "@common/enum";
 import { User } from "@app/users/entities/user.entity";
+import { QueryRunner } from "typeorm";
 
 @Injectable()
 export class LessonsService implements ILessonsService {
@@ -29,17 +30,30 @@ export class LessonsService implements ILessonsService {
     public async createLesson(dto: CreateLessonDto, user: User): Promise<LessonViewModel> {
         const course = await this.validateCreate(dto);
 
-        const newEntity = LessonModelFactory.create({
-            theme: dto.theme,
-            date: dto.date,
-            course,
-            createdAt: new Date(),
-            createdBy: user,
-        });
+        const transaction = await this.lessonsRepository.initTrx();
 
-        const lesson = await this.lessonsRepository.create(newEntity);
+        try {
+            const newEntity = LessonModelFactory.create({
+                theme: dto.theme,
+                date: dto.date,
+                course,
+                createdAt: new Date(),
+                createdBy: user,
+            });
 
-        return this.lessonViewModelFactory.initLessonViewModel(lesson);
+            const lesson = await this.lessonsRepository.trxCreate(transaction, newEntity);
+            await this.updateCourseAvailableFlag(transaction, course);
+
+            await this.lessonsRepository.commitTrx(transaction);
+
+            return this.lessonViewModelFactory.initLessonViewModel(lesson);
+        } catch (err) {
+            console.error(err);
+
+            await this.lessonsRepository.rollbackTrx(transaction);
+
+            throw err;
+        }
     }
 
     public async deleteLesson(id: number): Promise<void> {
@@ -79,7 +93,7 @@ export class LessonsService implements ILessonsService {
     public async getStudentLessons(
         queryParams: QueryParamsDTO,
         studentId: number,
-    ): Promise<DataListResponse<LessonViewModel>> {
+    ): Promise<DataListResponse<StudentLessonListViewModel>> {
         const query = this.lessonsRepository.getAllQByStudent(studentId);
 
         const config = this.getDatatablesConfig();
@@ -89,8 +103,8 @@ export class LessonsService implements ILessonsService {
             query,
             config,
         );
-        const model = this.lessonViewModelFactory.initLessonListViewModel(lessons);
-        return new DataListResponse<LessonViewModel>(model, count);
+        const model = this.lessonViewModelFactory.initStudentLessonListViewModel(lessons);
+        return new DataListResponse<StudentLessonListViewModel>(model, count);
     }
 
     public async getInstructorLessons(
@@ -143,13 +157,13 @@ export class LessonsService implements ILessonsService {
     }
 
     private async validateUpdate(id: number, dto: UpdateLessonDto): Promise<Course> {
-        await this.checkIfExists(id);
+        const lesson = await this.checkIfExists(id);
 
         if (dto.theme) {
             await this.checkIfExistsByTheme(dto.theme);
         }
 
-        return dto.courseId ? await this.checkIfCourseExists(dto.courseId) : null;
+        return dto.courseId ? await this.checkIfCourseExists(dto.courseId) : lesson.course;
     }
 
     private async checkIfCourseExists(id: number): Promise<Course> {
@@ -170,12 +184,14 @@ export class LessonsService implements ILessonsService {
         }
     }
 
-    private async checkIfExists(id: number): Promise<void> {
+    private async checkIfExists(id: number): Promise<Lesson> {
         const lesson = await this.lessonsRepository.getById(id);
 
         if (!lesson) {
             throw new NotFoundException(BaseErrorMessage.NOT_FOUND);
         }
+
+        return lesson;
     }
 
     private getDatatablesConfig(): DatatablesConfig {
@@ -224,6 +240,18 @@ export class LessonsService implements ILessonsService {
             ],
         };
     }
+
+    private async updateCourseAvailableFlag(
+        transaction: QueryRunner,
+        course: Course,
+    ): Promise<void> {
+        const lessons = await this.lessonsRepository.trxGetAllByCourseId(transaction, course.id);
+
+        if (lessons.length >= 5) {
+            course.available = true;
+            await this.coursesRepository.update(course);
+        }
+    }
 }
 
 interface ILessonsService {
@@ -234,7 +262,7 @@ interface ILessonsService {
     getStudentLessons(
         queryParams: QueryParamsDTO,
         studentId: number,
-    ): Promise<DataListResponse<LessonViewModel>>;
+    ): Promise<DataListResponse<StudentLessonListViewModel>>;
     getInstructorLessons(
         queryParams: QueryParamsDTO,
         instructorId: number,

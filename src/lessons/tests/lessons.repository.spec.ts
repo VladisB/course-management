@@ -1,12 +1,12 @@
 import { Test } from "@nestjs/testing";
 import { getRepositoryToken } from "@nestjs/typeorm";
 import { Repository, SelectQueryBuilder } from "typeorm";
-import { createMock } from "@golevelup/ts-jest";
 import { lessonMockList, lessonStub } from "@app/common/test/stubs";
 import { BaseErrorMessage } from "@app/common/enum";
 import { LessonsRepository } from "../lessons.repository";
 import { Lesson } from "../entities/lesson.entity";
 import { mockQueryBuilder } from "@app/common/test/mocks";
+import { mockLessonsRepository } from "./mocks";
 
 const tableName = "lesson";
 const queryBuilderMock = mockQueryBuilder<Lesson>(lessonMockList);
@@ -23,7 +23,7 @@ describe("LessonsRepository", () => {
                 LessonsRepository,
                 {
                     provide: entityRepositoryToken,
-                    useValue: createMock<Repository<Lesson>>(),
+                    useValue: mockLessonsRepository(),
                 },
             ],
         }).compile();
@@ -135,6 +135,9 @@ describe("LessonsRepository", () => {
             const localQueryBuilderMock = {
                 ...queryBuilderMock,
                 innerJoinAndSelect: jest.fn().mockReturnThis(),
+                leftJoinAndSelect: jest.fn().mockReturnThis(),
+                innerJoinAndMapMany: jest.fn().mockReturnThis(),
+                where: jest.fn().mockReturnThis(),
             };
 
             jest.spyOn(entityRepository, "createQueryBuilder").mockReturnValue(
@@ -152,8 +155,24 @@ describe("LessonsRepository", () => {
                 "course.studentCourses",
                 "studentCourses",
             );
-            expect(queryBuilderMock.where).toHaveBeenCalledWith(
+            expect(localQueryBuilderMock.where).toHaveBeenCalledWith(
                 "studentCourses.studentId = :studentId",
+                { studentId },
+            );
+            expect(localQueryBuilderMock.innerJoinAndMapMany).toHaveBeenCalledWith(
+                "course.courseInstructors",
+                "course_instructors",
+                "courseInstructors",
+                "courseInstructors.courseId = course.id",
+            );
+            expect(localQueryBuilderMock.innerJoinAndSelect).toHaveBeenCalledWith(
+                "courseInstructors.instructor",
+                "user",
+            );
+            expect(localQueryBuilderMock.leftJoinAndSelect).toHaveBeenCalledWith(
+                "lesson.grades",
+                "lesson_grades",
+                "lesson_grades.student_id = :studentId",
                 { studentId },
             );
         });

@@ -29,7 +29,7 @@ export class StudentsViewModelFactory implements IStudentsViewModelFactory {
     public initStudentListViewModel(students: User[]): StudentListViewModel[] {
         const model: StudentListViewModel[] = [];
 
-        return this.setUserListViewModel(model, students);
+        return this.setStudentListViewModel(model, students);
     }
 
     private setStudentCourseViewModel(
@@ -40,6 +40,7 @@ export class StudentsViewModelFactory implements IStudentsViewModelFactory {
             const courseList: StudentCourseViewModel[] = courses.map((course) => ({
                 id: course.id,
                 name: course.name,
+                passed: course.studentCourses[0].passed,
             }));
 
             model.push(...courseList);
@@ -64,7 +65,7 @@ export class StudentsViewModelFactory implements IStudentsViewModelFactory {
         return model;
     }
 
-    private setUserListViewModel(
+    private setStudentListViewModel(
         model: StudentListViewModel[],
         students: User[],
     ): StudentListViewModel[] {
@@ -74,7 +75,6 @@ export class StudentsViewModelFactory implements IStudentsViewModelFactory {
                 email: student.email,
                 firstName: student.firstName,
                 lastName: student.lastName,
-                role: student.role.name,
                 group: student.group ? student.group.name : null,
             }));
 
@@ -89,6 +89,7 @@ export class StudentsViewModelFactory implements IStudentsViewModelFactory {
             const courseList: StudentCourseViewModel[] = student.studentCourses.map(
                 (studentCourses) => ({
                     id: studentCourses.course.id,
+                    passed: studentCourses.passed,
                     name: studentCourses.course.name,
                 }),
             );

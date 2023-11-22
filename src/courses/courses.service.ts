@@ -9,6 +9,8 @@ import { UpdateCourseDto } from "./dto/update-course.dto";
 import { Course } from "./entities/course.entity";
 import { CoursesViewModelFactory } from "./model-factories";
 import { BaseErrorMessage } from "@app/common/enum";
+import { CourseModelFactory } from "./model-factories/course.factory";
+import { User } from "@app/users/entities/user.entity";
 
 @Injectable()
 export class CoursesService implements ICoursesService {
@@ -17,10 +19,16 @@ export class CoursesService implements ICoursesService {
         private readonly coursesViewModelFactory: CoursesViewModelFactory,
     ) {}
 
-    public async createCourse(dto: CreateCourseDto): Promise<CourseViewModel> {
+    public async createCourse(dto: CreateCourseDto, user: User): Promise<CourseViewModel> {
         await this.validateCreate(dto);
 
-        const course = await this.coursesRepository.create(dto);
+        const newEntity = CourseModelFactory.create({
+            name: dto.name,
+            createdBy: user,
+            createdAt: new Date(),
+        });
+
+        const course = await this.coursesRepository.create(newEntity);
 
         return this.coursesViewModelFactory.initCourseViewModel(course);
     }
@@ -78,18 +86,29 @@ export class CoursesService implements ICoursesService {
         return this.coursesViewModelFactory.initCourseViewModel(course);
     }
 
-    public async updateCourse(id: number, dto: UpdateCourseDto): Promise<CourseViewModel> {
+    public async updateCourse(
+        id: number,
+        dto: UpdateCourseDto,
+        user: User,
+    ): Promise<CourseViewModel> {
         await this.validateUpdate(id, dto);
 
-        const course = await this.coursesRepository.update(id, dto);
+        const updatedEntity = CourseModelFactory.update({
+            id,
+            name: dto.name,
+            modifiedBy: user,
+            modifiedAt: new Date(),
+        });
+
+        const course = await this.coursesRepository.update(updatedEntity);
 
         return this.coursesViewModelFactory.initCourseViewModel(course);
     }
 
     public async deleteCourse(id: number): Promise<void> {
-        const Course = await this.validateDelete(id);
+        await this.validateDelete(id);
 
-        await this.coursesRepository.deleteById(Course.id);
+        await this.coursesRepository.deleteById(id);
     }
 
     private async validateCreate(dto: CreateCourseDto): Promise<void> {
@@ -101,10 +120,12 @@ export class CoursesService implements ICoursesService {
         await this.checkifNotExistByName(dto.name, id);
     }
 
-    private async validateDelete(id: number): Promise<Course> {
-        return await this.checkifExist(id);
-        // TODO: Check if course is not used in any other entity. Check Instructors and Students.
-        // TODO: Check if course has any lessons.
+    private async validateDelete(id: number): Promise<void> {
+        await this.checkifExist(id);
+        await this.checkIfCourseHasInstructor(id);
+        await this.checkIfCourseHasGroup(id);
+        await this.checkIfCourseHasStudents(id);
+        await this.checkIfCourseHasLessons(id);
     }
 
     private async checkifNotExistByName(name: string, id?: number): Promise<void> {
@@ -122,11 +143,61 @@ export class CoursesService implements ICoursesService {
 
         return course;
     }
+
+    private async checkIfCourseHasInstructor(id: number): Promise<Course> {
+        const course = await this.coursesRepository.getById(id);
+
+        if (course.courseInstructors.length > 0) {
+            throw new ConflictException(
+                `Course with id ${id} has instructor. Please remove instructor first.`,
+            );
+        }
+
+        return course;
+    }
+
+    private async checkIfCourseHasGroup(id: number): Promise<Course> {
+        const course = await this.coursesRepository.getById(id);
+
+        if (course.groupCourses.length > 0) {
+            throw new ConflictException(
+                `Course with id ${id} has group. Please remove or reassign group first.`,
+            );
+        }
+
+        return course;
+    }
+
+    private async checkIfCourseHasStudents(id: number): Promise<Course> {
+        const course = await this.coursesRepository.getById(id);
+
+        if (course.studentCourses.length > 0) {
+            throw new ConflictException(
+                `Course with id ${id} has student. Please remove or reassign student first.`,
+            );
+        }
+
+        return course;
+    }
+
+    private async checkIfCourseHasLessons(id: number): Promise<void> {
+        const lessons = await this.coursesRepository.getLessonsNumberByCourseId(id);
+
+        if (lessons > 0) {
+            throw new ConflictException(
+                `Course with id ${id} has lessons. Please remove or reassign lessons first.`,
+            );
+        }
+    }
 }
 
 interface ICoursesService {
-    createCourse(dto: CreateCourseDto): Promise<CourseViewModel>;
+    createCourse(dto: CreateCourseDto, user: User): Promise<CourseViewModel>;
     getCourse(id: number): Promise<CourseViewModel>;
     getCourses(queryParams: QueryParamsDTO): Promise<DataListResponse<CourseViewModel>>;
-    updateCourse(id: number, updateCourseDto: UpdateCourseDto): Promise<CourseViewModel>;
+    updateCourse(
+        id: number,
+        updateCourseDto: UpdateCourseDto,
+        user: User,
+    ): Promise<CourseViewModel>;
 }

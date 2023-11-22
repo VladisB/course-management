@@ -1,4 +1,4 @@
-import { GroupCourses } from "@app/groups/entities/group-to-course.entity";
+import { GroupCourses } from "@app/groups/entities/group-courses.entity";
 import {
     BaseEntity,
     Column,
@@ -8,8 +8,8 @@ import {
     PrimaryGeneratedColumn,
     UpdateDateColumn,
 } from "typeorm";
-import { CourseInstructors } from "./course-to-instructor.entity";
 import { StudentCourses } from "@app/student-courses/entities/student-courses.entity";
+import { CourseInstructors } from "@app/course-instructors/entities/course-instructors.entity";
 
 @Entity()
 export class Course extends BaseEntity {

@@ -11,7 +11,7 @@ export class RolesRepository extends BaseRepository implements IRolesRepository 
         @InjectRepository(Role)
         private readonly entityRepository: Repository<Role>,
     ) {
-        super(entityRepository.manager.queryRunner);
+        super(entityRepository.manager.connection.createQueryRunner());
     }
 
     public async getByName(name: string): Promise<Role> {

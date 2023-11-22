@@ -1,10 +1,19 @@
-import { ConflictException, Injectable, NotFoundException } from "@nestjs/common";
+import {
+    BadRequestException,
+    ConflictException,
+    Injectable,
+    NotFoundException,
+} from "@nestjs/common";
 import { IFacultiesRepository } from "@app/faculties/faculties.repository";
 import { Faculty } from "@app/faculties/entities/faculty.entity";
 import { CreateGroupDto } from "./dto/create-group.dto";
 import { Group } from "./entities/group.entity";
 import { IGroupsRepository } from "./groups.repository";
-import { GroupsViewModelFactory } from "./model-factories";
+import {
+    GroupCoursesModelFactory,
+    GroupModelFactory,
+    GroupsViewModelFactory,
+} from "./model-factories";
 import { GroupViewModel } from "./view-models";
 import { ApplyToQueryExtension } from "@common/query-extention";
 import { ColumnType, QueryParamsDTO } from "@common/dto/query-params.dto";
@@ -12,8 +21,10 @@ import { DataListResponse } from "@common/db/data-list-response";
 import { UpdateGroupDto } from "./dto/update-group.dto";
 import { ICoursesRepository } from "@app/courses/courses.repository";
 import { Course } from "@app/courses/entities/course.entity";
-import { GroupCoursesRepository } from "./group-courses.repository";
+import { IGroupCoursesRepository } from "./group-courses.repository";
 import { BaseErrorMessage } from "@common/enum";
+import { User } from "@app/users/entities/user.entity";
+import { QueryRunner } from "typeorm";
 
 @Injectable()
 export class GroupsService implements IGroupsService {
@@ -21,14 +32,21 @@ export class GroupsService implements IGroupsService {
         private readonly groupsRepository: IGroupsRepository,
         private readonly coursesRepository: ICoursesRepository,
         private readonly facultiesRepository: IFacultiesRepository,
-        private readonly groupCoursesRepository: GroupCoursesRepository,
+        private readonly groupCoursesRepository: IGroupCoursesRepository,
         private readonly groupsViewModelFactory: GroupsViewModelFactory,
     ) {}
 
-    public async createGroup(dto: CreateGroupDto): Promise<GroupViewModel> {
+    public async createGroup(dto: CreateGroupDto, user: User): Promise<GroupViewModel> {
         const faculty = await this.validateCreate(dto);
 
-        const group = await this.groupsRepository.create(dto, faculty);
+        const newEntity = GroupModelFactory.create({
+            name: dto.name,
+            faculty,
+            createdBy: user,
+            createdAt: new Date(),
+        });
+
+        const group = await this.groupsRepository.create(newEntity);
 
         return this.groupsViewModelFactory.initGroupViewModel(group);
     }
@@ -79,20 +97,40 @@ export class GroupsService implements IGroupsService {
     public async getGroup(id: number): Promise<GroupViewModel> {
         const group = await this.groupsRepository.getById(id);
 
-        if (!group) throw new NotFoundException(`Group not found.`);
+        if (!group) throw new NotFoundException(BaseErrorMessage.NOT_FOUND);
 
         return this.groupsViewModelFactory.initGroupViewModel(group);
     }
 
-    public async updateGroup(id: number, dto: UpdateGroupDto): Promise<GroupViewModel> {
-        const courses = await this.validateUpdate(id, dto);
+    public async updateGroup(id: number, dto: UpdateGroupDto, user: User): Promise<GroupViewModel> {
+        const [courses, faculty] = await this.validateUpdate(id, dto);
 
-        const group = await this.groupsRepository.update(id, dto);
-        await this.updateGroupCourses(group, courses);
+        const transaction = await this.groupsRepository.initTrx();
 
-        const newGroup = await this.groupsRepository.getById(id);
+        try {
+            const updatedEntity = GroupModelFactory.update({
+                id,
+                name: dto.name,
+                faculty,
+                modifiedBy: user,
+                modifiedAt: new Date(),
+            });
 
-        return this.groupsViewModelFactory.initGroupViewModel(newGroup);
+            const group = await this.groupsRepository.trxUpdate(transaction, updatedEntity);
+            await this.trxUpdateGroupCourses(transaction, group, courses, user);
+
+            await this.groupsRepository.commitTrx(transaction);
+
+            const newGroup = await this.groupsRepository.getById(id);
+
+            return this.groupsViewModelFactory.initGroupViewModel(newGroup);
+        } catch (err) {
+            console.error(err);
+
+            await this.groupsRepository.rollbackTrx(transaction);
+
+            throw err;
+        }
     }
 
     public async deleteGroup(id: number): Promise<void> {
@@ -101,16 +139,29 @@ export class GroupsService implements IGroupsService {
         await this.groupsRepository.deleteById(group.id);
     }
 
-    private async updateGroupCourses(group: Group, courses: Course[]): Promise<void> {
-        if (!courses.length) return;
+    private async trxUpdateGroupCourses(
+        trx: QueryRunner,
+        group: Group,
+        courses: Course[],
+        user: User,
+    ): Promise<void> {
+        if (!courses || !group || !courses.length) return;
 
-        const groupCourses = await this.groupCoursesRepository.getAllByGroupId(group.id);
+        const groupCourses = await this.groupCoursesRepository.trxGetAllByGroupId(trx, group.id);
 
         if (groupCourses.length) {
-            await this.groupCoursesRepository.deleteByGroupId(group.id);
+            await this.groupCoursesRepository.trxDeleteByGroupId(trx, group.id);
         }
 
-        await this.groupCoursesRepository.bulkCreate(group, courses);
+        const groupCoursesList = courses.map((course) =>
+            GroupCoursesModelFactory.create({
+                group,
+                course,
+                createdBy: user,
+                createdAt: new Date(),
+            }),
+        );
+        await this.groupCoursesRepository.trxBulkCreate(trx, groupCoursesList);
     }
 
     private async validateCreate(dto: CreateGroupDto): Promise<Faculty> {
@@ -119,23 +170,43 @@ export class GroupsService implements IGroupsService {
         return await this.checkIfFacultyExists(dto.facultyId);
     }
 
-    private async validateUpdate(id: number, dto: UpdateGroupDto): Promise<Course[]> {
+    private async validateUpdate(
+        id: number,
+        dto: UpdateGroupDto,
+    ): Promise<readonly [Course[], Faculty]> {
         const group = await this.checkifExist(id);
 
         if (dto.name) await this.checkifNotExistByName(dto.name, id);
 
-        await this.checkCourseNumber(group, dto);
+        if (dto.courseIdList) await this.checkCourseNumber(group, dto.courseIdList);
 
         const courses = dto.courseIdList && (await this.checkIfCoursesExists(dto));
-        if (courses) await this.checkIfCoursesHaveInstructors(courses);
+        if (courses && courses.length) {
+            this.checkIfCourseAvailable(courses);
+            await this.checkIfCoursesHaveInstructors(courses);
+            this.checkIfCoursesAvailable(courses);
+        }
 
-        this.checkIfCoursesAvailable(courses);
+        const faculty = dto.facultyId && (await this.checkIfFacultyExists(dto.facultyId));
 
-        return courses;
+        return [courses, faculty];
     }
 
     private async validateDelete(id: number): Promise<Group> {
-        return await this.checkifExist(id);
+        const group = await this.checkifExist(id);
+        await this.checkIfGroupAssigned(id);
+
+        return group;
+    }
+
+    private async checkIfGroupAssigned(groupId: number): Promise<void> {
+        const students = await this.groupsRepository.getStudentNumberByGroupId(groupId);
+
+        if (students > 0) {
+            throw new BadRequestException(
+                `Delete operation not allowed.  Some students are assigned to this group.`,
+            );
+        }
     }
 
     private async checkifExist(id: number): Promise<Group> {
@@ -150,9 +221,18 @@ export class GroupsService implements IGroupsService {
         const courses = await this.coursesRepository.getByIdList(dto.courseIdList);
 
         if (courses.length !== dto.courseIdList.length)
-            throw new NotFoundException(`Course not found.`);
+            throw new BadRequestException(`Course(s) not found.`);
 
         return courses;
+    }
+
+    private checkIfCourseAvailable(courseList: Course[]): void {
+        for (const course of courseList) {
+            if (course.available === false)
+                throw new ConflictException(
+                    `Course ${course.name} is not available. Course should have more than 5 lessons.`,
+                );
+        }
     }
 
     private async checkIfCoursesHaveInstructors(courseList: Course[]): Promise<void> {
@@ -171,9 +251,9 @@ export class GroupsService implements IGroupsService {
             throw new ConflictException(`At least one course unavailable`);
     }
 
-    private async checkCourseNumber(group: Group, dto: UpdateGroupDto): Promise<void> {
+    private async checkCourseNumber(group: Group, courseIdList: number[]): Promise<void> {
         const assignedCourseIds = group.groupCourses.map((item) => item.courseId);
-        const newCourseIds = dto.courseIdList.filter((item) => !assignedCourseIds.includes(item));
+        const newCourseIds = courseIdList.filter((item) => !assignedCourseIds.includes(item));
 
         if (group.groupCourses.length >= 5 && newCourseIds.length)
             throw new ConflictException("Course number limit exceeded.");
@@ -197,9 +277,9 @@ export class GroupsService implements IGroupsService {
 }
 
 interface IGroupsService {
-    createGroup(dto: CreateGroupDto): Promise<GroupViewModel>;
+    createGroup(dto: CreateGroupDto, user: User): Promise<GroupViewModel>;
     deleteGroup(id: number): Promise<void>;
     getGroup(id: number): Promise<GroupViewModel>;
     getGroups(queryParams: QueryParamsDTO): Promise<DataListResponse<GroupViewModel>>;
-    updateGroup(id: number, dto: UpdateGroupDto): Promise<GroupViewModel>;
+    updateGroup(id: number, dto: UpdateGroupDto, user: User): Promise<GroupViewModel>;
 }

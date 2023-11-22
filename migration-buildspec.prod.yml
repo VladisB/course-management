@@ -46,14 +46,15 @@ phases:
       - echo Logging in to Amazon ECR...
       - aws --version
       - echo "default region:" $AWS_DEFAULT_REGION
-      - aws ecr get-login-password --region eu-central-1 | docker login --username AWS --password-stdin $REPO_DOMAIN
+      - aws ecr get-login-password --region $AWS_DEFAULT_REGION | docker login --username AWS --password-stdin $REPO_DOMAIN
 
       - echo Install phase completed.
   pre_build:
     commands:
       - echo Pulling Docker image...
       - COMMIT_HASH=$(echo $CODEBUILD_RESOLVED_SOURCE_VERSION | cut -c 1-7)
-      - IMAGE_TAG_PROD="${COMMIT_HASH}-prod"
+      # - IMAGE_TAG_PROD="${COMMIT_HASH}-prod"
+      - IMAGE_TAG_PROD="latest"
 
       - docker pull $REPO_URI:$IMAGE_TAG_PROD
   build:
@@ -70,6 +71,7 @@ phases:
       - echo NODE_ENV=$NODE_ENV >> .prod.env
       - echo DB_TYPE=$DB_TYPE >> .prod.env
       - echo PG_HOST=$PG_HOST >> .prod.env
+      - echo PG_DATABASE=$PG_DATABASE >> .prod.env
       - echo PG_PORT=$PG_PORT >> .prod.env
       - echo PG_USER=$PG_USER >> .prod.env
       - echo PG_PASSWORD=$PG_PASSWORD >> .prod.env

@@ -58,46 +58,23 @@ export class CourseInstructorsRepository
         });
     }
 
-    public async create(courseId: number, instructorId: number): Promise<CourseInstructors> {
-        const groupCourse = this.entityRepository.create({
-            course: { id: courseId },
-            instructor: { id: instructorId },
-        });
-
-        const { id } = await this.entityRepository.save(groupCourse);
+    public async create(entity: CourseInstructors): Promise<CourseInstructors> {
+        const { id } = await this.entityRepository.save(entity);
 
         return await this.getById(id);
     }
 
-    public async bulkCreate(
-        courseId: number,
-        instructorsIds: number[],
-    ): Promise<CourseInstructors[]> {
-        const enteties = instructorsIds.map((id) =>
-            this.entityRepository.create({
-                course: { id: courseId },
-                instructor: { id },
-            }),
-        );
-
-        const entityList = await this.entityRepository.save(enteties);
+    public async bulkCreate(entities: CourseInstructors[]): Promise<CourseInstructors[]> {
+        const entityList = await this.entityRepository.save(entities);
 
         return await this.getByIdList(entityList.map((entity) => entity.id));
     }
 
     public async trxBulkCreate(
         queryRunner: QueryRunner,
-        courseId: number,
-        instructorsIds: number[],
+        entities: CourseInstructors[],
     ): Promise<CourseInstructors[]> {
-        const enteties = instructorsIds.map((id) =>
-            this.entityRepository.create({
-                course: { id: courseId },
-                instructor: { id },
-            }),
-        );
-
-        return await queryRunner.manager.save(enteties);
+        return await queryRunner.manager.save(entities);
     }
 
     public async getById(id: number): Promise<CourseInstructors> {
@@ -153,8 +130,8 @@ export class CourseInstructorsRepository
 }
 
 export abstract class ICourseInstructorsRepository extends IBaseRepository {
-    abstract bulkCreate(courseId: number, instructorsIds: number[]): Promise<CourseInstructors[]>;
-    abstract create(courseId: number, instructorId: number): Promise<CourseInstructors>;
+    abstract bulkCreate(entities: CourseInstructors[]): Promise<CourseInstructors[]>;
+    abstract create(entity: CourseInstructors): Promise<CourseInstructors>;
     abstract deleteById(id: number): Promise<void>;
     abstract getAllQ(): SelectQueryBuilder<CourseInstructors>;
     abstract getByDetails(
@@ -166,8 +143,7 @@ export abstract class ICourseInstructorsRepository extends IBaseRepository {
     abstract getByIdWithFullDetails(id: number): Promise<CourseInstructors>;
     abstract trxBulkCreate(
         queryRunner: QueryRunner,
-        courseId: number,
-        instructorsIds: number[],
+        entities: CourseInstructors[],
     ): Promise<CourseInstructors[]>;
     abstract trxDeleteByIdList(queryRunner: QueryRunner, idList: number[]): Promise<void>;
     abstract trxGetAllByCourseId(

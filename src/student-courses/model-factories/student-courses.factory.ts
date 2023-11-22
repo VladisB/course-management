@@ -22,7 +22,7 @@ export abstract class StudentCoursesModelFactory {
         entity.course = course;
         entity.student = student;
         entity.createdAt = createdAt;
-        entity.updatedAt = modifiedAt;
+        entity.modifiedAt = modifiedAt;
 
         return entity;
     }
@@ -68,7 +68,7 @@ export abstract class StudentCoursesModelFactory {
             entity.passed = passed;
         }
 
-        entity.updatedAt = modifiedAt;
+        entity.modifiedAt = modifiedAt;
 
         return entity;
     }

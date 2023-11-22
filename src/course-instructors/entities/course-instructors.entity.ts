@@ -8,6 +8,7 @@ import {
     CreateDateColumn,
     UpdateDateColumn,
     Index,
+    JoinColumn,
 } from "typeorm";
 
 @Index(["courseId", "instructorId"], { unique: true })
@@ -28,6 +29,14 @@ export class CourseInstructors {
     @ManyToOne(() => User, (user) => user.courseInstructors)
     public instructor: User;
 
+    @ManyToOne(() => User, { nullable: false })
+    @JoinColumn({ name: "created_by" })
+    public createdBy: User;
+
+    @ManyToOne(() => User, { nullable: false })
+    @JoinColumn({ name: "modified_by" })
+    public modifiedBy: User;
+
     @CreateDateColumn({
         type: "timestamp",
         default: () => "CURRENT_TIMESTAMP(6)",
@@ -39,7 +48,7 @@ export class CourseInstructors {
         type: "timestamp",
         default: () => "CURRENT_TIMESTAMP(6)",
         onUpdate: "CURRENT_TIMESTAMP(6)",
-        name: "updated_at",
+        name: "modified_at",
     })
-    public updatedAt: Date;
+    public modifiedAt: Date;
 }

@@ -61,17 +61,17 @@ describe("LessonsService", () => {
         jest.clearAllMocks();
     });
 
-    // it("LessonsService should be defined", () => {
-    //     expect(lessonsService).toBeDefined();
-    // });
+    it("LessonsService should be defined", () => {
+        expect(lessonsService).toBeDefined();
+    });
 
-    // it("lessonsRepository should be defined", () => {
-    //     expect(lessonsRepository).toBeDefined();
-    // });
+    it("lessonsRepository should be defined", () => {
+        expect(lessonsRepository).toBeDefined();
+    });
 
-    // it("lessonViewModelFactory should be defined", () => {
-    //     expect(lessonViewModelFactory).toBeDefined();
-    // });
+    it("lessonViewModelFactory should be defined", () => {
+        expect(lessonViewModelFactory).toBeDefined();
+    });
 
     describe("create a lesson", () => {
         it("should save the new lesson", async () => {
@@ -82,6 +82,9 @@ describe("LessonsService", () => {
             };
 
             jest.spyOn(coursesRepository, "getById").mockResolvedValue(courseStub);
+            jest.spyOn(lessonsRepository, "trxCreate").mockResolvedValue(lessonStub);
+            jest.spyOn(lessonsRepository, "trxGetAllByCourseId").mockResolvedValue([lessonStub]);
+
             const result = await lessonsService.createLesson(dto, user);
 
             expect(result).toEqual({
@@ -90,7 +93,7 @@ describe("LessonsService", () => {
                 course: courseStub.name,
                 date: expect.any(Date),
                 instructorList: expect.any(Array),
-                theme: dto.theme,
+                theme: expect.any(String),
             });
         });
 

@@ -10,7 +10,7 @@ import { ApplyToQueryExtension } from "@common/query-extention";
 import { ICoursesRepository } from "@app/courses/courses.repository";
 import { Course } from "@app/courses/entities/course.entity";
 import { CreateStudentCoursesDto } from "./dto/create-student-courses.dto";
-import { UpdateStudentCoursesDto } from "./dto/update-student-courses.dto";
+import { PATCHUpdateStudentCoursesDto } from "./dto/update-student-courses.dto";
 import { StudentCourses } from "./entities/student-courses.entity";
 import { StudentCoursesViewModelFactory } from "./model-factories/student-courses";
 import { IStudentCoursesRepository } from "./student-courses.repository";
@@ -18,6 +18,7 @@ import { StudentCoursesViewModel } from "./view-models";
 import { IUsersRepository } from "@app/users/users.repository";
 import { User } from "@app/users/entities/user.entity";
 import { BaseErrorMessage } from "@common/enum";
+import { StudentCourseModelFactory } from "./model-factories";
 
 @Injectable()
 export class StudentCoursesService implements IStudentCoursesService {
@@ -30,27 +31,26 @@ export class StudentCoursesService implements IStudentCoursesService {
 
     public async createStudentCourse(
         dto: CreateStudentCoursesDto,
+        user: User,
     ): Promise<StudentCoursesViewModel> {
-        const [strudent, course] = await this.validateCreate(dto);
+        const [student, course] = await this.validateCreate(dto);
 
-        try {
-            const studentCourse = await this.studentCoursesRepository.create(
-                course.id,
-                strudent.id,
-            );
+        const newEntity = StudentCourseModelFactory.create({
+            course,
+            student,
+            createdAt: new Date(),
+            createdBy: user,
+        });
 
-            return this.studentCoursesViewModelFactory.initStudentCoursesViewModel(studentCourse);
-        } catch (err) {
-            console.error(err);
+        const studentCourse = await this.studentCoursesRepository.create(newEntity);
 
-            throw err;
-        }
+        return this.studentCoursesViewModelFactory.initStudentCoursesViewModel(studentCourse);
     }
 
     public async getStudentCourse(id: number): Promise<StudentCoursesViewModel> {
         const studentCourse = await this.studentCoursesRepository.getById(id);
 
-        if (!studentCourse) throw new NotFoundException();
+        if (!studentCourse) throw new NotFoundException(BaseErrorMessage.NOT_FOUND);
 
         return this.studentCoursesViewModelFactory.initStudentCoursesViewModel(studentCourse);
     }
@@ -119,16 +119,25 @@ export class StudentCoursesService implements IStudentCoursesService {
 
     public async updateStudentCourse(
         id: number,
-        dto: UpdateStudentCoursesDto,
+        dto: PATCHUpdateStudentCoursesDto,
+        user: User,
     ): Promise<StudentCoursesViewModel> {
         await this.validateUpdate(id);
 
-        const studentCourse = await this.studentCoursesRepository.update(id, dto);
+        const updatedEntity = StudentCourseModelFactory.update({
+            id,
+            feedback: dto.feedBack,
+            finalMark: dto.finalMark,
+            modifiedAt: new Date(),
+            modifiedBy: user,
+        });
+
+        const studentCourse = await this.studentCoursesRepository.update(updatedEntity);
 
         return this.studentCoursesViewModelFactory.initStudentCoursesViewModel(studentCourse);
     }
 
-    public async deleteUpdateStudentCourse(id: number): Promise<void> {
+    public async deleteStudentCourse(id: number): Promise<void> {
         const studentCourse = await this.validateDelete(id);
         await this.studentCoursesRepository.deleteById(studentCourse.id);
     }
@@ -186,11 +195,15 @@ export class StudentCoursesService implements IStudentCoursesService {
 }
 
 interface IStudentCoursesService {
-    createStudentCourse(dto: CreateStudentCoursesDto): Promise<StudentCoursesViewModel>;
-    deleteUpdateStudentCourse(id: number): Promise<void>;
+    createStudentCourse(dto: CreateStudentCoursesDto, user: User): Promise<StudentCoursesViewModel>;
+    deleteStudentCourse(id: number): Promise<void>;
     getStudentCourse(id: number): Promise<StudentCoursesViewModel>;
     getStudentCourses(
         queryParams: QueryParamsDTO,
     ): Promise<DataListResponse<StudentCoursesViewModel>>;
-    updateStudentCourse(id: number, dto: UpdateStudentCoursesDto): Promise<StudentCoursesViewModel>;
+    updateStudentCourse(
+        id: number,
+        dto: PATCHUpdateStudentCoursesDto,
+        user: User,
+    ): Promise<StudentCoursesViewModel>;
 }

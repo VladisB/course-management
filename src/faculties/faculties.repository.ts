@@ -11,7 +11,7 @@ export class FacultiesRepository extends BaseRepository implements IFacultiesRep
         @InjectRepository(Faculty)
         private readonly entityRepository: Repository<Faculty>,
     ) {
-        super(entityRepository.manager.queryRunner);
+        super(entityRepository.manager.connection.createQueryRunner());
     }
 
     public getAllQ(): SelectQueryBuilder<Faculty> {

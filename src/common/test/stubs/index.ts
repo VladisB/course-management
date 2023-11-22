@@ -1,6 +1,26 @@
-import { courseMockList, courseStub } from "./course.stub";
+import {
+    courseInstructorsCSStub,
+    courseInstructorsListVMMockList,
+    courseInstructorsListVMStub,
+    courseInstructorsMockList,
+    courseInstructorsStub,
+    courseInstructorsVMMockList,
+    courseMockList,
+    courseStub,
+    courseStubCS,
+    courseVMMockList,
+} from "./course.stub";
 import { facultiesMockList, facultyCEStub, facultyCSStub, facultyVMMockList } from "./faculty.stub";
-import { lessonMockList, lessonStub, lessonVMMockList } from "./lesson.stub";
+import { groupCoursesMockList, groupCoursesStub } from "./group-courses.stub";
+import { groupMockList, groupStub, groupVMMockList, groupVMStub } from "./group.stub";
+import {
+    lessonGradeVMMockList,
+    lessonGradesMockList,
+    lessonGradesStub,
+    studentCoursesLGStub,
+    studentLGStub,
+} from "./lesson-grades.stub";
+import { lessonMockList, lessonStub, lessonStubCS, lessonVMMockList } from "./lesson.stub";
 import {
     rolesMock,
     adminRoleStub,
@@ -9,11 +29,24 @@ import {
     unexistedRoleStub,
 } from "./role.stub";
 import {
+    studentCourseStub,
+    studentCourseViewModelList,
+    studentCoursesMockList,
+    studentCoursesViewModelMockList,
+    studentUserStub3,
+} from "./student-courses.stub";
+import {
     adminUserStub,
     e2eInstructorStub,
     instructorUserStub,
+    instructorUserVMStub,
+    studentMockList,
     studentUserStub,
+    studentUserVMStub,
+    studentVMMockList,
     unexistedUserStub,
+    userMockList,
+    userVMMList,
 } from "./user.stub";
 
 export {
@@ -36,4 +69,35 @@ export {
     facultyCSStub,
     facultyCEStub,
     facultyVMMockList,
+    groupMockList,
+    groupStub,
+    groupVMStub,
+    groupCoursesMockList,
+    groupCoursesStub,
+    groupVMMockList,
+    lessonGradesStub,
+    lessonGradeVMMockList,
+    lessonGradesMockList,
+    studentLGStub,
+    studentCoursesLGStub,
+    lessonStubCS,
+    courseVMMockList,
+    courseStubCS,
+    courseInstructorsCSStub,
+    courseInstructorsStub,
+    courseInstructorsMockList,
+    courseInstructorsVMMockList,
+    courseInstructorsListVMStub,
+    courseInstructorsListVMMockList,
+    studentCoursesMockList,
+    studentCourseStub,
+    studentCoursesViewModelMockList,
+    studentMockList,
+    studentVMMockList,
+    studentUserStub3,
+    studentCourseViewModelList,
+    studentUserVMStub,
+    instructorUserVMStub,
+    userMockList,
+    userVMMList,
 };

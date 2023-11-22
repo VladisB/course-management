@@ -39,6 +39,19 @@ export class UsersRepository extends BaseRepository implements IUsersRepository 
         });
     }
 
+    public async trxGetById(queryRunner: QueryRunner, id: number): Promise<User> {
+        return await queryRunner.manager.findOne(User, {
+            where: {
+                id,
+            },
+            relations: {
+                role: true,
+                group: true,
+                studentCourses: true,
+            },
+        });
+    }
+
     public async getStudentById(id: number): Promise<User> {
         if (!id) return null;
 
@@ -90,17 +103,35 @@ export class UsersRepository extends BaseRepository implements IUsersRepository 
         return await this.getById(id);
     }
 
-    public async update(entity: User): Promise<User> {
-        const { id: entityId } = await this.entityRepository.save(entity);
+    public async trxCreate(queryRunner: QueryRunner, entity: User): Promise<User> {
+        try {
+            const { id } = await queryRunner.manager.save(entity);
 
-        return await this.getById(entityId);
+            return await this.trxGetById(queryRunner, id);
+        } catch (err) {
+            console.error("Error: ", err);
+
+            throw new Error(BaseErrorMessage.DB_ERROR);
+        }
+    }
+
+    public async update(entity: User): Promise<User> {
+        try {
+            const { id: entityId } = await this.entityRepository.save(entity);
+
+            return await this.getById(entityId);
+        } catch (err) {
+            console.error("Error: ", err);
+
+            throw new Error(BaseErrorMessage.DB_ERROR);
+        }
     }
 
     public async trxUpdate(queryRunner: QueryRunner, entity: User): Promise<User> {
         try {
             const { id: entityId } = await queryRunner.manager.save(entity);
 
-            return await this.getById(entityId);
+            return await this.trxGetById(queryRunner, entityId);
         } catch (err) {
             console.error("Error: ", err);
 
@@ -116,20 +147,52 @@ export class UsersRepository extends BaseRepository implements IUsersRepository 
 
     public async updateRefreshToken(id: number, refreshToken: string | null): Promise<void> {
         // NOTE: update() does not trigger the @beforeUpdate() hook
-        await this.entityRepository.update({ id }, { refreshToken });
+        try {
+            await this.entityRepository.update({ id }, { refreshToken });
+        } catch (err) {
+            console.error("Error: ", err);
+
+            throw new Error(BaseErrorMessage.DB_ERROR);
+        }
+    }
+
+    public async getStudentCoursesByStudentId(studentId: number): Promise<User> {
+        return await this.entityRepository.findOne({
+            where: {
+                id: studentId,
+            },
+            relations: {
+                studentCourses: true,
+            },
+        });
+    }
+
+    public async getInstructorCourses(instructorId: number): Promise<User> {
+        return await this.entityRepository.findOne({
+            where: {
+                id: instructorId,
+            },
+            relations: {
+                courseInstructors: true,
+            },
+        });
     }
 }
 
 export abstract class IUsersRepository extends IBaseRepository {
     abstract create(entity: User): Promise<User>;
+    abstract trxCreate(queryRunner: QueryRunner, entity: User): Promise<User>;
     abstract deleteById(id: number): Promise<void>;
     abstract getAllQ(): SelectQueryBuilder<User>;
     abstract getAllStudentsQ(): SelectQueryBuilder<User>;
     abstract getByEmail(email: string): Promise<User>;
     abstract getById(id: number, roleName?: RoleName): Promise<User>;
+    abstract trxGetById(queryRunner: QueryRunner, id: number): Promise<User>;
     abstract getStudentById(id: number): Promise<User>;
     abstract getByIdList(idList: number[], roleId: number): Promise<User[]>;
     abstract trxUpdate(queryRunner: QueryRunner, entity: User): Promise<User>;
     abstract update(entity: User): Promise<User>;
     abstract updateRefreshToken(id: number, refreshToken: string | null): Promise<void>;
+    abstract getStudentCoursesByStudentId(studentId: number): Promise<User>;
+    abstract getInstructorCourses(instructorId: number): Promise<User>;
 }

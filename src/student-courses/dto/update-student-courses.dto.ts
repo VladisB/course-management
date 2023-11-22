@@ -1,20 +1,24 @@
+import { ApiProperty } from "@nestjs/swagger";
 import { IsNotEmpty, IsNumber, IsString, MinLength, MaxLength, IsOptional } from "class-validator";
 
-export class UpdateStudentCoursesDto {
-    // NOTE: studentId and courseId are not allowed to be changed.
-
+export class PATCHUpdateStudentCoursesDto {
+    @IsOptional()
     @IsNotEmpty()
     @IsNumber()
-    readonly finalMark: number;
+    @ApiProperty({ description: "Final Mark", minimum: 1, maximum: 100, required: false })
+    readonly finalMark?: number;
 
+    @IsOptional()
     @IsString()
     @MinLength(4)
     @MaxLength(200)
     @IsNotEmpty()
-    readonly feedBack: string;
+    @ApiProperty({ description: "Feedback", required: false })
+    readonly feedBack?: string;
 
     @IsOptional()
     @IsNotEmpty()
     @IsNumber()
-    readonly passed: boolean;
+    @ApiProperty({ description: "Passed", required: false })
+    readonly passed?: boolean;
 }

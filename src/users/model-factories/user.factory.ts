@@ -38,11 +38,10 @@ export abstract class UserModelFactory {
             entity.group = group;
         }
 
-        // entity.createdBy = createdBy;
+        entity.createdBy = createdBy;
         entity.createdAt = createdAt;
-        // entity.modifiedBy = modifiedBy ?? createdBy;
-        // entity.modifiedAt = modifiedAt ?? createdAt;
-        entity.updatedAt = modifiedAt ?? createdAt;
+        entity.modifiedBy = modifiedBy ?? createdBy;
+        entity.modifiedAt = modifiedAt ?? createdAt;
 
         return entity;
     }
@@ -96,10 +95,8 @@ export abstract class UserModelFactory {
             entity.group = group;
         }
 
-        // entity.modifiedBy = modifiedBy;
-        // entity.modifiedAt = modifiedAt;
-
-        entity.updatedAt = modifiedAt;
+        entity.modifiedBy = modifiedBy;
+        entity.modifiedAt = modifiedAt;
 
         return entity;
     }

@@ -13,10 +13,12 @@ phases:
       nodejs: 18.x
     commands:
       - echo Install phase started.
-      - npm install -g npm
+      - echo "Node.js version:" $(node -v)
+      - echo "npm version:" $(npm -v)
+      # - npm install -g npm
       - npm install -g @nestjs/cli
       - npm ci
-      # - nohup /usr/local/bin/dockerd --host=unix:///var/run/docker.sock --host=tcp://127.0.0.1:2375 --storage-driver=overlay2 & timeout 15 sh -c "until docker info; do echo .; sleep 1; done"
+      - nohup /usr/local/bin/dockerd --host=unix:///var/run/docker.sock --host=tcp://127.0.0.1:2375 --storage-driver=overlay2 & timeout 15 sh -c "until docker info; do echo .; sleep 1; done"
       - echo Install phase completed.
   pre_build:
     commands:
@@ -30,11 +32,12 @@ phases:
       - echo log in to Amazon ECR...
       - aws --version
       - echo "default region:" $AWS_DEFAULT_REGION
-      - aws ecr get-login-password --region eu-central-1 | docker login --username AWS --password-stdin $REPO_DOMAIN
+      - aws ecr get-login-password --region $AWS_DEFAULT_REGION | docker login --username AWS --password-stdin $REPO_DOMAIN
 
       - COMMIT_HASH=$(echo $CODEBUILD_RESOLVED_SOURCE_VERSION | cut -c 1-7)
 
-      - IMAGE_TAG_PROD="${COMMIT_HASH}-prod"
+      # - IMAGE_TAG_PROD="${COMMIT_HASH}-prod"
+      - IMAGE_TAG_PROD="latest"
       - IMAGE_TAG_TESTING="${COMMIT_HASH}-testing"
 
       - echo Pre-Build phase completed.
@@ -63,7 +66,7 @@ phases:
       - docker push $REPO_URI:$IMAGE_TAG_TESTING
 
       - echo write definitions file...
-      - printf '[{"name":"course-mangement-api","imageUri":"%s"}]' $REPO_URI:$IMAGE_TAG_PROD > imagedefinitions.json
+      - printf '[{"name":"course-management-api","imageUri":"%s"}]' $REPO_URI:$IMAGE_TAG_PROD > imagedefinitions.json
 
 artifacts:
   files: imagedefinitions.json

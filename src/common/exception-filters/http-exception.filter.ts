@@ -10,7 +10,7 @@ export class HttpExceptionFilter implements ExceptionFilter {
         const status = exception.getStatus();
         const exceptionResponse = exception.getResponse();
 
-        // TODO: fix typing issue
+        // TODO: fix type issue
         // @ts-ignore
         const message = Array.isArray(exceptionResponse.message)
             ? // @ts-ignore
