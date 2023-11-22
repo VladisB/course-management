@@ -71,6 +71,7 @@ phases:
       - echo NODE_ENV=$NODE_ENV >> .prod.env
       - echo DB_TYPE=$DB_TYPE >> .prod.env
       - echo PG_HOST=$PG_HOST >> .prod.env
+      - echo PG_DATABASE=$PG_DATABASE >> .prod.env
       - echo PG_PORT=$PG_PORT >> .prod.env
       - echo PG_USER=$PG_USER >> .prod.env
       - echo PG_PASSWORD=$PG_PASSWORD >> .prod.env
