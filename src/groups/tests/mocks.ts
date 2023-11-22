@@ -13,6 +13,7 @@ const mockGroupsRepository = () => ({
     save: jest.fn(),
     delete: jest.fn(),
     createQueryBuilder: jest.fn(),
+    getStudentNumberByGroupId: jest.fn().mockResolvedValue(null),
     create: jest.fn().mockImplementation((entity: Group) => {
         entity.id = 1;
         return Promise.resolve(entity);
@@ -36,6 +37,7 @@ const mockGroupCoursesRepository = () => ({
     getById: jest.fn().mockResolvedValue(null),
     deleteById: jest.fn().mockResolvedValue(null),
     getAllQ: jest.fn().mockReturnValue(null),
+    getStudentNumberByGroupId: jest.fn().mockResolvedValue(null),
     findOne: jest.fn(),
     find: jest.fn(),
     findOneBy: jest.fn(),

@@ -72,6 +72,7 @@ const mockUsersRepository = () => ({
         return Promise.resolve(entity);
     }),
     delete: jest.fn().mockResolvedValue(null),
+    getStudentCoursesByStudentId: jest.fn().mockResolvedValue(null),
     save: jest.fn().mockResolvedValue(null),
     find: jest.fn().mockResolvedValue([]),
     findOne: jest.fn().mockResolvedValue(null),

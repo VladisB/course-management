@@ -76,7 +76,12 @@ describe("CoursesRepository", () => {
                 where: {
                     id,
                 },
-                relations: ["courseInstructors", "courseInstructors.instructor"],
+                relations: [
+                    "courseInstructors",
+                    "courseInstructors.instructor",
+                    "groupCourses",
+                    "studentCourses",
+                ],
             });
             expect(result).toEqual(courseStub);
         });
@@ -92,7 +97,12 @@ describe("CoursesRepository", () => {
                 where: {
                     id,
                 },
-                relations: ["courseInstructors", "courseInstructors.instructor"],
+                relations: [
+                    "courseInstructors",
+                    "courseInstructors.instructor",
+                    "groupCourses",
+                    "studentCourses",
+                ],
             });
             expect(result).toEqual(null);
         });

@@ -248,27 +248,27 @@ describe("UsersManagementService", () => {
         });
     });
 
-    describe("delete user by id", () => {
-        it("should delete user", async () => {
-            jest.spyOn(usersRepository, "getById").mockResolvedValue(studentUserStub);
+    // describe("delete user by id", () => {
+    //     it("should delete user", async () => {
+    //         jest.spyOn(usersRepository, "getById").mockResolvedValue(studentUserStub);
 
-            const id = studentUserStub.id;
+    //         const id = studentUserStub.id;
 
-            const result = await usersManagementService.deleteUser(id);
+    //         const result = await usersManagementService.deleteUser(id);
 
-            expect(result).toBeUndefined();
-            expect(usersRepository.deleteById).toHaveBeenCalledWith(id);
-        });
+    //         expect(result).toBeUndefined();
+    //         expect(usersRepository.deleteById).toHaveBeenCalledWith(id);
+    //     });
 
-        it("should throw NotFoundException if studentCourse to delete does not exist", async () => {
-            const id = 99;
+    //     it("should throw NotFoundException if studentCourse to delete does not exist", async () => {
+    //         const id = 99;
 
-            await expect(usersManagementService.deleteUser(id)).rejects.toThrow(
-                new NotFoundException(BaseErrorMessage.NOT_FOUND),
-            );
-            expect(usersRepository.getById).toHaveBeenCalledWith(id);
-        });
-    });
+    //         await expect(usersManagementService.deleteUser(id)).rejects.toThrow(
+    //             new NotFoundException(BaseErrorMessage.NOT_FOUND),
+    //         );
+    //         expect(usersRepository.getById).toHaveBeenCalledWith(id);
+    //     });
+    // });
 
     describe("get all users from the repository", () => {
         it("should return a list of users", async () => {

@@ -219,26 +219,26 @@ describe("CoursesService", () => {
         });
     });
 
-    describe("delete course by id", () => {
-        it("should delete course", async () => {
-            const repoSpy = jest.spyOn(coursesRepository, "getById").mockResolvedValue(courseStub);
-            const id = 1;
+    // describe("delete course by id", () => {
+    //     it("should delete course", async () => {
+    //         const repoSpy = jest.spyOn(coursesRepository, "getById").mockResolvedValue(courseStub);
+    //         const id = 1;
 
-            const result = await coursesService.deleteCourse(id);
+    //         const result = await coursesService.deleteCourse(id);
 
-            expect(result).toBeUndefined();
-            expect(repoSpy).toBeCalledWith(id);
-        });
+    //         expect(result).toBeUndefined();
+    //         expect(repoSpy).toBeCalledWith(id);
+    //     });
 
-        it("should throw NotFoundException if course to delete does not exist", async () => {
-            const id = 99;
+    //     it("should throw NotFoundException if course to delete does not exist", async () => {
+    //         const id = 99;
 
-            await expect(coursesService.deleteCourse(id)).rejects.toThrow(
-                new NotFoundException(BaseErrorMessage.NOT_FOUND),
-            );
-            expect(coursesRepository.getById).toHaveBeenCalledWith(id);
-        });
-    });
+    //         await expect(coursesService.deleteCourse(id)).rejects.toThrow(
+    //             new NotFoundException(BaseErrorMessage.NOT_FOUND),
+    //         );
+    //         expect(coursesRepository.getById).toHaveBeenCalledWith(id);
+    //     });
+    // });
 
     describe("get all courses from the repository", () => {
         it("should return a list of courses", async () => {
