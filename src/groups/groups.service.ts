@@ -192,9 +192,21 @@ export class GroupsService implements IGroupsService {
         return [courses, faculty];
     }
 
-    // TODO: Check validation rules
     private async validateDelete(id: number): Promise<Group> {
-        return await this.checkifExist(id);
+        const group = await this.checkifExist(id);
+        await this.checkIfGroupAssigned(id);
+
+        return group;
+    }
+
+    private async checkIfGroupAssigned(groupId: number): Promise<void> {
+        const students = await this.groupsRepository.getStudentNumberByGroupId(groupId);
+
+        if (students > 0) {
+            throw new BadRequestException(
+                `Delete operation not allowed.  Some students are assigned to this group.`,
+            );
+        }
     }
 
     private async checkifExist(id: number): Promise<Group> {

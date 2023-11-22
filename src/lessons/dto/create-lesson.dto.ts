@@ -12,7 +12,6 @@ export class CreateLessonDto {
     readonly theme: string;
 
     @IsNotEmpty()
-    // @IsDateString() // TODO: investigate why this doesn't work and maybe delete
     @Transform(({ value }) => new Date(value))
     @Type(() => Date)
     @ApiProperty({ description: "Lesson date" })

@@ -11,7 +11,6 @@ import {
     JoinColumn,
 } from "typeorm";
 
-// Store the final feedback for a course for each strudent
 @Index(["courseId", "studentId"], { unique: true })
 @Entity()
 export class StudentCourses {

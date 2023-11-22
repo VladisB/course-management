@@ -274,9 +274,9 @@ export class UsersManagementService implements IUsersManagementService {
     }
 
     public async deleteUser(id: number): Promise<void> {
-        const user = await this.validateDelete(id);
+        await this.validateDelete(id);
 
-        await this.usersRepository.deleteById(user.id);
+        await this.usersRepository.deleteById(id);
     }
 
     //#endregion
@@ -300,7 +300,6 @@ export class UsersManagementService implements IUsersManagementService {
 
         const role = await this.rolesRepository.getByName(RoleName.Student);
 
-
         return role;
     }
 
@@ -320,8 +319,11 @@ export class UsersManagementService implements IUsersManagementService {
         return [group, user, role];
     }
 
-    private async validateDelete(id: number): Promise<User> {
-        return await this.checkIfUserExistById(id);
+    private async validateDelete(id: number): Promise<void> {
+        const user = await this.checkIfUserExistById(id);
+
+        await this.validateStudent(user);
+        await this.validateInstructor(user);
     }
 
     private async checkIfUserExistById(id: number): Promise<User> {
@@ -354,6 +356,38 @@ export class UsersManagementService implements IUsersManagementService {
         if (!role) throw new BadRequestException("Role not found");
 
         return role;
+    }
+
+    private async validateStudent(user: User): Promise<void> {
+        if (this.checkIfUserIsStudent(user)) {
+            const student = await this.usersRepository.getStudentCoursesByStudentId(user.id);
+
+            if (student && student.studentCourses.length > 0) {
+                throw new BadRequestException(
+                    "Deleting student with courses is not allowed. Please remove courses first",
+                );
+            }
+        }
+    }
+
+    private async validateInstructor(user: User): Promise<void> {
+        if (this.checkIfUserIsInstructor(user)) {
+            const instructor = await this.usersRepository.getInstructorCourses(user.id);
+
+            if (instructor && instructor.courseInstructors.length > 0) {
+                throw new BadRequestException(
+                    "Deleting instructor with courses is not allowed. Please remove courses first",
+                );
+            }
+        }
+    }
+
+    private async checkIfUserIsStudent(user: User): Promise<boolean> {
+        return user.role.name !== RoleName.Student;
+    }
+
+    private async checkIfUserIsInstructor(user: User): Promise<boolean> {
+        return user.role.name !== RoleName.Instructor;
     }
 
     //#endregion

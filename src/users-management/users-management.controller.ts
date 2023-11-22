@@ -102,7 +102,6 @@ export class UsersController {
         return this.usersManagementService.updateUser(id, updateUserDto, user);
     }
 
-    // TODO: Update validation rules. Check if user has related entities.
     @Delete(":id")
     @HttpCode(HttpStatus.NO_CONTENT)
     @ApiOperation({ summary: "Delete user" })

@@ -106,9 +106,9 @@ export class CoursesService implements ICoursesService {
     }
 
     public async deleteCourse(id: number): Promise<void> {
-        const Course = await this.validateDelete(id);
+        await this.validateDelete(id);
 
-        await this.coursesRepository.deleteById(Course.id);
+        await this.coursesRepository.deleteById(id);
     }
 
     private async validateCreate(dto: CreateCourseDto): Promise<void> {
@@ -120,10 +120,12 @@ export class CoursesService implements ICoursesService {
         await this.checkifNotExistByName(dto.name, id);
     }
 
-    private async validateDelete(id: number): Promise<Course> {
-        return await this.checkifExist(id);
-        // TODO: Check if course is not used in any other entity. Check Instructors and Students.
-        // TODO: Check if course has any lessons.
+    private async validateDelete(id: number): Promise<void> {
+        await this.checkifExist(id);
+        await this.checkIfCourseHasInstructor(id);
+        await this.checkIfCourseHasGroup(id);
+        await this.checkIfCourseHasStudents(id);
+        await this.checkIfCourseHasLessons(id);
     }
 
     private async checkifNotExistByName(name: string, id?: number): Promise<void> {
@@ -140,6 +142,52 @@ export class CoursesService implements ICoursesService {
         if (!course) throw new NotFoundException(BaseErrorMessage.NOT_FOUND);
 
         return course;
+    }
+
+    private async checkIfCourseHasInstructor(id: number): Promise<Course> {
+        const course = await this.coursesRepository.getById(id);
+
+        if (course.courseInstructors.length > 0) {
+            throw new ConflictException(
+                `Course with id ${id} has instructor. Please remove instructor first.`,
+            );
+        }
+
+        return course;
+    }
+
+    private async checkIfCourseHasGroup(id: number): Promise<Course> {
+        const course = await this.coursesRepository.getById(id);
+
+        if (course.groupCourses.length > 0) {
+            throw new ConflictException(
+                `Course with id ${id} has group. Please remove or reassign group first.`,
+            );
+        }
+
+        return course;
+    }
+
+    private async checkIfCourseHasStudents(id: number): Promise<Course> {
+        const course = await this.coursesRepository.getById(id);
+
+        if (course.studentCourses.length > 0) {
+            throw new ConflictException(
+                `Course with id ${id} has student. Please remove or reassign student first.`,
+            );
+        }
+
+        return course;
+    }
+
+    private async checkIfCourseHasLessons(id: number): Promise<void> {
+        const lessons = await this.coursesRepository.getLessonsNumberByCourseId(id);
+
+        if (lessons > 0) {
+            throw new ConflictException(
+                `Course with id ${id} has lessons. Please remove or reassign lessons first.`,
+            );
+        }
     }
 }
 

@@ -72,7 +72,7 @@ export class HomeworksController {
     })
     @CommonApiResponseConflict()
     @ApiConsumes("multipart/form-data")
-    // TODO: Move outsice of controller
+        // TODO: Move outside of controller
     @ApiBody({
         description: "Homework creation data",
         schema: {

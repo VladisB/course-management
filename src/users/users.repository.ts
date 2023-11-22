@@ -146,7 +146,7 @@ export class UsersRepository extends BaseRepository implements IUsersRepository 
     }
 
     public async updateRefreshToken(id: number, refreshToken: string | null): Promise<void> {
-        // // NOTE: update() does not trigger the @beforeUpdate() hook
+        // NOTE: update() does not trigger the @beforeUpdate() hook
         try {
             await this.entityRepository.update({ id }, { refreshToken });
         } catch (err) {
@@ -154,6 +154,28 @@ export class UsersRepository extends BaseRepository implements IUsersRepository 
 
             throw new Error(BaseErrorMessage.DB_ERROR);
         }
+    }
+
+    public async getStudentCoursesByStudentId(studentId: number): Promise<User> {
+        return await this.entityRepository.findOne({
+            where: {
+                id: studentId,
+            },
+            relations: {
+                studentCourses: true,
+            },
+        });
+    }
+
+    public async getInstructorCourses(instructorId: number): Promise<User> {
+        return await this.entityRepository.findOne({
+            where: {
+                id: instructorId,
+            },
+            relations: {
+                courseInstructors: true,
+            },
+        });
     }
 }
 
@@ -171,4 +193,6 @@ export abstract class IUsersRepository extends IBaseRepository {
     abstract trxUpdate(queryRunner: QueryRunner, entity: User): Promise<User>;
     abstract update(entity: User): Promise<User>;
     abstract updateRefreshToken(id: number, refreshToken: string | null): Promise<void>;
+    abstract getStudentCoursesByStudentId(studentId: number): Promise<User>;
+    abstract getInstructorCourses(instructorId: number): Promise<User>;
 }

@@ -2,7 +2,7 @@ import { Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { BaseRepository, IBaseRepository } from "@common/db/base.repository";
 import { BaseErrorMessage } from "@common/enum";
-import { In, QueryRunner, Repository, SelectQueryBuilder } from "typeorm";
+import { In, QueryRunner, Repository, SelectQueryBuilder, createQueryBuilder } from "typeorm";
 import { Course } from "./entities/course.entity";
 
 @Injectable()
@@ -50,8 +50,21 @@ export class CoursesRepository extends BaseRepository implements ICoursesReposit
             where: {
                 id,
             },
-            relations: ["courseInstructors", "courseInstructors.instructor"],
+            relations: [
+                "courseInstructors",
+                "courseInstructors.instructor",
+                "groupCourses",
+                "studentCourses",
+            ],
         });
+    }
+
+    public async getLessonsNumberByCourseId(courseId: number): Promise<number> {
+        const result = await this.courseEntityRepository.query(
+            `SELECT COUNT(*) FROM lesson WHERE course_id = ${courseId}`,
+        );
+
+        return Number(result[0].count ?? 0);
     }
 
     public async getByIdList(idList: number[]): Promise<Course[]> {
@@ -139,4 +152,5 @@ export abstract class ICoursesRepository extends IBaseRepository {
     abstract trxUpdate(queryRunner: QueryRunner, entity: Course): Promise<Course>;
     abstract update(entity: Course): Promise<Course>;
     abstract isAssignedToGroup(id: number): Promise<boolean>;
+    abstract getLessonsNumberByCourseId(courseId: number): Promise<number>;
 }

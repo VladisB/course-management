@@ -97,6 +97,19 @@ export class GroupsRepository extends BaseRepository implements IGroupsRepositor
 
         return;
     }
+
+    public async getStudentNumberByGroupId(groupId: number): Promise<number> {
+        return await this.entityRepository
+            .findOne({
+                where: {
+                    id: groupId,
+                },
+                relations: {
+                    users: true,
+                },
+            })
+            .then((res) => res.users.length);
+    }
 }
 
 export abstract class IGroupsRepository extends IBaseRepository {
@@ -107,4 +120,5 @@ export abstract class IGroupsRepository extends IBaseRepository {
     abstract getByName(name: string): Promise<Group>;
     abstract update(entity: Group): Promise<Group>;
     abstract trxUpdate(queryRunner: QueryRunner, entity: Group): Promise<Group>;
+    abstract getStudentNumberByGroupId(groupId: number): Promise<number>;
 }
