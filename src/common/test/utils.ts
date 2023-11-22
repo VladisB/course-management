@@ -208,12 +208,6 @@ const initE2ETestData = async (
             groupId: groupResult.body.id,
         });
     checkStatusCode(updatedStudent, 200);
-    console.log("result", {
-        adminToken: accessTokenAdmin,
-        instructorToken: accessTokenInstructor,
-        studentToken: accessTokenStudent,
-        course: course.body,
-    });
     return {
         adminToken: accessTokenAdmin,
         instructorToken: accessTokenInstructor,
