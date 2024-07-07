@@ -1,0 +1,118 @@
+# buildspec file version
+version: 0.2
+
+env:
+  variables:
+    # App
+    APP_PORT: "8080"
+    APP_ACCESS_TOKEN_EXPIRES_IN: "1h"
+    APP_REFRESH_TOKEN_EXPIRES_IN: "1d"
+    APP_UPLOAD_RATE_LIMIT_TTL: "60"
+    APP_UPLOAD_RATE_LIMIT: "5"
+    APP_UPLOAD_FILE_SIZE_LIMIT_MB: "2"
+
+    NODE_ENV: "testing"
+
+    # DB
+    DB_TYPE: "postgres"
+    PG_PORT: "5432"
+
+    # S3 bucket
+    AWS_S3_URL_EXPIRES_IN_MIN: "15"
+
+  secrets-manager:
+    # Private environment variables:
+    # App
+    APP_JWT: "course-management-api/test:APP_JWT"
+    # Postgres
+
+    PG_HOST_TEST: "course-management-api/test:PG_HOST"
+    PG_PASSWORD_TEST: "course-management-api/test:PG_PASSWORD"
+    PG_USER_TEST: "course-management-api/test:PG_USER"
+    PG_DATABASE_TEST: "course-management-api/test:PG_DATABASE"
+
+    PG_HOST: "course-management-api/prod:PG_HOST"
+    PG_PASSWORD: "course-management-api/prod:PG_PASSWORD"
+    PG_USER: "course-management-api/prod:PG_USER"
+    PG_DATABASE: "course-management-api/prod:PG_DATABASE"
+    
+    AWS_ACCESS_KEY_ID: "course-management-api/test:AWS_ACCESS_KEY_ID"
+    AWS_SECRET_ACCESS_KEY: "course-management-api/test:AWS_SECRET_ACCESS_KEY"
+    AWS_S3_REGION: "course-management-api/test:AWS_S3_REGION"
+    AWS_APP_BUCKET_NAME: "course-management-api/test:AWS_APP_BUCKET_NAME"
+    REPO_DOMAIN: "course-management-api/test:ECR_REPO_DOMAIN"
+    REPO_URI: "course-management-api/test:ECR_REPO_URI"
+
+
+phases:
+  install:
+    commands:
+      - echo Install phase started.
+
+      - echo Logging in to Amazon ECR...
+      - aws --version
+      - echo "default region:" $AWS_DEFAULT_REGION
+      - aws ecr get-login-password --region $AWS_DEFAULT_REGION | docker login --username AWS --password-stdin $REPO_DOMAIN
+
+      - echo Install phase completed.
+  pre_build:
+    commands:
+      - echo Pulling Docker image...
+      - COMMIT_HASH=$(echo $CODEBUILD_RESOLVED_SOURCE_VERSION | cut -c 1-7)
+      - IMAGE_TAG_TESTING="${COMMIT_HASH}-testing"
+
+      - docker pull $REPO_URI:$IMAGE_TAG_TESTING
+  build:
+    commands:
+      - echo Running tests...
+      - docker images
+      - docker ps
+
+      # Save environment variables to a file
+      - echo APP_PORT=$APP_PORT >> .testing.env
+      - echo APP_ACCESS_TOKEN_EXPIRES_IN=$APP_ACCESS_TOKEN_EXPIRES_IN >> .testing.env
+      - echo APP_REFRESH_TOKEN_EXPIRES_IN=$APP_REFRESH_TOKEN_EXPIRES_IN >> .testing.env
+      - echo APP_UPLOAD_RATE_LIMIT_TTL=$APP_UPLOAD_RATE_LIMIT_TTL >> .testing.env
+      - echo APP_UPLOAD_RATE_LIMIT=$APP_UPLOAD_RATE_LIMIT >> .testing.env
+      - echo APP_UPLOAD_FILE_SIZE_LIMIT_MB=$APP_UPLOAD_FILE_SIZE_LIMIT_MB >> .testing.env
+      - echo NODE_ENV=$NODE_ENV >> .testing.env
+      - echo DB_TYPE=$DB_TYPE >> .testing.env
+      - echo PG_HOST=$PG_HOST_TEST >> .testing.env
+      - echo PG_PORT=$PG_PORT >> .testing.env
+      - echo PG_USER=$PG_USER_TEST >> .testing.env
+      - echo PG_PASSWORD=$PG_PASSWORD_TEST >> .testing.env
+      - echo AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID >> .testing.env
+      - echo APP_JWT=$APP_JWT >> .testing.env
+      - echo AWS_S3_REGION=$AWS_S3_REGION >> .testing.env
+      - echo AWS_APP_BUCKET_NAME=$AWS_APP_BUCKET_NAME >> .testing.env
+
+      # Create a test database
+      - echo Running creation of test database...
+      - docker run --env-file .testing.env $REPO_URI:$IMAGE_TAG_TESTING -c "PGPASSWORD=$PG_PASSWORD_TEST psql -h $PG_HOST_TEST -p $PG_PORT -U postgres -tc \"SELECT 1 FROM pg_database WHERE datname = '$PG_DATABASE_TEST'\" | grep -q 1 || PGPASSWORD=$PG_PASSWORD_TEST psql -h $PG_HOST_TEST -p $PG_PORT -U postgres -c \"CREATE DATABASE \\\"$PG_DATABASE_TEST\\\";\""
+      - echo Testing DB succesfully created.
+
+      - echo Running tests...
+      - docker run --env-file .testing.env $REPO_URI:$IMAGE_TAG_TESTING
+      - docker run --env-file .testing.env $REPO_URI:$IMAGE_TAG_TESTING -c "npm run test:e2e"
+      - echo Testing completed.
+
+      # Remove test database
+      - echo Running removal of test database...
+      - docker run --env-file .testing.env $REPO_URI:$IMAGE_TAG_TESTING -c "PGPASSWORD=$PG_PASSWORD_TEST psql -h $PG_HOST_TEST -p $PG_PORT -U postgres -c \"DROP DATABASE \\\"$PG_DATABASE_TEST\\\";\""
+
+      # Check initial db
+      - docker run --env-file .testing.env $REPO_URI:$IMAGE_TAG_TESTING -c "PGPASSWORD=$PG_PASSWORD psql -h $PG_HOST -p $PG_PORT -U postgres -tc \"SELECT 1 FROM pg_database WHERE datname = '$PG_DATABASE'\" | grep -q 1 || PGPASSWORD=$PG_PASSWORD psql -h $PG_HOST -p $PG_PORT -U postgres -c \"CREATE DATABASE \\\"$PG_DATABASE\\\";\""
+
+artifacts:
+  files:
+    - 'test/reports/junit-report.xml'
+  discard-paths: yes
+  base-directory: test/reports
+
+# TODO: Update source
+reports:
+  jest_reports:
+    files:
+      - junit-report.xml
+    file-format: JUNITXML
+    base-directory: test/reports

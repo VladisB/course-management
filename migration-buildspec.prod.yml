@@ -1,0 +1,86 @@
+# buildspec file version
+version: 0.2
+
+env:
+  variables:
+    # App
+    APP_PORT: "8080"
+    APP_ACCESS_TOKEN_EXPIRES_IN: "1h"
+    APP_REFRESH_TOKEN_EXPIRES_IN: "1d"
+    APP_UPLOAD_RATE_LIMIT_TTL: "60"
+    APP_UPLOAD_RATE_LIMIT: "5"
+    APP_UPLOAD_FILE_SIZE_LIMIT_MB: "2"
+
+    NODE_ENV: "production"
+
+    # DB
+    DB_TYPE: "postgres"
+    PG_PORT: "5432"
+
+    # S3 bucket
+    AWS_S3_URL_EXPIRES_IN_MIN: "15"
+
+  secrets-manager:
+    # Private environment variables:
+    # App
+    APP_JWT: "course-management-api/prod:APP_JWT"
+    # Postgres
+
+    PG_HOST: "course-management-api/prod:PG_HOST"
+    PG_PASSWORD: "course-management-api/prod:PG_PASSWORD"
+    PG_USER: "course-management-api/prod:PG_USER"
+    PG_DATABASE: "course-management-api/prod:PG_DATABASE"
+    AWS_ACCESS_KEY_ID: "course-management-api/prod:AWS_ACCESS_KEY_ID"
+    AWS_SECRET_ACCESS_KEY: "course-management-api/prod:AWS_SECRET_ACCESS_KEY"
+    AWS_S3_REGION: "course-management-api/prod:AWS_S3_REGION"
+    AWS_APP_BUCKET_NAME: "course-management-api/prod:AWS_APP_BUCKET_NAME"
+    REPO_DOMAIN: "course-management-api/prod:ECR_REPO_DOMAIN"
+    REPO_URI: "course-management-api/prod:ECR_REPO_URI"
+
+
+phases:
+  install:
+    commands:
+      - echo Install phase started.
+
+      - echo Logging in to Amazon ECR...
+      - aws --version
+      - echo "default region:" $AWS_DEFAULT_REGION
+      - aws ecr get-login-password --region $AWS_DEFAULT_REGION | docker login --username AWS --password-stdin $REPO_DOMAIN
+
+      - echo Install phase completed.
+  pre_build:
+    commands:
+      - echo Pulling Docker image...
+      - COMMIT_HASH=$(echo $CODEBUILD_RESOLVED_SOURCE_VERSION | cut -c 1-7)
+      # - IMAGE_TAG_PROD="${COMMIT_HASH}-prod"
+      - IMAGE_TAG_PROD="latest"
+
+      - docker pull $REPO_URI:$IMAGE_TAG_PROD
+  build:
+    commands:
+      - echo Build phase started.
+
+      # Save environment variables to a file
+      - echo APP_PORT=$APP_PORT >> .prod.env
+      - echo APP_ACCESS_TOKEN_EXPIRES_IN=$APP_ACCESS_TOKEN_EXPIRES_IN >> .prod.env
+      - echo APP_REFRESH_TOKEN_EXPIRES_IN=$APP_REFRESH_TOKEN_EXPIRES_IN >> .prod.env
+      - echo APP_UPLOAD_RATE_LIMIT_TTL=$APP_UPLOAD_RATE_LIMIT_TTL >> .prod.env
+      - echo APP_UPLOAD_RATE_LIMIT=$APP_UPLOAD_RATE_LIMIT >> .prod.env
+      - echo APP_UPLOAD_FILE_SIZE_LIMIT_MB=$APP_UPLOAD_FILE_SIZE_LIMIT_MB >> .prod.env
+      - echo NODE_ENV=$NODE_ENV >> .prod.env
+      - echo DB_TYPE=$DB_TYPE >> .prod.env
+      - echo PG_HOST=$PG_HOST >> .prod.env
+      - echo PG_DATABASE=$PG_DATABASE >> .prod.env
+      - echo PG_PORT=$PG_PORT >> .prod.env
+      - echo PG_USER=$PG_USER >> .prod.env
+      - echo PG_PASSWORD=$PG_PASSWORD >> .prod.env
+      - echo AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID >> .prod.env
+      - echo APP_JWT=$APP_JWT >> .prod.env
+      - echo AWS_S3_REGION=$AWS_S3_REGION >> .prod.env
+      - echo AWS_APP_BUCKET_NAME=$AWS_APP_BUCKET_NAME >> .prod.env
+
+      - echo Running migrations...
+      - docker run --env-file .prod.env $REPO_URI:$IMAGE_TAG_PROD /bin/sh -c "npm run migration:run"
+      - echo Migrations completed.
+

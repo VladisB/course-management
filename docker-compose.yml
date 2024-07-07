@@ -1,0 +1,39 @@
+version: "3.0"
+
+services:
+    main:
+        container_name: main
+        build:
+            dockerfile: Dockerfile
+            context: .
+            target: development
+        env_file:
+            - .development.env
+        volumes:
+            - .:/app
+            - /app/node_modules
+        ports:
+            - 3000:3000
+            - 9229:9229
+        # Run in debug mode
+        command: npm run start:debug
+        depends_on:
+            - postgres
+        restart: always
+    postgres:
+        container_name: postgres
+        image: postgres:12
+        env_file:
+            - .development.env
+        environment:
+            POSTGRES_DB: "course-management"
+            POSTGRES_HOST_AUTH_METHOD: "trust"
+            PG_DATA: /var/lib/postgresql/data
+        ports:
+            - 5432:5432
+        volumes:
+            - pgdata:/var/lib/postgresql/data
+        restart: always
+
+volumes:
+    pgdata:
