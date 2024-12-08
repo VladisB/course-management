@@ -2,7 +2,7 @@
 ## DEVELOPMENT STAGE ##
 ######################
 # Build the development image
-FROM node:18.17.1 AS development
+FROM node:20.18.0 AS development
 
 WORKDIR /app
 
@@ -19,7 +19,7 @@ RUN npm run build
 ## TESTING STAGE ##
 ######################
 # Build the testing image
-FROM node:18.17.1 AS testing
+FROM node:20.18.0 AS testing
 
 # Set node env to production
 ARG NODE_ENV=testing
@@ -45,7 +45,7 @@ CMD [ "npm test && npm run migration:run" ]
 ## PRODUCTION STAGE ##
 ######################
 # Build the production image
-FROM node:18.17.1 AS production
+FROM node:20.18.0 AS production
 
 # Set node env to production
 ARG NODE_ENV=production
